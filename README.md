@@ -5,9 +5,15 @@ full BRSET dataset for 5-class ICDR diabetic retinopathy severity grading
 (Grades 0-4), assigned by Nagur Shareef Shaik as a companion project to the
 [mbrset-retfound](https://github.com/Sahith59/mbrset-retfound) RETFound work.
 
-This is an independent, comparable experiment on the same task as
-Nakayama et al.'s original BRSET paper (PLOS Digital Health, 2024) rather than
-an exact replication — see the recipe comparison table below.
+This is an independent experiment on the same dataset as Nakayama et al.'s
+original BRSET paper (PLOS Digital Health, 2024) — **not a replication of
+their task**. The paper's ConvNeXt V2 results cover binary DR (Normal vs. DR)
+and a coarser 3-class grouping (Normal / Non-Proliferative / Proliferative),
+reporting only macro AUC/F1 for each, with no per-grade breakdown. We instead
+trained on the full 5-class ICDR scale (Grades 0-4) with per-class metrics,
+which the paper never reports. See the table below for exactly where our
+setup matches or diverges from theirs; there is no paper number to compare
+our 5-class results against directly.
 
 ## What's in this repo (and what isn't)
 
@@ -39,14 +45,16 @@ no material effect on class balance.
 
 | Aspect | Paper (Nakayama et al.) | This repo |
 |---|---|---|
-| Task / label | DR_ICDR, 0-4 | Same |
-| Model | ConvNeXt V2 | Same family (Base, ImageNet-22k->1k pretrained) |
+| Task / label | Binary DR, and a separate 3-class (Normal/Non-Proliferative/Proliferative) task | Full 5-class ICDR (0-4), single task — **not the same task, no paper baseline exists for this** |
+| Per-class metrics | Not reported (macro AUC/F1 only) | Full per-grade precision/recall/F1 |
+| Image inclusion | All 16,266 images (no quality filter mentioned) | Quality-passing only (14,280), minus 7 corrupted = 14,273 |
+| Model | ConvNeXt V2 (variant unspecified) | Base (ImageNet-22k->1k pretrained) |
 | Input pipeline | Resize 256 -> crop 224 | Same |
 | Normalization | Raw 0-1 | ImageNet mean/std (required for the pretrained checkpoint) |
 | Optimizer | Adam, lr=1e-5 | AdamW, lr=1e-4 |
 | Loss | Weighted cross-entropy | Unweighted (first baseline run) |
-| Epochs | 50, early-stopping patience 7 | 100, best-checkpoint selection |
-| Split | ~70/30 (20% of train as val) | Patient-level 70/15/15 (matches the mBRSET/RETFound methodology) |
+| Epochs | 50, early-stopping patience 7 | 100, best-checkpoint selection (best epoch stayed at 5 for the full 100) |
+| Split | 70% train (20% of that as val) / 30% test | Patient-level 70/15/15 (matches the mBRSET/RETFound methodology) |
 | Metrics | AUC-ROC, macro F1 | Superset: accuracy, hamming loss, macro F1/AUC/precision/recall/jaccard/avg-precision, kappa |
 
 ## Data
