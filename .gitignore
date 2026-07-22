@@ -1,0 +1,20 @@
+# Patient-image symlinks and any locally materialized data (full BRSET is a
+# credentialed PhysioNet dataset; only aggregate results are shared here,
+# never the underlying images or per-patient label files).
+data/
+
+# Trained model weights (large binaries; also not appropriate to redistribute
+# since they were trained on credentialed data).
+results/**/*.pth
+
+# Per-patient derived label/split manifests (patient_id + diagnosis grade).
+results/splits*.csv
+results/corrupted_files.txt
+
+# Raw SLURM stdout/stderr job logs (operational noise, not results).
+logs/
+
+# Misc
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
