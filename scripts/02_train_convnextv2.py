@@ -33,6 +33,7 @@ import numpy as np
 import timm
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from sklearn.metrics import (
     accuracy_score, average_precision_score, cohen_kappa_score,
     confusion_matrix, f1_score, hamming_loss, jaccard_score,
@@ -61,6 +62,12 @@ def get_args():
     p.add_argument("--num_workers", default=8, type=int)
     p.add_argument("--ckpt_freq", default=10, type=int)
     p.add_argument("--class_weighted_loss", action="store_true", default=False)
+    p.add_argument("--use_weighted_sampler", action="store_true", default=False,
+                    help="Oversample rare classes at the data-loading level (inverse-frequency "
+                         "WeightedRandomSampler) instead of only reweighting the loss.")
+    p.add_argument("--focal_gamma", default=0.0, type=float,
+                    help="If >0, use focal loss with this focusing exponent instead of plain "
+                         "cross-entropy. Combines with --class_weighted_loss as the alpha term.")
     p.add_argument("--task", default="convnextv2_base_BRSET_icdr5_finetune")
     p.add_argument("--output_dir", default="/home/users/sthummala2/brset-convnextv2/results")
     p.add_argument("--seed", default=0, type=int)
@@ -84,6 +91,26 @@ def build_transforms(args):
         transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
     ])
     return train_tf, eval_tf
+
+
+class FocalLoss(nn.Module):
+    """Focal loss (Lin et al., 2017): down-weights easy/well-classified examples and
+    concentrates gradient signal on whatever the model is currently getting wrong,
+    rather than a static per-class weight. Optionally combined with class weights
+    (alpha) on top of the focusing term."""
+
+    def __init__(self, gamma=2.0, weight=None, label_smoothing=0.0):
+        super().__init__()
+        self.gamma = gamma
+        self.weight = weight
+        self.label_smoothing = label_smoothing
+
+    def forward(self, logits, targets):
+        ce = F.cross_entropy(logits, targets, weight=self.weight,
+                              label_smoothing=self.label_smoothing, reduction="none")
+        pt = torch.exp(-ce)
+        focal = ((1 - pt) ** self.gamma) * ce
+        return focal.mean()
 
 
 def compute_metrics(y_true, y_pred, y_prob, num_classes):
@@ -195,8 +222,19 @@ def main():
     class_names = dataset_train.classes
     print(f"class_to_idx: {dataset_train.class_to_idx}", flush=True)
 
-    loader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True,
-                               num_workers=args.num_workers, pin_memory=True, drop_last=True)
+    if args.use_weighted_sampler:
+        counts = np.bincount([label for _, label in dataset_train.samples], minlength=args.nb_classes)
+        inv_freq = 1.0 / np.maximum(counts, 1)
+        sample_weights = [inv_freq[label] for _, label in dataset_train.samples]
+        sampler = torch.utils.data.WeightedRandomSampler(
+            sample_weights, num_samples=len(sample_weights), replacement=True)
+        print(f"use_weighted_sampler: train counts={counts.tolist()}, "
+              f"per-class inverse-freq weight={inv_freq.tolist()}", flush=True)
+        loader_train = DataLoader(dataset_train, batch_size=args.batch_size, sampler=sampler,
+                                   num_workers=args.num_workers, pin_memory=True, drop_last=True)
+    else:
+        loader_train = DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True,
+                                   num_workers=args.num_workers, pin_memory=True, drop_last=True)
     loader_val = DataLoader(dataset_val, batch_size=args.batch_size, shuffle=False,
                              num_workers=args.num_workers, pin_memory=True)
     loader_test = DataLoader(dataset_test, batch_size=args.batch_size, shuffle=False,
@@ -208,14 +246,18 @@ def main():
     n_params = sum(p.numel() for p in model.parameters())
     print(f"n_parameters: {n_params}", flush=True)
 
+    class_weights = None
     if args.class_weighted_loss:
         counts = np.bincount([label for _, label in dataset_train.samples], minlength=args.nb_classes)
-        weights = len(dataset_train.samples) / (args.nb_classes * np.maximum(counts, 1))
-        weights = torch.tensor(weights, dtype=torch.float32, device=device)
-        print(f"class_weighted_loss: train counts={counts.tolist()}, weights={weights.tolist()}", flush=True)
-        criterion = nn.CrossEntropyLoss(weight=weights, label_smoothing=args.label_smoothing)
+        class_weights = len(dataset_train.samples) / (args.nb_classes * np.maximum(counts, 1))
+        class_weights = torch.tensor(class_weights, dtype=torch.float32, device=device)
+        print(f"class_weighted_loss: train counts={counts.tolist()}, weights={class_weights.tolist()}", flush=True)
+
+    if args.focal_gamma > 0:
+        print(f"using focal loss, gamma={args.focal_gamma}, alpha_weighted={args.class_weighted_loss}", flush=True)
+        criterion = FocalLoss(gamma=args.focal_gamma, weight=class_weights, label_smoothing=args.label_smoothing)
     else:
-        criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
+        criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=args.label_smoothing)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     warmup = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=0.1, total_iters=args.warmup_epochs)
