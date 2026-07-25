@@ -9,7 +9,7 @@ results/**/*.pth
 
 # Per-patient derived label/split manifests (patient_id + diagnosis grade).
 results/splits*.csv
-results/corrupted_files.txt
+results/corrupted_files*.txt
 
 # Raw SLURM stdout/stderr job logs (operational noise, not results).
 logs/
