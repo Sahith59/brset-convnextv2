@@ -11,6 +11,11 @@ results/**/*.pth
 results/splits*.csv
 results/corrupted_files*.txt
 
+# Raw per-image ground-truth labels + model outputs (even without patient IDs
+# attached, these are still per-image diagnostic ground truth derived from
+# the credentialed datasets).
+results/**/test_predictions.npz
+
 # Raw SLURM stdout/stderr job logs (operational noise, not results).
 logs/
 
