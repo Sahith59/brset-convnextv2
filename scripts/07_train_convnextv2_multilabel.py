@@ -75,6 +75,11 @@ def get_args():
     p.add_argument("--num_workers", default=8, type=int)
     p.add_argument("--ckpt_freq", default=5, type=int)
     p.add_argument("--focal_gamma", default=2.0, type=float)
+    p.add_argument("--focal_alpha_weighted", action="store_true", default=False,
+                    help="Add per-label pos_weight (alpha) to the focal loss, computed from "
+                         "training label frequency. Combined with a lower --focal_gamma, this "
+                         "trades some of the pure focal margin-sharpening for better-calibrated "
+                         "probabilities (targets the AUC-high/F1-lower pattern seen without it).")
     p.add_argument("--task", default="convnextv2_large_BRSET_multilabel_512")
     p.add_argument("--output_dir", default="/home/users/sthummala2/brset-convnextv2/results")
     p.add_argument("--seed", default=0, type=int)
@@ -101,14 +106,20 @@ def build_transforms(args):
 
 
 class MultiLabelFocalLoss(nn.Module):
-    """Per-label binary focal loss, averaged across labels then across the batch."""
+    """Per-label alpha-weighted binary focal loss (Lin et al., 2017 full formulation:
+    focusing term gamma AND a per-class alpha/pos_weight term), averaged across labels
+    then across the batch. The earlier version of this loss only had the focusing term;
+    alpha was missing entirely, which combined with a high gamma (2.0) sharpened decision
+    margins at the cost of probability calibration (high AUC, comparatively lower F1)."""
 
-    def __init__(self, gamma=2.0):
+    def __init__(self, gamma=2.0, pos_weight=None):
         super().__init__()
         self.gamma = gamma
+        self.pos_weight = pos_weight
 
     def forward(self, logits, targets):
-        bce = nn.functional.binary_cross_entropy_with_logits(logits, targets, reduction="none")
+        bce = nn.functional.binary_cross_entropy_with_logits(
+            logits, targets, pos_weight=self.pos_weight, reduction="none")
         pt = torch.exp(-bce)
         focal = ((1 - pt) ** self.gamma) * bce
         return focal.mean()
@@ -246,7 +257,16 @@ def main():
     n_params = sum(p.numel() for p in model.parameters())
     print(f"n_parameters: {n_params}", flush=True)
 
-    criterion = MultiLabelFocalLoss(gamma=args.focal_gamma)
+    pos_weight = None
+    if args.focal_alpha_weighted:
+        pos_weight_vals = []
+        for col in LABEL_COLS:
+            n_pos = counts[col]
+            n_neg = len(dataset_train) - n_pos
+            pos_weight_vals.append(n_neg / max(n_pos, 1))
+        pos_weight = torch.tensor(pos_weight_vals, dtype=torch.float32, device=device)
+        print(f"focal_alpha_weighted: pos_weight={dict(zip(LABEL_COLS, pos_weight_vals))}", flush=True)
+    criterion = MultiLabelFocalLoss(gamma=args.focal_gamma, pos_weight=pos_weight)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     warmup = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=0.1, total_iters=args.warmup_epochs)
