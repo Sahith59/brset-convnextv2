@@ -72,6 +72,14 @@ def get_args():
     p.add_argument("--warmup_epochs", default=3, type=int)
     p.add_argument("--lr", default=5e-5, type=float)
     p.add_argument("--weight_decay", default=0.05, type=float)
+    p.add_argument("--drop_path", default=0.0, type=float,
+                    help="Stochastic depth rate. Was never actually set before (defaulted to "
+                         "~0), a real gap given the confirmed train-vs-test overfitting.")
+    p.add_argument("--mixup_alpha", default=0.0, type=float,
+                    help="If >0, multi-label mixup: blend pairs of images and their multi-hot "
+                         "label vectors with lambda~Beta(alpha,alpha) each batch.")
+    p.add_argument("--label_smoothing", default=0.0, type=float,
+                    help="Soften hard 0/1 BCE targets: y -> y*(1-eps) + 0.5*eps.")
     p.add_argument("--num_workers", default=8, type=int)
     p.add_argument("--ckpt_freq", default=5, type=int)
     p.add_argument("--focal_gamma", default=2.0, type=float)
@@ -197,7 +205,20 @@ def compute_per_label_metrics(y_true, y_prob, thresholds):
     return results, macro_auc, macro_f1
 
 
-def train_one_epoch(model, loader, optimizer, scheduler, scaler, criterion, device, epoch, accum_iter, print_freq=20):
+def mixup_batch(images, targets, alpha):
+    """Multi-label mixup: blend a batch with a shuffled copy of itself, images
+    and their multi-hot label vectors both linearly interpolated by the same
+    lambda. Works directly with BCE-family losses since they accept soft/
+    continuous targets in [0,1], no special-casing needed downstream."""
+    lam = np.random.beta(alpha, alpha)
+    perm = torch.randperm(images.size(0), device=images.device)
+    mixed_images = lam * images + (1 - lam) * images[perm]
+    mixed_targets = lam * targets + (1 - lam) * targets[perm]
+    return mixed_images, mixed_targets
+
+
+def train_one_epoch(model, loader, optimizer, scheduler, scaler, criterion, device, epoch, accum_iter,
+                     mixup_alpha=0.0, label_smoothing=0.0, print_freq=20):
     model.train()
     running_loss, n_batches = 0.0, 0
     t0 = time.time()
@@ -205,6 +226,10 @@ def train_one_epoch(model, loader, optimizer, scheduler, scaler, criterion, devi
     for i, (images, targets) in enumerate(loader):
         images = images.to(device, non_blocking=True)
         targets = targets.to(device, non_blocking=True)
+        if mixup_alpha > 0:
+            images, targets = mixup_batch(images, targets, mixup_alpha)
+        if label_smoothing > 0:
+            targets = targets * (1 - label_smoothing) + 0.5 * label_smoothing
         with torch.autocast(device_type="cuda", dtype=torch.float16):
             logits = model(images)
             loss = criterion(logits, targets) / accum_iter
@@ -252,7 +277,8 @@ def main():
     loader_test = DataLoader(dataset_test, batch_size=args.batch_size, shuffle=False,
                               num_workers=args.num_workers, pin_memory=True)
 
-    model = timm.create_model(args.model, pretrained=True, num_classes=args.nb_classes)
+    model = timm.create_model(args.model, pretrained=True, num_classes=args.nb_classes,
+                               drop_path_rate=args.drop_path)
     model.to(device)
     n_params = sum(p.numel() for p in model.parameters())
     print(f"n_parameters: {n_params}", flush=True)
@@ -278,7 +304,8 @@ def main():
     start_time = time.time()
 
     for epoch in range(args.epochs):
-        train_loss = train_one_epoch(model, loader_train, optimizer, scheduler, scaler, criterion, device, epoch, args.accum_iter)
+        train_loss = train_one_epoch(model, loader_train, optimizer, scheduler, scaler, criterion, device, epoch,
+                                      args.accum_iter, mixup_alpha=args.mixup_alpha, label_smoothing=args.label_smoothing)
         y_true, y_prob = run_inference(model, loader_val, device, tta=False)
         thresholds = tune_thresholds(y_true, y_prob)
         per_label, macro_auc, macro_f1 = compute_per_label_metrics(y_true, y_prob, thresholds)
