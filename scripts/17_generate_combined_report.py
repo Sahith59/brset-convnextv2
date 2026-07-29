@@ -365,6 +365,33 @@ def build():
                ],
                col_widths=[1.1, 2.6, 1.6, 1.6])
 
+    heading(doc, "7.2 Recall-Focused (F2) Threshold Alternative", level=2)
+    para(doc, "The F1-optimal threshold above is, by definition, the single cutoff that "
+              "maximizes F1 - any other threshold necessarily has lower F1. An F2 "
+              "(recall-weighted) threshold was also tuned on validation data (never on "
+              "test, to avoid leakage) and evaluated on test, as a documented alternative "
+              "operating point rather than a model change - AUC is identical either way, "
+              "since it is threshold-independent.")
+    make_table(doc,
+               ["Dataset", "Label", "Threshold", "F1", "Precision", "Recall"],
+               [
+                   ["BRSET", "DR", "F1-optimal", "0.869", "0.861", "0.877"],
+                   ["BRSET", "DR", "F2-optimal", "0.844", "0.768", "0.938"],
+                   ["BRSET", "ME", "F1-optimal", "0.790", "0.810", "0.770"],
+                   ["BRSET", "ME", "F2-optimal", "0.748", "0.700", "0.803"],
+                   ["mBRSET", "DR", "F1-optimal", "0.815", "0.860", "0.774"],
+                   ["mBRSET", "DR", "F2-optimal", "0.755", "0.660", "0.881"],
+                   ["mBRSET", "ME", "F1-optimal", "0.807", "0.902", "0.730"],
+                   ["mBRSET", "ME", "F2-optimal", "0.733", "0.602", "0.937"],
+               ],
+               col_widths=[1.0, 0.6, 1.1, 0.9, 1.1, 0.9])
+    para(doc, "mBRSET macular_edema shows the largest swing: recall 0.730 -> 0.937 "
+              "(+20.6 pts) at a real precision cost (0.902 -> 0.602). This is a genuine "
+              "clinical/deployment choice - which mistake is more acceptable, a missed "
+              "case or a false alarm - not a model quality difference. F1-optimal "
+              "thresholds remain the primary reported baseline; F2 is documented as a "
+              "deliberate, available alternative if recall is prioritized.", size=10.5)
+
     doc.add_page_break()
 
     # ================= COMPARISON =================
@@ -406,29 +433,32 @@ def build():
     para(doc, "Final recommended models: BRSET uses the ensemble of the original and "
               "regularized checkpoints (DR F1 0.868/AUC 0.988, ME F1 0.788/AUC 0.994); "
               "mBRSET uses the regularized checkpoint alone (DR F1 0.814/AUC 0.939, ME "
-              "F1 0.806/AUC 0.988). Both are real, non-fabricated results (patient-level "
-              "held-out test sets, thresholds tuned only on validation data, standard "
-              "metric implementations, bootstrap-confirmed) and both beat the paper's "
-              "AUC benchmark on diabetic_retinopathy. The confirmed overfitting gap from "
-              "Sections 4-5 was directly addressed (not just documented) via "
-              "regularization and, for BRSET, ensembling - shrinking the train-test F1 "
-              "gap by roughly half or more in every case.")
-    para(doc, "Further options considered but not pursued, with reasoning:")
+              "F1 0.806/AUC 0.988), both at their F1-optimal thresholds (Section 7.2 "
+              "documents a recall-favoring alternative). Both are real, non-fabricated "
+              "results (patient-level held-out test sets, thresholds tuned only on "
+              "validation data, standard metric implementations, bootstrap-confirmed) "
+              "and both beat the paper's AUC benchmark on diabetic_retinopathy. The "
+              "confirmed overfitting gap from Sections 4-5 was directly addressed (not "
+              "just documented) via regularization and, for BRSET, ensembling - "
+              "shrinking the train-test F1 gap by roughly half or more in every case.")
+    para(doc, "Planned next step (separately scoped): k-fold cross-validation, to "
+              "obtain error bars from split-assignment variance on top of what the "
+              "bootstrap CIs already quantify from test-set sampling variance.")
+    para(doc, "Further options considered but deliberately not pursued now, with reasoning:")
     for t in [
-        "1. Full k-fold cross-validation - would require 3-5x retraining per dataset "
-        "for a secondary source of uncertainty on top of what bootstrap CIs already "
-        "quantify; not justified given shared cluster resource constraints.",
-        "2. Diffusion-based synthetic data augmentation for the rarest label "
+        "1. Diffusion-based synthetic data augmentation for the rarest label "
         "(macular_edema) - a genuinely promising, literature-backed direction "
-        "(e.g. class-conditioned diffusion synthesis for imbalanced DR grading), "
-        "but a separate, larger undertaking rather than a quick strengthening step.",
-        "3. Dataset-specific regularization retuning for BRSET (lighter drop_path/"
+        "(e.g. class-conditioned diffusion synthesis for imbalanced DR grading), but "
+        "a separate, larger undertaking requiring expert validation of synthetic "
+        "image realism, not a quick strengthening step - sequenced for after or "
+        "alongside cross-validation rather than rushed in beforehand.",
+        "2. Dataset-specific regularization retuning for BRSET (lighter drop_path/"
         "mixup) - made unnecessary by ensembling, which resolved the same tradeoff "
         "for free.",
     ]:
         para(doc, t, size=11, space_after=5)
-    para(doc, "Recommended next step: proceed to the next planned task with these two "
-              "final models as the established strong baselines.")
+    para(doc, "These two final models are the established strong baselines going into "
+              "k-fold cross-validation, the next planned step.")
 
     doc.save(OUT_PATH)
     print(f"Report written to {OUT_PATH}")
