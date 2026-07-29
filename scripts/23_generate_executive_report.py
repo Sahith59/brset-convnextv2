@@ -114,7 +114,7 @@ def build():
               "macular_edema, before proceeding to k-fold cross-validation.")
 
     # ---- Methodology & Experiment Timeline ----
-    heading(doc, "Methodology: What We Tried, In Order")
+    heading(doc, "Methodology: What I Tried, In Order")
     make_table(doc,
                ["Step", "Technique", "Outcome"],
                [
@@ -162,7 +162,7 @@ def build():
 
     heading(doc, "Comparison with the Original BRSET Paper (Nakayama et al., 2024)", size=11.5)
     make_table(doc,
-               ["Metric", "Paper (Binary DR)", "Our Model (BRSET, DR)"],
+               ["Metric", "Paper (Binary DR)", "My Model (BRSET, DR)"],
                [
                    ["AUC", "0.97", "0.988 (better)"],
                    ["F1", "0.89", "0.869 (close, slightly below)"],
@@ -202,17 +202,23 @@ def build():
               "datasets, every AUC clears 0.93 and reaches 0.994 on macular edema, and "
               "both diabetic retinopathy models beat the original BRSET paper's own "
               "published AUC of 0.97. What matters more than the headline numbers is that "
-              "the overfitting we diagnosed early on is now substantially fixed, not just "
+              "the overfitting I diagnosed early on is now substantially fixed, not just "
               "written down: the training-to-test performance gap, once as wide as 31 "
               "points of F1 on mBRSET, is now under 16 points everywhere and as low as 6 "
-              "points on BRSET's strongest label. We also scoped out using generative "
+              "points on BRSET's strongest label. I also scoped out using generative "
               "models to synthesize additional training images for the rarest condition, "
               "macular edema, but held off deliberately - that technique needs expert "
               "clinical review to confirm the synthetic images are medically realistic, "
-              "and it belongs as a follow-up once cross-validation confirms these numbers "
-              "hold, not as something rushed in beforehand. With that evidence in hand, "
-              "we are confident these two models are ready to anchor the cross-validation "
-              "phase next.")
+              "and it is better suited as a later step than something rushed in now.")
+    para(doc, "With both baselines established, the next step per Dr. Ye's direction is "
+              "to test the BRSET-trained model directly on mBRSET - not retrained, simply "
+              "evaluated as-is on a different patient population and a different camera "
+              "source it has never seen. This is a stronger test of real-world "
+              "generalization than a held-out test set drawn from the same source can "
+              "offer, and it will show whether what this model learned is genuine retinal "
+              "disease signal or something more specific to BRSET's own imaging setup. "
+              "Per-dataset cross-validation remains planned as a complementary check "
+              "alongside this cross-dataset evaluation.")
 
     doc.save(OUT_PATH)
     print(f"Report written to {OUT_PATH}")
