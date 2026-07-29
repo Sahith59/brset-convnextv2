@@ -198,17 +198,21 @@ def build():
 
     # ---- Conclusion ----
     heading(doc, "Conclusion")
-    para(doc, "Both models are strong, statistically-confirmed baselines: every AUC rates "
-              "“Excellent” (>0.90) and every F1 rates “Good” or “Strong” "
-              "by standard clinical-ML benchmarks; both diabetic_retinopathy results meet "
-              "or beat the original BRSET paper's own published AUC. The confirmed "
-              "overfitting gap was directly closed, not just documented, cutting the "
-              "train-test F1 gap roughly in half or more in every case. Diffusion-based "
-              "synthetic augmentation for the rarest label (macular_edema) was considered "
-              "and deliberately deferred - it requires expert validation of synthetic "
-              "image realism and is better sequenced after cross-validation, not rushed "
-              "in before it. These two models are ready to serve as the baseline going "
-              "into k-fold cross-validation.")
+    para(doc, "These are strong baseline models, not a rough starting point. Both "
+              "distinguish disease from healthy eyes with excellent reliability, and on "
+              "diabetic retinopathy specifically, they match or exceed the accuracy "
+              "reported in the original BRSET paper itself. More importantly, the "
+              "overfitting problem identified early in this work was substantially fixed "
+              "rather than simply written down and left alone - the gap between training "
+              "and test performance shrank by roughly half or more across every dataset "
+              "and label we tested. We also looked at using generative models to create "
+              "synthetic training images for the rarest condition, macular edema, but "
+              "held off deliberately: that approach needs expert clinical review to "
+              "confirm the synthetic images are medically realistic, and it fits more "
+              "naturally as a follow-up once cross-validation is underway than as "
+              "something rushed in beforehand. With these results in hand, we are "
+              "confident these two models are ready to anchor the cross-validation phase "
+              "that comes next.")
 
     doc.save(OUT_PATH)
     print(f"Report written to {OUT_PATH}")
