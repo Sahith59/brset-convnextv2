@@ -13,8 +13,9 @@ results/corrupted_files*.txt
 
 # Raw per-image ground-truth labels + model outputs (even without patient IDs
 # attached, these are still per-image diagnostic ground truth derived from
-# the credentialed datasets).
-results/**/test_predictions.npz
+# the credentialed datasets). Covers every cached prediction/teacher-probability
+# array anywhere under results/, not just the original test_predictions.npz name.
+results/**/*.npz
 
 # Raw SLURM stdout/stderr job logs (operational noise, not results).
 logs/

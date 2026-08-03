@@ -224,6 +224,45 @@ def build():
               "F1), which is the honest cost of not training on mBRSET directly.",
          size=10)
 
+    # ---- Mixture-of-Experts: Redundancy / Uniqueness / Synergy ----
+    doc.add_page_break()
+    heading(doc, "Mixture-of-Experts Analysis: Redundant / Unique / Synergistic Information")
+    para(doc, "Per Dr. Ye's direction, I tested whether combining the BRSET-trained and "
+              "mBRSET-trained models (as two \"experts\") can recover some of the residual "
+              "cross-dataset gap above. Partial Information Decomposition (Williams & "
+              "Beer, 2010) splits what the two experts' decisions jointly reveal about the "
+              "true label, on mBRSET's test set, into three parts: information both "
+              "experts already agree on (redundant), information only one expert carries "
+              "(unique), and information that only appears when both are considered "
+              "together (synergistic).", size=10)
+    make_table(doc,
+               ["Label", "Redundant", "Unique to BRSET-expert", "Unique to mBRSET-expert", "Synergy"],
+               [
+                   ["Diabetic Retinopathy", "61.8%", "0.0%", "28.5%", "9.6%"],
+                   ["Macular Edema", "47.2%", "0.0%", "51.4%", "1.5%"],
+               ],
+               col_widths=[1.6, 1.2, 1.6, 1.7, 0.9])
+    para(doc, "The BRSET-expert contributes essentially no unique information beyond what "
+              "the mBRSET-expert already provides for either label - expected, since the "
+              "mBRSET-expert is trained directly on this data. The synergy term is what "
+              "matters: real, if modest, for diabetic retinopathy (9.6%), and close to "
+              "negligible for macular edema (1.5%). I built a small logistic gate combining "
+              "both experts' probabilities (trained on mBRSET validation data only, applied "
+              "once to test) to see if that synergy is actually usable:", size=10)
+    make_table(doc,
+               ["Label", "mBRSET-Alone F1", "Gated MoE F1", "Result"],
+               [
+                   ["Diabetic Retinopathy", "0.815", "0.822", "small genuine gain"],
+                   ["Macular Edema", "0.807", "0.727", "worse - not used"],
+               ],
+               col_widths=[1.8, 1.5, 1.4, 2.3])
+    para(doc, "The gate improved diabetic retinopathy and made macular edema worse - "
+              "exactly matching which label the synergy analysis predicted would benefit. "
+              "Rather than deploy a 3-model ensemble for a small gain, I am distilling the "
+              "gate's diabetic-retinopathy behavior into a single fine-tuned model "
+              "(macular edema is left on the existing mBRSET model, untouched, since "
+              "combining experts does not help it); this is in progress.", size=10)
+
     # ---- Conclusion ----
     heading(doc, "Conclusion")
     para(doc, "These are strong baseline models, not a rough starting point. Across both "
@@ -237,7 +276,9 @@ def build():
               "model learned real, transferable disease signal rather than memorizing "
               "BRSET's own cameras, with a modest, honestly-reported residual gap when "
               "moving to a new data source.")
-    para(doc, "Two directions remain open. I scoped out using generative models to "
+    para(doc, "Three directions remain open. The mixture-of-experts distillation above is "
+              "underway now, targeting the residual cross-dataset gap on diabetic "
+              "retinopathy specifically. I scoped out using generative models to "
               "synthesize additional training images for the rarest condition, macular "
               "edema, but held off deliberately - that technique needs expert clinical "
               "review to confirm the synthetic images are medically realistic. Per-dataset "
