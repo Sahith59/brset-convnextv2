@@ -229,22 +229,21 @@ takeaway(s, "Question: what is that remaining gap actually made of, and what can
 
 # ---------------------------------------------------------------- 6. Diagnosis 1
 s = slide()
-title(s, "Diagnosis 1 — Most of the collapse was prevalence, not blindness")
+title(s, "Diagnosis 1 — the referral cutoff was wrong, not the model",
+      "The model scores each image from 0 (healthy) to 1 (diseased). A cutoff decides who gets referred.")
 table(s, [
-    ["", "BRSET (source)", "mBRSET (target)", "Shift"],
-    ["DR positive rate", "6.58%", "23.30%", "4.31×"],
-    ["ME positive rate", "2.46%", "8.68%", "3.77×"],
-], top=2.0, width=9.0, col_w=[3.0, 2.0, 2.0, 1.4], font=15)
+    ["", "How many patients have the disease", "Best cutoff for that group"],
+    ["BRSET — where we trained", "6.6% of eyes  (1 in 15)", "0.61   be strict"],
+    ["mBRSET — where we tested", "23.3% of eyes  (1 in 4)", "0.19   be lenient"],
+], top=2.25, width=10.8, col_w=[3.0, 4.2, 3.0], font=15, height=1.5)
 bullets(s, [
-    "BRSET is a general eye clinic. mBRSET is a diabetes screening campaign — a far sicker population by design.",
-    "The referral cutoff had to move from 0.61 to 0.19. We calculated why: "
-    "77% of that move is explained by the higher disease rate alone; only 23% by the model being less confident.",
-    ("Same metal detector at an airport and at a prison. At the airport you set sensitivity low, "
-     "or it beeps all day. At the prison you turn it up. The detector did not change — the crowd did.", 1),
-    ("Our model walked into the prison still on the airport setting. It stayed quiet and missed half the cases.", 1),
-    "The disease-rate part can be estimated from unlabelled images — no answer key needed.",
-], top=3.6, size=16, bottom_limit=6.25)
-takeaway(s, "The crash from F1 0.869 to 0.661 was mostly a wrongly-set dial, not the model going blind.")
+    "We applied BRSET's strict 0.61 cutoff to mBRSET, where nearly 1 in 4 patients is diseased. "
+    "The model stayed quiet and missed half the cases.",
+    "Of the move needed from 0.61 down to 0.19:  77% is explained by the higher disease rate alone, "
+    "and only 23% by the model being less certain on blurrier images.",
+    "The disease-rate part can be estimated from unlabelled images — no answer key required.",
+], top=4.25, size=16, bottom_limit=6.2)
+takeaway(s, "Moving the cutoff alone — no retraining — lifted F1 from 0.661 to 0.717, and recall from 0.503 to 0.780.")
 
 # ---------------------------------------------------------------- 7. Diagnosis 2 (key slide)
 s = slide()
