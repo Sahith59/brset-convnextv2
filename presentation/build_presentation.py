@@ -153,21 +153,24 @@ takeaway(s, "Part 1 is answered. Part 2 is where the contribution is — and the
 # ---------------------------------------------------------------- 3. Baseline result
 s = slide()
 title(s, "Part 1 — Baseline vs. the original BRSET paper",
-      "ConvNeXt V2 Large @ 512px, all 16,258 images, patient-level split. 95% CI from 2,000 bootstrap resamples.")
+      "One ConvNeXt V2 Large model at 512px, all 16,258 images, split by patient, trained with focal loss.")
 table(s, [
-    ["Metric", "Paper (Nakayama 2024)", "Ours", "95% CI", "Verdict"],
-    ["DR — AUC", "0.97", "0.988", "[0.975, 0.996]", "Beats paper (significant)"],
-    ["DR — F1", "0.89", "0.869", "[0.827, 0.905]", "Statistically tied"],
-    ["ME — AUC", "not reported", "0.993", "[0.988, 0.997]", "No benchmark exists"],
-    ["ME — F1", "not reported", "0.790", "[0.703, 0.867]", "No benchmark exists"],
-], top=2.1, col_w=[1.8, 2.4, 1.3, 2.2, 3.0], font=14,
+    ["Metric", "Paper (Nakayama 2024)", "Our model", "Verdict"],
+    ["Diabetic retinopathy — AUC", "0.97", "0.992", "Better than the paper"],
+    ["Diabetic retinopathy — F1", "0.89", "0.869", "The same, within measurement error"],
+    ["Macular edema — AUC", "not reported", "0.989", "No published benchmark to compare to"],
+    ["Macular edema — F1", "not reported", "0.748", "No published benchmark to compare to"],
+], top=2.15, col_w=[3.2, 2.4, 1.7, 4.3], font=14,
    highlight_rows=(1, 2), highlight_color=RGBColor(0xE3, 0xEF, 0xE3))
 bullets(s, [
-    "The paper's AUC (0.97) falls below our confidence interval — our AUC win is statistically real.",
-    "The paper's F1 (0.89) falls inside our interval — we match it within noise, we are not below it.",
-    "The nominal F1 gap is ~6 images out of 2,435; the test set resolves ~±10 images. Smaller than measurable.",
-], top=4.3, size=16, bottom_limit=6.2)
-takeaway(s, "We beat the paper on AUC and match it on F1. Chasing the last 0.02 would be fitting to noise.", GOOD)
+    "Our AUC of 0.992 sits above the paper's 0.97 by more than measurement error — a real improvement.",
+    "Our F1 measures anywhere from 0.83 to 0.90 depending on which patients land in the test set. "
+    "The paper's 0.89 falls inside that range, so the two cannot be told apart.",
+    "Closing the remaining 0.02 would mean catching about 6 more images out of 2,435 — "
+    "less than the test set can reliably measure.",
+    "This is a single model. It matches our earlier two-model ensemble on DR using half the models.",
+], top=4.2, size=15, bottom_limit=6.25)
+takeaway(s, "We beat the paper on AUC and match it on F1 — with one model instead of two.", GOOD)
 
 # ---------------------------------------------------------------- 3b. The imbalance itself
 s = slide()
