@@ -193,24 +193,19 @@ takeaway(s, "The imbalance is the reason F1 is the hard metric here — not AUC.
 # ---------------------------------------------------------------- 4. Imbalance handling
 s = slide()
 title(s, "Part 1 — How the imbalance was addressed",
-      "Four techniques, all aimed at stopping the healthy majority from drowning out the rare disease cases.")
+      "BRSET has about 15 healthy images for every diseased one. Four steps stop the majority drowning out the rest.")
 bullets(s, [
-    "Focal loss — makes the model stop spending effort on the easy healthy images and concentrate on "
-    "the hard ones. Strength set by one dial (γ = 2.0).",
-    "Oversampling — during training, the rare diseased images are shown more often than they naturally occur.",
-    "Tuned decision cutoff — the referral threshold is chosen on validation data per finding, "
-    "instead of a blind 0.5.",
-    "Now testing: Asymmetric Loss — the same idea, but with separate dials for healthy and diseased images, "
-    "so rare positives are never discounted the way the abundant negatives are.",
-    "Also added: averaging the model over training, averaging predictions across flipped copies of each image, "
-    "and choosing the cutoff robustly rather than from a single lucky value.",
-], top=2.0, size=16)
-bullets(s, [
-    ("Why we cannot simply tune our way past 0.89:", 0),
-    ("162 positive test cases ⇒ bootstrap noise ±0.04 F1; the gap to the paper is 0.021.", 1),
-    ("Selecting a configuration on test would be test-set overfitting. We select on validation only.", 1),
-    ("The rigorous fix is k-fold cross-validation — shrinks the interval ~2.2×, making 0.02 measurable.", 1),
-], top=4.5, size=16, gap=6, bottom_limit=7.2)
+    "Focal loss — the model stops spending effort on images it already gets right, and concentrates on the hard ones.",
+    "Oversampling — rare diseased images are shown more often during training than they naturally occur.",
+    "Tuned referral cutoff — chosen on validation data, separately for each finding, instead of a blind 0.5.",
+    "Averaging — the model is averaged over training, and each image is predicted from four flipped copies.",
+], top=2.15, size=17, bottom_limit=4.3)
+table(s, [
+    ["Loss function tested", "DR F1", "ME F1", "Outcome"],
+    ["Focal loss — one dial for all images", "0.869", "0.748", "Kept"],
+    ["Asymmetric Loss — separate dials for\nhealthy and for diseased images", "0.834", "0.758", "Clearly worse on DR — not used"],
+], top=4.5, width=11.0, col_w=[4.2, 1.3, 1.3, 3.6], font=13, height=1.35)
+takeaway(s, "We tested a more elaborate alternative. It did not help, so the simpler standard loss stands.")
 
 # ---------------------------------------------------------------- 5. The cross-device problem
 s = slide()
