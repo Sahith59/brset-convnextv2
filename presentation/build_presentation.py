@@ -207,6 +207,30 @@ table(s, [
 ], top=4.5, width=11.0, col_w=[4.2, 1.3, 1.3, 3.6], font=13, height=1.35)
 takeaway(s, "We tested a more elaborate alternative. It did not help, so the simpler standard loss stands.")
 
+# ---------------------------------------------------------------- 4b. Optional further steps (approval gate)
+s = slide()
+title(s, "Part 1 — Two further steps, if you would like them",
+      "Both are ready to launch. About 15 hours on the cluster, and neither blocks the Part 2 work.")
+table(s, [
+    ["Step", "What it does", "Why it would matter", "Cost"],
+    ["Hyperparameter\nsweep",
+     "Tries six settings of the imbalance\ncontrols, instead of the one value we\nchose by hand",
+     "Lets us say we searched the settings\nproperly, rather than used the first\nvalue we tried",
+     "~7 h"],
+    ["5-fold\ncross-validation",
+     "Re-runs the model five times so every\nimage gets tested, instead of testing\non a single 15% slice",
+     "Halves the measurement error. That is\nwhat would make a 0.02 change in F1\nprovable rather than nominal",
+     "~7 h"],
+], top=2.05, col_w=[1.9, 4.2, 4.2, 0.9], font=12.5, height=2.6)
+bullets(s, [
+    "Expected effect on the headline numbers: small. We are already at the paper's level, "
+    "and the sweep is unlikely to move it much.",
+    "The gain is confidence rather than score — the cross-validation would let us state the result "
+    "with half the current uncertainty.",
+    "Neither blocks Part 2. The cross-device work can proceed in parallel either way.",
+], top=4.9, size=15, bottom_limit=6.25)
+takeaway(s, "Happy to run both, either, or neither — whichever you think is the better use of the time.")
+
 # ---------------------------------------------------------------- 5. The cross-device problem
 s = slide()
 title(s, "Part 2 — The BRSET → mBRSET problem",
@@ -260,25 +284,6 @@ bullets(s, [
     ("AUC 0.909 → about 0.95 for DR, and 0.933 → about 0.985 for macular edema.", 1),
 ], top=4.0, size=17, bottom_limit=6.2)
 takeaway(s, "The remaining gap is entirely ranking quality. Everything from here must improve AUC.", WARN)
-
-# ---------------------------------------------------------------- 8. What this rules out
-s = slide()
-title(s, "What the diagnosis rules out — and what it leaves",
-      "Knowing this before implementing saves weeks of work on methods that provably cannot help.")
-table(s, [
-    ["Ruled out", "Reason"],
-    ["Any further cutoff / calibration tuning",
-     "These only slide the referral line along a fixed patient ordering.\nThey cannot improve the ordering, so they cannot raise AUC."],
-    ["Adapting batch-normalisation statistics\n(a standard trick)",
-     "ConvNeXt V2 contains no batch-normalisation layers at all.\nThe trick has nothing to attach to."],
-    ["MixStyle style-mixing",
-     "Needs several source datasets. With only one it collapses\n(published: F1 15.0 vs. 27.3 for doing nothing)."],
-    ["Adversarial feature alignment\n(DANN, CORAL, MMD)",
-     "Proven to make things worse when the two datasets have very\ndifferent disease rates — ours differ 4.3×."],
-    ["CycleGAN image translation",
-     "Documented to invent and erase lesions. Since the lesions are\nthe label, it would silently corrupt our data."],
-], top=2.0, col_w=[4.2, 7.4], font=13, height=3.1)
-takeaway(s, "Remaining viable levers: use more of the target's structure, and train for the degradation.", top=5.4)
 
 # ---------------------------------------------------------------- 9. The plan
 s = slide()
