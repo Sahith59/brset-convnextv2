@@ -82,26 +82,37 @@ def table(s, rows, top, left=0.75, width=11.8, height=None, col_w=None,
         for j, val in enumerate(row):
             cell = tbl.cell(i, j)
             cell.text = str(val)
-            para = cell.text_frame.paragraphs[0]
-            para.font.size = Pt(font)
-            para.alignment = PP_ALIGN.LEFT if j == 0 else PP_ALIGN.CENTER
             cell.margin_left = Inches(0.08)
             cell.margin_right = Inches(0.08)
             cell.margin_top = Inches(0.03)
             cell.margin_bottom = Inches(0.03)
-            if i == 0 and header:
-                para.font.bold = True
-                para.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
-                cell.fill.solid()
+
+            is_header = (i == 0 and header)
+            cell.fill.solid()
+            if is_header:
                 cell.fill.fore_color.rgb = HDRBG
+            elif i in highlight_rows:
+                cell.fill.fore_color.rgb = highlight_color or RGBColor(0xE3, 0xEF, 0xE3)
             else:
-                cell.fill.solid()
-                if i in highlight_rows:
-                    cell.fill.fore_color.rgb = highlight_color or RGBColor(0xE3, 0xEF, 0xE3)
+                cell.fill.fore_color.rgb = RGBColor(0xFF, 0xFF, 0xFF) if i % 2 else ROWBG
+
+            # Style EVERY paragraph, not just the first. A cell whose text
+            # contains newlines becomes multiple paragraphs, and any left
+            # unstyled falls back to the 18pt default -- which is what made
+            # multi-line cells render at mixed sizes.
+            for para in cell.text_frame.paragraphs:
+                para.font.size = Pt(font)
+                para.alignment = PP_ALIGN.LEFT if j == 0 else PP_ALIGN.CENTER
+                if is_header:
                     para.font.bold = True
+                    para.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
                 else:
-                    cell.fill.fore_color.rgb = RGBColor(0xFF, 0xFF, 0xFF) if i % 2 else ROWBG
-                para.font.color.rgb = INK
+                    para.font.bold = i in highlight_rows
+                    para.font.color.rgb = INK
+                for run in para.runs:
+                    run.font.size = Pt(font)
+                    run.font.color.rgb = (RGBColor(0xFF, 0xFF, 0xFF) if is_header else INK)
+                    run.font.bold = is_header or (i in highlight_rows)
     return shape
 
 
@@ -287,42 +298,58 @@ takeaway(s, "The remaining gap is entirely ranking quality. Everything from here
 
 # ---------------------------------------------------------------- 9. The plan
 s = slide()
-title(s, "Part 2 — Plan to close the gap", "Ordered by expected gain per unit of effort.")
+title(s, "Part 2 — Plan to make the BRSET model work on mBRSET",
+      "Two methods proposed, one parked for your input. Ordered by expected gain per unit of effort.")
 table(s, [
-    ["#", "Method", "Mechanism", "Effort"],
-    ["1", "Per-patient multi-view\naggregation",
-     "mBRSET has ~3.8 images per patient (both eyes × 2 fields), 85.5% share a\n"
-     "diagnosis. Blur is random per image; averaging cancels it and sharpens ranking.\n"
-     "Published gains on fundus data: +0.085 to +0.121 AUC. We need +0.04.", "3–5 d"],
-    ["2", "Handheld-degradation\naugmentation",
-     "Degrade real BRSET images (defocus, illumination gradient, vignetting, noise,\n"
-     "JPEG) so the model learns to find lesions despite them. Labels stay true —\n"
-     "unlike generative translation, degradation cannot invent or erase a lesion.", "3–5 d"],
-    ["3", "Label-free threshold\nplacement",
-     "Estimates target prevalence from unlabeled images, so the threshold fix works\n"
-     "on a new camera with zero annotations. Does not raise AUC — makes the existing\n"
-     "gain deployable, and is the honest baseline for everything above.", "0.5 d"],
-], top=1.95, col_w=[0.5, 2.5, 7.6, 1.0], font=12, height=4.2)
-takeaway(s, "Method 1 attacks the ME gap least; Method 2 attacks it most — blur destroys the exudate edge cue.", top=6.4)
+    ["#", "Method", "What it does", "Effort", "Status"],
+    ["1", "Use all of a patient's\nimages together",
+     "mBRSET has about 4 images per patient. 85% of the time they share\n"
+     "the same diagnosis, but we currently judge each image alone.\n"
+     "Blur differs per image, so combining them cancels it out.\n"
+     "Published gains on retinal data: +0.085 to +0.121 AUC. We need +0.04.",
+     "3–5 d", "Proposed"],
+    ["2", "Set the cutoff without\nneeding an answer key",
+     "Estimates the disease rate from unlabelled images, so the cutoff fix\n"
+     "works on a new camera with no annotations at all.\n"
+     "Does not raise AUC — it makes the gain we already have deployable,\n"
+     "and is the honest baseline the other methods are measured against.",
+     "0.5 d", "Proposed"],
+    ["3", "Train on deliberately\ndegraded BRSET images",
+     "Blur and darken real BRSET images to imitate handheld capture, so\n"
+     "the model learns to find lesions despite poor quality.\n"
+     "Aimed at macular edema specifically, where blur destroys the sharp\n"
+     "edge that separates an exudate from a harmless drusen.",
+     "3–5 d", "Parked —\nfor discussion"],
+], top=1.9, col_w=[0.4, 2.4, 6.6, 0.8, 1.4], font=11.5, height=4.3)
+takeaway(s, "Method 3 is the one I would like your view on before starting it.", top=6.45)
 
 # ---------------------------------------------------------------- 10. Novelty
 s = slide()
-title(s, "Novelty — what is unclaimed",
-      "Verified against all 33 papers citing both dataset papers, plus GitHub, arXiv and preprint servers.")
+title(s, "Novelty — what we found, and how certain we are",
+      "Search covered all 33 papers citing either dataset, plus GitHub, arXiv and preprint servers.")
+table(s, [
+    ["Finding", "How certain"],
+    ["No published BRSET → mBRSET transfer study found",
+     "Exhaustive citation search — but not finding one\nis not the same as proving none exists"],
+    ["The dataset creators list \"domain adaptation across imaging devices\"\nas an application, and report no such experiment",
+     "Verified — stated on their March 2026 release"],
+    ["No work uses BRSET's per-image degradation labels\n(focus / illumination / field / artifact) for transfer",
+     "Verified — the labels exist and are unused"],
+    ["No work reports cross-device macular edema degradation",
+     "Verified — and our ME gap (0.179) is larger\nthan our DR gap (0.098)"],
+    ["RetSyn (J Biomed Inform 2025) — synthetic data for tabletop → portable.\nSame senior author as both datasets.",
+     "Published and real. This is the competitor."],
+    ["One GitHub project is doing a descriptive version of BRSET → mBRSET",
+     "Real, but a single commit — code skeleton,\nno data, no results published yet"],
+], top=1.95, col_w=[6.9, 4.7], font=11.5, height=3.9)
 bullets(s, [
-    "No published BRSET → mBRSET transfer study exists.",
-    "The dataset creators' own March 2026 release lists “domain adaptation across imaging devices” as an "
-    "application — and reports no such experiment.",
-    "No work uses BRSET's typed degradation labels (focus / illumination / field / artifact) for transfer.",
-    "No work reports cross-device macular edema degradation — our ME gap (0.179) exceeds our DR gap (0.098).",
-    "Closest prior work: RetSyn (J Biomed Inform 2025, same senior author) — synthetic data for tabletop → portable. "
-    "It does not diagnose what breaks, separate quality from device, or address ME or thresholds.",
-], top=2.0, size=16, bottom_limit=4.9)
-bullets(s, [
-    ("Our shift is unusually clean, and that is the asset:", 0),
-    ("BRSET → mBRSET holds country, ethnicity, dilation, 45° field of view and grading protocol constant.", 1),
-    ("Only the camera changes. A comparable study crossing country and protocol collapsed to AUC 0.54; ours holds 0.91.", 1),
-], top=5.0, size=16, gap=6, bottom_limit=7.2)
+    "How we differ from RetSyn: they generate synthetic images; we diagnose what actually breaks, and separate "
+    "image quality from camera identity. They do not address macular edema or the cutoff problem.",
+    "How we differ from the GitHub project: they use frozen features and a simple classifier; we fine-tune the "
+    "whole model and cover both findings.",
+    "Our shift is unusually clean: country, ethnicity, dilation, 45° field of view and grading protocol are all "
+    "held constant, so only the camera changes. A study that also crossed country and protocol collapsed to AUC 0.54; ours holds 0.91.",
+], top=5.95, size=13, bottom_limit=7.3)
 
 # ---------------------------------------------------------------- 11. Proposed contributions
 s = slide()
