@@ -306,7 +306,9 @@ table(s, [
      "mBRSET has about 4 images per patient. 85% of the time they share\n"
      "the same diagnosis, but we currently judge each image alone.\n"
      "Blur differs per image, so combining them cancels it out.\n"
-     "Published gains on retinal data: +0.085 to +0.121 AUC. We need +0.04.",
+     "RetiGen (Chen et al., arXiv 2403.15647) does this on fundus images and\n"
+     "reports +0.002 to +0.086 AUC across seven baselines, median ≈ +0.044.\n"
+     "We need +0.04 — achievable, but not guaranteed.",
      "3–5 d", "Proposed"],
     ["2", "Set the cutoff without\nneeding an answer key",
      "Estimates the disease rate from unlabelled images, so the cutoff fix\n"
@@ -320,8 +322,8 @@ table(s, [
      "Aimed at macular edema specifically, where blur destroys the sharp\n"
      "edge that separates an exudate from a harmless drusen.",
      "3–5 d", "Parked —\nfor discussion"],
-], top=1.9, col_w=[0.4, 2.4, 6.6, 0.8, 1.4], font=11.5, height=4.3)
-takeaway(s, "Method 3 is the one I would like your view on before starting it.", top=6.45)
+], top=1.85, col_w=[0.4, 2.4, 6.6, 0.8, 1.4], font=11.5, height=4.55)
+takeaway(s, "Method 3 is the one I would like your view on before starting it.", top=6.6)
 
 # ---------------------------------------------------------------- 10. Novelty
 s = slide()
