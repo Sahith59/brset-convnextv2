@@ -353,36 +353,22 @@ bullets(s, [
 
 # ---------------------------------------------------------------- 11. Proposed contributions
 s = slide()
-title(s, "Proposed contributions")
+title(s, "What would be new here",
+      "Three things nobody has done. The first is the strongest, and it holds whatever the methods turn out to do.")
 table(s, [
-    ["", "Contribution", "Why it is new"],
-    ["1", "Decomposing a cross-device gap into\nprevalence, calibration and ranking components",
-     "Cross-domain F1 collapses are routinely blamed on the model.\n"
-     "We show the split is computable in closed form — and that in our\n"
-     "case the ranking component is all that remains."],
-    ["2", "Multi-view test-time aggregation for\ncross-device retinal screening",
-     "Exploits mBRSET's ~4 images per patient, a free signal no\ncross-device study has used."],
-    ["3", "Adapting the internal normalisation layer\nthat is unique to ConvNeXt V2",
-     "The standard adaptation trick relies on a component this model\ndoes not have. Nobody has adapted the one it does have."],
-], top=1.95, col_w=[0.5, 4.4, 6.7], font=12, height=3.9)
-takeaway(s, "Contribution 1 stands even if every method underperforms — the negative result is itself the finding.",
-         top=6.1)
-
-# ---------------------------------------------------------------- 12. Next steps
-s = slide()
-title(s, "Next steps")
-table(s, [
-    ["When", "Action"],
-    ["This week", "Finish imbalance hyperparameter sweep (validation-selected); k-fold cross-validation "
-                  "to tighten confidence intervals on the baseline"],
-    ["Next", "Implement label-free threshold placement — the honest baseline for all transfer results"],
-    ["Then", "Multi-view aggregation, then degradation augmentation; measure AUC gain against the 0.95 / 0.985 target"],
-    ["Open question", "Access to BRSET's per-image degradation-type metadata for the decomposition analysis"],
-], top=2.1, col_w=[1.8, 9.8], font=14, height=2.8)
-bullets(s, [
-    "Baseline: complete and defensible — beats the paper on AUC, matches on F1.",
-    "Transfer: diagnosed, literature reviewed, three methods ranked, novelty verified as open.",
-], top=5.2, size=17, bottom_limit=7.2)
+    ["", "What we would contribute", "Why nobody has done it", "Status"],
+    ["1", "Show what a cross-device drop is\nactually made of: how much comes\nfrom the sicker population, how much\nfrom a badly-set cutoff, and how much\nfrom the model genuinely doing worse",
+     "Papers report one number for the drop and\nblame the model. We show the three causes\ncan be separated with arithmetic — and that\nin our case only the last one is left.",
+     "Core"],
+    ["2", "Judge a patient using all four of their\nimages together, instead of one\nimage at a time",
+     "A free signal sitting unused in the data.\nNo cross-device retinal study has used it.",
+     "Core"],
+    ["3", "Adapt the part of ConvNeXt V2 that the\nstandard method cannot reach",
+     "The usual adaptation trick needs a component\nthis model does not have. Nobody has adapted\nthe one it does have.",
+     "Exploratory —\nmay not work"],
+], top=1.9, col_w=[0.35, 3.9, 5.6, 1.35], font=11.5, height=4.2)
+takeaway(s, "Contribution 1 holds even if both methods underperform — showing what the gap is made of is itself the result.",
+         top=6.35)
 
 prs.save(OUT)
 print(f"wrote {OUT}  ({len(prs.slides.__iter__.__self__._sldIdLst)} slides)")
