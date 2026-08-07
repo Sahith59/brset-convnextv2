@@ -24,3 +24,7 @@ logs/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# Personal reference notes (code snippets + config for talking through the
+# model) - useful locally, not repo content.
+presentation/model_reference.md
