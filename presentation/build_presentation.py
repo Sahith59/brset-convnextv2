@@ -284,22 +284,22 @@ takeaway(s, "Moving the cutoff alone — no retraining — lifted F1 from 0.661 
 
 # ---------------------------------------------------------------- 7. Diagnosis 2 (key slide)
 s = slide()
-title(s, "Diagnosis 2 — Threshold tuning is already exhausted",
-      "For a given AUC and disease rate there is a maximum achievable F1, across every possible cutoff. "
-      "The maximum below is an estimate, accurate to roughly ±0.02.")
+title(s, "Diagnosis 2 — how much is the cutoff, how much is the model",
+      "Measured directly: we swept every possible cutoff on the mBRSET test set to find the best F1 any cutoff could reach.")
 table(s, [
-    ["BRSET → mBRSET", "AUC", "Disease rate", "Estimated max F1", "Our F1"],
-    ["Diabetic retinopathy", "0.909", "21.7%", "0.697", "0.717"],
-    ["Macular edema", "0.933", "8.6%", "0.623", "0.628"],
-], top=2.1, col_w=[3.0, 1.5, 2.4, 2.4, 1.7], font=15,
-   highlight_rows=(1, 2), highlight_color=RGBColor(0xE3, 0xEF, 0xE3))
+    ["", "Ours\n(cutoff set on\nvalidation)", "Best any cutoff\ncould reach",
+     "A model trained\non mBRSET", "Still reachable\nby cutoff", "Needs better\nranking"],
+    ["Diabetic retinopathy", "0.717", "0.765", "0.815", "0.048", "0.050"],
+    ["Macular edema", "0.628", "0.671", "0.807", "0.043", "0.136"],
+], top=2.2, width=11.5, col_w=[2.7, 1.8, 1.8, 1.8, 1.7, 1.7], font=13, height=1.9)
 bullets(s, [
-    "We are already at that ceiling. Moving the cutoff further cannot help — any cutoff method only slides the",
-    ("referral line along a fixed ordering of patients. It never changes how well the model orders them.", 1),
-    "To reach what an mBRSET-trained model achieves (F1 0.815 / 0.807), the ordering itself must improve:",
-    ("AUC 0.909 → about 0.95 for DR, and 0.933 → about 0.985 for macular edema.", 1),
-], top=4.0, size=17, bottom_limit=6.2)
-takeaway(s, "The remaining gap is entirely ranking quality. Everything from here must improve AUC.", WARN)
+    "The \"best any cutoff could reach\" column comes from tuning the cutoff on the test set itself. "
+    "We cannot do that honestly, but it bounds what any cutoff or calibration method could ever achieve.",
+    "For diabetic retinopathy the remaining gap splits about evenly — half is still reachable by choosing "
+    "the cutoff better, half is beyond any cutoff and needs the model to rank patients better.",
+    "For macular edema it is lopsided: only 0.043 of the 0.179 gap is cutoff. The rest needs better ranking.",
+], top=4.4, size=15, bottom_limit=6.3)
+takeaway(s, "Both levers matter: better cutoff selection for DR, and better ranking — higher AUC — especially for macular edema.")
 
 # ---------------------------------------------------------------- 9. The plan
 s = slide()
