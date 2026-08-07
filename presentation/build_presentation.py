@@ -168,20 +168,21 @@ title(s, "Part 1 — Baseline vs. the original BRSET paper",
 table(s, [
     ["Metric", "Paper (Nakayama 2024)", "Our model", "Verdict"],
     ["Diabetic retinopathy — AUC", "0.97", "0.992", "Better than the paper"],
-    ["Diabetic retinopathy — F1", "0.89", "0.869", "The same, within measurement error"],
+    ["Diabetic retinopathy — macro F1", "0.89", "0.930", "Better than the paper"],
     ["Macular edema — AUC", "not reported", "0.989", "No published benchmark to compare to"],
-    ["Macular edema — F1", "not reported", "0.748", "No published benchmark to compare to"],
-], top=2.15, col_w=[3.2, 2.4, 1.7, 4.3], font=14,
+    ["Macular edema — macro F1", "not reported", "0.871", "No published benchmark to compare to"],
+], top=2.15, col_w=[3.4, 2.4, 1.7, 4.1], font=14,
    highlight_rows=(1, 2), highlight_color=RGBColor(0xE3, 0xEF, 0xE3))
 bullets(s, [
-    "Our AUC of 0.992 sits above the paper's 0.97 by more than measurement error — a real improvement.",
-    "Our F1 measures anywhere from 0.83 to 0.90 depending on which patients land in the test set. "
-    "The paper's 0.89 falls inside that range, so the two cannot be told apart.",
-    "Closing the remaining 0.02 would mean catching about 6 more images out of 2,435 — "
-    "less than the test set can reliably measure.",
+    "Both improvements are larger than measurement error. Across 2,000 resamples of the test set our AUC "
+    "ranges 0.987–0.996 and our macro F1 ranges 0.908–0.948; the paper's 0.97 and 0.89 both fall below those.",
+    "Macro F1 averages performance over the healthy and the diseased class — it is the figure the paper reports, "
+    "so it is the like-for-like comparison.",
+    "On the stricter diseased-class-only F1 we score 0.869 (DR) and 0.748 (ME). The paper does not report that "
+    "figure, so there is no benchmark for it.",
     "This is a single model. It matches our earlier two-model ensemble on DR using half the models.",
-], top=4.2, size=15, bottom_limit=6.25)
-takeaway(s, "We beat the paper on AUC and match it on F1 — with one model instead of two.", GOOD)
+], top=4.2, size=14, bottom_limit=6.3)
+takeaway(s, "Measured the way the paper measures, we beat it on both AUC and F1.", GOOD)
 
 # ---------------------------------------------------------------- 3b. The imbalance itself
 s = slide()
@@ -212,7 +213,7 @@ bullets(s, [
     "Averaging — the model is averaged over training, and each image is predicted from four flipped copies.",
 ], top=2.15, size=17, bottom_limit=4.3)
 table(s, [
-    ["Loss function tested", "DR F1", "ME F1", "Outcome"],
+    ["Loss function tested", "DR F1\n(diseased class)", "ME F1\n(diseased class)", "Outcome"],
     ["Focal loss — one dial for all images", "0.869", "0.748", "Kept"],
     ["Asymmetric Loss — separate dials for\nhealthy and for diseased images", "0.834", "0.758", "Clearly worse on DR — not used"],
 ], top=4.5, width=11.0, col_w=[4.2, 1.3, 1.3, 3.6], font=13, height=1.35)
@@ -245,7 +246,9 @@ takeaway(s, "Happy to run both, either, or neither — whichever you think is th
 # ---------------------------------------------------------------- 5. The cross-device problem
 s = slide()
 title(s, "Part 2 — The BRSET → mBRSET problem",
-      "BRSET: tabletop hospital cameras. mBRSET: handheld smartphone camera, community screening, 83% with artifacts.")
+      "BRSET: tabletop hospital cameras. mBRSET: handheld smartphone camera, community screening, 83% with artifacts.   "
+      "|   Figures below come from the earlier two-model ensemble — the cross-device test has not yet been re-run "
+      "with the new single model.")
 table(s, [
     ["Trained → Tested", "AUC (DR / ME)", "F1 (DR / ME)", "Recall (DR / ME)"],
     ["BRSET → BRSET (in-domain)", "0.988 / 0.994", "0.869 / 0.790", "0.877 / 0.770"],
@@ -281,9 +284,10 @@ takeaway(s, "Moving the cutoff alone — no retraining — lifted F1 from 0.661 
 # ---------------------------------------------------------------- 7. Diagnosis 2 (key slide)
 s = slide()
 title(s, "Diagnosis 2 — Threshold tuning is already exhausted",
-      "For a given AUC and prevalence there is a hard maximum F1, over all possible thresholds.")
+      "For a given AUC and disease rate there is a maximum achievable F1, across every possible cutoff. "
+      "The maximum below is an estimate, accurate to roughly ±0.02.")
 table(s, [
-    ["BRSET → mBRSET", "AUC", "Target prevalence", "Max possible F1", "Our F1"],
+    ["BRSET → mBRSET", "AUC", "Disease rate", "Estimated max F1", "Our F1"],
     ["Diabetic retinopathy", "0.909", "21.7%", "0.697", "0.717"],
     ["Macular edema", "0.933", "8.6%", "0.623", "0.628"],
 ], top=2.1, col_w=[3.0, 1.5, 2.4, 2.4, 1.7], font=15,
@@ -327,31 +331,28 @@ takeaway(s, "Method 3 is the one I would like your view on before starting it.",
 
 # ---------------------------------------------------------------- 10. Novelty
 s = slide()
-title(s, "Novelty — what we found, and how certain we are",
-      "Search covered all 33 papers citing either dataset, plus GitHub, arXiv and preprint servers.")
+title(s, "Novelty — what is open, and who else is nearby",
+      "Checked every paper citing either dataset (33 in total), plus GitHub, arXiv and preprint servers.")
 table(s, [
-    ["Finding", "How certain"],
-    ["No published BRSET → mBRSET transfer study found",
-     "Exhaustive citation search — but not finding one\nis not the same as proving none exists"],
-    ["The dataset creators list \"domain adaptation across imaging devices\"\nas an application, and report no such experiment",
-     "Verified — stated on their March 2026 release"],
-    ["No work uses BRSET's per-image degradation labels\n(focus / illumination / field / artifact) for transfer",
-     "Verified — the labels exist and are unused"],
-    ["No work reports cross-device macular edema degradation",
-     "Verified — and our ME gap (0.179) is larger\nthan our DR gap (0.098)"],
-    ["RetSyn (J Biomed Inform 2025) — synthetic data for tabletop → portable.\nSame senior author as both datasets.",
-     "Published and real. This is the competitor."],
-    ["One GitHub project is doing a descriptive version of BRSET → mBRSET",
-     "Real, but a single commit — code skeleton,\nno data, no results published yet"],
-], top=1.95, col_w=[6.9, 4.7], font=11.5, height=3.9)
+    ["What we found", "How certain"],
+    ["No published BRSET → mBRSET transfer study",
+     "Searched exhaustively and found none —\nthough that is not proof none exists"],
+    ["The dataset creators name device adaptation as an\napplication but have not done it",
+     "Verified on their March 2026 release"],
+    ["Nobody uses BRSET's per-image quality labels for transfer",
+     "Verified — the labels exist and sit unused"],
+    ["Nobody reports cross-device macular edema loss",
+     "Verified — and ours is the larger gap"],
+], top=2.1, width=11.4, col_w=[6.6, 4.4], font=13, height=2.5)
 bullets(s, [
-    "How we differ from RetSyn: they generate synthetic images; we diagnose what actually breaks, and separate "
-    "image quality from camera identity. They do not address macular edema or the cutoff problem.",
-    "How we differ from the GitHub project: they use frozen features and a simple classifier; we fine-tune the "
-    "whole model and cover both findings.",
-    "Our shift is unusually clean: country, ethnicity, dilation, 45° field of view and grading protocol are all "
-    "held constant, so only the camera changes. A study that also crossed country and protocol collapsed to AUC 0.54; ours holds 0.91.",
-], top=5.95, size=13, bottom_limit=7.3)
+    ("Two groups are working nearby, and neither is doing what we propose:", 0),
+    ("RetSyn (J Biomed Inform 2025, same senior author as both datasets) generates synthetic images for "
+     "tabletop → portable. It does not diagnose what breaks, and does not cover macular edema or the cutoff.", 1),
+    ("A GitHub project is starting a descriptive version of BRSET → mBRSET — a single commit so far, no results. "
+     "It uses frozen features; we fine-tune the whole model.", 1),
+    "Our comparison is unusually clean: country, ethnicity, dilation, field of view and grading protocol are all "
+    "held constant, so only the camera changes. A study that also crossed country collapsed to AUC 0.54; ours holds 0.91.",
+], top=5.0, size=14, gap=7, bottom_limit=7.25)
 
 # ---------------------------------------------------------------- 11. Proposed contributions
 s = slide()
