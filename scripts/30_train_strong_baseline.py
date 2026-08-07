@@ -153,6 +153,13 @@ def get_args():
     p.add_argument("--label_smoothing", default=0.1, type=float)
     p.add_argument("--num_workers", default=8, type=int)
     p.add_argument("--ckpt_freq", default=10, type=int)
+    p.add_argument("--no_oversample", action="store_true", default=False,
+                    help="Disable weighted oversampling. The sampler lifts the effective positive "
+                         "rate the loss sees from 6.6%% to 61%% (DR) and 2.4%% to 38.5%% (ME), so an "
+                         "asymmetric loss tuned for a skewed distribution is applied to data that "
+                         "has already been rebalanced past parity. See Bag of Tricks (AAAI 2021) and "
+                         "Distribution-Balanced Loss (ECCV 2020) on combining re-sampling with "
+                         "re-weighting.")
     p.add_argument("--loss", default="asl", choices=["asl", "focal"])
     p.add_argument("--asl_gamma_neg", default=4.0, type=float)
     p.add_argument("--asl_gamma_pos", default=0.0, type=float)
@@ -332,11 +339,30 @@ def main():
 
     sample_weights, counts = build_sample_weights(ds_train.labels_df)
     print(f"train label counts: {counts} (of {len(ds_train)})", flush=True)
-    sampler = torch.utils.data.WeightedRandomSampler(
-        sample_weights, num_samples=len(sample_weights), replacement=True)
+
+    # Report the positive rate the loss will ACTUALLY see. With the sampler on this
+    # is far higher than the dataset's own rate, which is what an asymmetric loss
+    # must be tuned against -- not the raw prevalence.
+    w = np.asarray(sample_weights, dtype=np.float64)
+    pick = (w / w.sum()) if not args.no_oversample else np.full(len(w), 1.0 / len(w))
+    for c in LABEL_COLS:
+        eff = float((pick * ds_train.labels_df[c].values).sum())
+        raw = counts[c] / len(ds_train)
+        print(f"  {c}: raw positive rate {100*raw:.2f}%  ->  effective (as sampled) "
+              f"{100*eff:.2f}%  [{(1-eff)/max(eff,1e-9):.2f}:1]", flush=True)
+
+    if args.no_oversample:
+        print("oversampling DISABLED - shuffling uniformly", flush=True)
+        sampler = None
+        shuffle = True
+    else:
+        sampler = torch.utils.data.WeightedRandomSampler(
+            sample_weights, num_samples=len(sample_weights), replacement=True)
+        shuffle = False
 
     loader_train = DataLoader(ds_train, batch_size=args.batch_size, sampler=sampler,
-                               num_workers=args.num_workers, pin_memory=True, drop_last=True)
+                               shuffle=shuffle, num_workers=args.num_workers,
+                               pin_memory=True, drop_last=True)
     loader_val = DataLoader(ds_val, batch_size=args.batch_size, shuffle=False,
                              num_workers=args.num_workers, pin_memory=True)
     loader_test = DataLoader(ds_test, batch_size=args.batch_size, shuffle=False,

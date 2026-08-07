@@ -1,0 +1,37 @@
+mBRSET test: 732 images, 193 patients, 380 eyes
+images per patient: 3.79 | per eye: 1.93
+
+==========================================================================
+diabetic_retinopathy   image-level AUC = 0.9091   (159 positive of 732)
+==========================================================================
+  -- grouping by PATIENT (K=4)
+       negatives  ICC = 0.392   (154 groups, mean size 3.64)
+       positives  ICC = 0.335   (44 groups, mean size 3.27)
+       pooled rho = 0.363
+       PREDICTED AUC after aggregating 4 images = 0.9676  (gain +0.0585)
+       break-even rho to reach 0.95 = 0.545  ->  REACHABLE
+
+  -- grouping by EYE (K=2)
+       negatives  ICC = 0.530   (262 groups, mean size 2.00)
+       positives  ICC = 0.432   (62 groups, mean size 2.02)
+       pooled rho = 0.481
+       PREDICTED AUC after aggregating 2 images = 0.9396  (gain +0.0305)
+       break-even rho to reach 0.95 = 0.318  ->  NOT reachable
+
+==========================================================================
+macular_edema   image-level AUC = 0.9333   (63 positive of 732)
+==========================================================================
+  -- grouping by PATIENT (K=4)
+       negatives  ICC = 0.292   (176 groups, mean size 3.76)
+       positives  ICC = 0.326   (18 groups, mean size 3.28)
+       pooled rho = 0.309
+       PREDICTED AUC after aggregating 4 images = 0.9847  (gain +0.0514)
+       break-even rho to reach 0.95 = 0.777  ->  REACHABLE
+
+  -- grouping by EYE (K=2)
+       negatives  ICC = 0.430   (317 groups, mean size 2.00)
+       positives  ICC = 0.544   (26 groups, mean size 2.00)
+       pooled rho = 0.487
+       PREDICTED AUC after aggregating 2 images = 0.9591  (gain +0.0258)
+       break-even rho to reach 0.95 = 0.665  ->  REACHABLE
+
