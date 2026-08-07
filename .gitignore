@@ -28,3 +28,4 @@ __pycache__/
 # Personal reference notes (code snippets + config for talking through the
 # model) - useful locally, not repo content.
 presentation/model_reference.md
+presentation/speaker_notes.md
