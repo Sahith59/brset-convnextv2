@@ -266,7 +266,8 @@ takeaway(s, "Question: what is that remaining gap actually made of, and what can
 # ---------------------------------------------------------------- 6. Diagnosis 1
 s = slide()
 title(s, "Diagnosis 1 — the referral cutoff was wrong, not the model",
-      "The model scores each image from 0 (healthy) to 1 (diseased). A cutoff decides who gets referred.")
+      "The model scores each image from 0 (healthy) to 1 (diseased). A cutoff decides who gets referred. "
+      "Figures below are for diabetic retinopathy.")
 table(s, [
     ["", "How many patients have the disease", "Best cutoff for that group"],
     ["BRSET — where we trained", "6.6% of eyes  (1 in 15)", "0.61   be strict"],
@@ -332,7 +333,7 @@ takeaway(s, "Method 3 is the one I would like your view on before starting it.",
 # ---------------------------------------------------------------- 10. Novelty
 s = slide()
 title(s, "Novelty — what is open, and who else is nearby",
-      "Checked every paper citing either dataset (33 in total), plus GitHub, arXiv and preprint servers.")
+      "Checked every paper citing either dataset, plus GitHub, arXiv and preprint servers.")
 table(s, [
     ["What we found", "How certain"],
     ["No published BRSET → mBRSET transfer study",
