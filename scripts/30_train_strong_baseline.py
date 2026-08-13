@@ -101,6 +101,44 @@ class AsymmetricLoss(nn.Module):
         return -loss.mean()
 
 
+class AsymmetricFocalLoss(nn.Module):
+    """Asymmetric Focal Loss for multi-label sigmoid outputs.
+
+    Origin: Li, Kamnitsas & Glocker, "Overfitting of neural nets under class
+    imbalance", MICCAI 2019 -> IEEE TMI. Their softmax form is
+
+        L = sum_j [ -r_j y_ij log(p_ij) - (1-r_j)(1-p_ij)^gamma y_ij log(p_ij) ]
+
+    where r_j flags the RARE class. The defining idea: the rare class gets
+    plain cross-entropy with NO focal modulation, so its gradient is never
+    suppressed; only the abundant class is down-weighted. Yeung et al.
+    (Computerized Medical Imaging and Graphics, 2022) add a delta term
+    balancing the two, recommending delta = 0.6.
+
+    Written per-label for independent sigmoids, positives = the rare class:
+
+        L = -delta * y * log(p)                       (no modulation on positives)
+            -(1-delta) * (1-y) * p^gamma * log(1-p)   (focal modulation on negatives)
+
+    Contrast with Asymmetric Loss (Ridnik et al., ICCV 2021), which has a
+    tunable focusing exponent on positives as well and adds a probability
+    margin. Asymmetric Focal Loss is the stricter statement: never discount a
+    positive.
+    """
+
+    def __init__(self, gamma=2.0, delta=0.6, eps=1e-8):
+        super().__init__()
+        self.gamma = gamma
+        self.delta = delta
+        self.eps = eps
+
+    def forward(self, logits, targets):
+        p = torch.sigmoid(logits).clamp(self.eps, 1.0 - self.eps)
+        pos = -targets * torch.log(p)                                   # plain CE
+        neg = -(1.0 - targets) * (p ** self.gamma) * torch.log(1.0 - p)  # focal
+        return (self.delta * pos + (1.0 - self.delta) * neg).mean()
+
+
 class MultiLabelFocalLoss(nn.Module):
     """Symmetric focal loss, kept so --loss focal reproduces the previous runs."""
 
@@ -160,7 +198,12 @@ def get_args():
                          "has already been rebalanced past parity. See Bag of Tricks (AAAI 2021) and "
                          "Distribution-Balanced Loss (ECCV 2020) on combining re-sampling with "
                          "re-weighting.")
-    p.add_argument("--loss", default="asl", choices=["asl", "focal"])
+    p.add_argument("--loss", default="afl", choices=["afl", "asl", "focal"])
+    p.add_argument("--afl_gamma", default=2.0, type=float,
+                    help="Asymmetric Focal Loss: focal exponent applied to NEGATIVES only.")
+    p.add_argument("--afl_delta", default=0.6, type=float,
+                    help="Asymmetric Focal Loss: weight on the positive term "
+                         "(Yeung et al. recommend 0.6).")
     p.add_argument("--asl_gamma_neg", default=4.0, type=float)
     p.add_argument("--asl_gamma_pos", default=0.0, type=float)
     p.add_argument("--asl_clip", default=0.05, type=float)
@@ -372,7 +415,11 @@ def main():
                                drop_path_rate=args.drop_path).to(device)
     print(f"n_parameters: {sum(p.numel() for p in model.parameters())}", flush=True)
 
-    if args.loss == "asl":
+    if args.loss == "afl":
+        criterion = AsymmetricFocalLoss(gamma=args.afl_gamma, delta=args.afl_delta)
+        print(f"criterion = AsymmetricFocalLoss(gamma={args.afl_gamma}, "
+              f"delta={args.afl_delta})  [no modulation on positives]", flush=True)
+    elif args.loss == "asl":
         criterion = AsymmetricLoss(gamma_neg=args.asl_gamma_neg,
                                     gamma_pos=args.asl_gamma_pos, clip=args.asl_clip)
         print(f"criterion = AsymmetricLoss(gamma_neg={args.asl_gamma_neg}, "
