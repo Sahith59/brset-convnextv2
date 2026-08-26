@@ -29,3 +29,7 @@ __pycache__/
 # model) - useful locally, not repo content.
 presentation/model_reference.md
 presentation/speaker_notes.md
+
+# Ad-hoc screenshots pasted in while reviewing slides (not repo content).
+Screenshot*.png
+presentation/Screenshot*.png

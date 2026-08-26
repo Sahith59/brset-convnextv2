@@ -1,34 +1,87 @@
-# ConvNeXt V2 Fine-Tuning on BRSET
+# ConvNeXt V2 on BRSET, and transfer to mBRSET
 
-Fine-tuning ConvNeXt V2 (via `timm`) on the full BRSET dataset, assigned by
-Nagur Shareef Shaik as a companion project to the
-[mbrset-retfound](https://github.com/Sahith59/mbrset-retfound) RETFound work.
+Two connected pieces of work, both directed by Dr. Dong Hye Ye.
 
-## Current model: multi-label diabetic_retinopathy + macular_edema (primary result)
+**Part 1** builds a strong ConvNeXt V2 baseline on BRSET (tabletop fundus
+camera, hospital clinic) and addresses its severe class imbalance.
+**Part 2** studies why that model degrades on mBRSET (handheld phone camera,
+community screening) and what can be done about it.
 
-Per Dr. Ye's direction, the primary task is now independent binary
-classification of two BRSET findings — `diabetic_retinopathy` and
-`macular_edema` — rather than the 5-class ICDR severity scale used in the
-earlier exploration below. ConvNeXt V2 **Large**, fine-tuned at **512x512**
-(above its native 384px pretraining), with weighted oversampling + focal
-loss and per-label threshold tuning. Full writeup:
-[`report/BRSET_ConvNeXtV2_Multilabel_Report.docx`](report/BRSET_ConvNeXtV2_Multilabel_Report.docx).
+Companion project: [mbrset-retfound](https://github.com/Sahith59/mbrset-retfound).
 
-**Test results** (epoch 9, TTA): `diabetic_retinopathy` AUC 0.9872 / F1 0.8452;
-`macular_edema` AUC 0.9926 / F1 0.7869. The paper's own binary DR benchmark is
-AUC 0.97 / F1 0.89 — we exceed their AUC, sit slightly below on F1. No paper
-baseline exists for macular_edema specifically.
+## Part 1: the BRSET baseline
+
+ConvNeXt V2 **Large**, fine-tuned at **512x512**, multi-label
+(`diabetic_retinopathy` + `macular_edema`), AdamW at lr 5e-5, 40 epochs,
+EMA 0.999, 4-way flip TTA, and per-label cutoffs chosen on validation by a
+200-resample bootstrap.
+
+| Configuration | DR AUC | DR F1 (class-macro) | DR missed | ME AUC | ME F1 (class-macro) |
+|---|---|---|---|---|---|
+| Focal + oversampling | 0.9924 | 0.9297 | 16/162 | 0.9886 | 0.8707 |
+| **Focal, oversampling off** (selected) | 0.9906 | **0.9374** | **10/162** | 0.9957 | 0.8852 |
+| Asymmetric focal, g=2 d=0.60 | 0.9916 | 0.9201 | 19/162 | 0.9963 | 0.8941 |
+| Asymmetric focal, g=3 d=0.75 | 0.9872 | 0.9224 | 20/162 | 0.9802 | 0.8907 |
+
+Three findings worth recording:
+
+- **The weighted oversampler was harmful.** It lifted the positive rate the
+  loss actually saw from 6.6% to 61%, inverting the imbalance it was meant to
+  correct. Removing it cut missed DR cases from 16 to 10 of 162.
+- **Asymmetric focal loss did not beat focal loss.** Tested at Dr. Ye's
+  direction: significantly worse on DR (paired bootstrap, p = 0.013) and no
+  measurable difference on ME. Even at its best attainable cutoff it reaches
+  only 0.9292 against focal's 0.9374, so it is not a threshold artifact.
+- **The selected run diverged to NaN at epoch 26 under fp16.** ConvNeXt V2's
+  GRN takes an L2 norm over a 512x512 map, which can exceed the fp16 maximum.
+  `--amp_dtype bf16` plus a non-finite-batch guard fixes it. A clean 40-epoch
+  bf16 rerun reaches the identical peak validation score (0.9218), so the
+  divergence cost nothing and the baseline is confirmed.
 
 ```bash
 python scripts/06_prepare_splits_multilabel.py
-sbatch scripts/08_train_convnextv2_multilabel.slurm
-python scripts/09_evaluate_multilabel.py <checkpoint> <out.txt>
-python scripts/10_generate_figures.py
-python scripts/11_generate_multilabel_report.py
+sbatch scripts/39_afl_vs_focal_40ep.slurm      # the 40-epoch loss comparison
+sbatch scripts/45_part1_focal_bf16_rerun.slurm # bf16 confirmation run
+python scripts/34_bootstrap_strong_baseline.py
 ```
 
-Uses all 16,258 usable images (16,266 minus 8 corrupted/missing — no quality
-filter, matching the paper's own inclusion criteria).
+## Part 2: BRSET to mBRSET transfer
+
+The Part-1 model, applied unchanged to mBRSET. No mBRSET image is used in
+training.
+
+| Diabetic retinopathy | On BRSET | On mBRSET |
+|---|---|---|
+| AUC | 0.9906 | 0.9060 |
+| F1 (class-macro) | 0.9374 | 0.8668 |
+| Recall | 0.9383 | 0.6855 |
+| Cases missed | 10/162 | 50/159 |
+
+Ranking barely suffers; the decision collapses. The gap was then split by
+measurement (diseased-class F1 on mBRSET):
+
+| | F1 |
+|---|---|
+| Transferred as is | 0.7842 |
+| Best reachable at any cutoff | 0.7927 |
+| Fine-tuned on labelled mBRSET | 0.8317 |
+
+Sweeping every cutoff from 0.005 to 0.995 shows 0.7927 is the ceiling for any
+method that only rescales scores, which rules out calibration, temperature
+scaling and label-shift correction by measurement. **18% of the remaining gap
+is the decision cutoff and 82% is the representation.** The shift is not only
+a prevalence change: ROC is invariant to class balance, yet AUC fell from
+0.9906 to 0.9060.
+
+Literature review and proposed direction:
+[`report/BRSET_to_mBRSET_Literature_Review.docx`](report/BRSET_to_mBRSET_Literature_Review.docx).
+Running deck: [`presentation/BRSET_to_mBRSET_Part2.pptx`](presentation/BRSET_to_mBRSET_Part2.pptx).
+
+```bash
+sbatch scripts/42_crossdevice_eval_newbaseline.slurm  # zero-shot transfer test
+sbatch scripts/43_mbrset_part1_recipe.slurm           # mBRSET from scratch
+sbatch scripts/44_mbrset_finetune_from_brset.slurm    # BRSET -> mBRSET finetune
+```
 
 ## Earlier exploration: 5-class ICDR severity grading (superseded)
 
