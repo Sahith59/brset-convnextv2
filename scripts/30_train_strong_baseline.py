@@ -46,6 +46,8 @@ from torchvision import transforms
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 LABEL_COLS = ["diabetic_retinopathy", "macular_edema"]
+AMP_DTYPE = {"fp16": torch.float16, "bf16": torch.bfloat16, "fp32": torch.float32}
+_EVAL_DTYPE = [torch.float16]   # set from args in main()
 
 
 class BRSETMultiLabel(Dataset):
@@ -59,10 +61,21 @@ class BRSETMultiLabel(Dataset):
 
     def __getitem__(self, idx):
         row = self.labels_df.iloc[idx]
-        img = Image.open(self.split_dir / row["file"]).convert("RGB")
-        img = self.transform(img)
-        target = torch.tensor([row[c] for c in LABEL_COLS], dtype=torch.float32)
-        return img, target
+        path = self.split_dir / row["file"]
+        # The images live on NFS and reads occasionally fail transiently under
+        # load -- a run died at epoch 6 with FileNotFoundError on a file that
+        # was present and whose symlink was intact. Retry rather than lose
+        # hours of training to a momentary blip.
+        last = None
+        for attempt in range(5):
+            try:
+                img = self.transform(Image.open(path).convert("RGB"))
+                target = torch.tensor([row[c] for c in LABEL_COLS], dtype=torch.float32)
+                return img, target
+            except (OSError, IOError) as e:
+                last = e
+                time.sleep(0.5 * (attempt + 1))
+        raise RuntimeError(f"failed to read {path} after 5 attempts: {last}")
 
 
 class AsymmetricLoss(nn.Module):
@@ -177,6 +190,15 @@ def get_args():
     p = argparse.ArgumentParser()
     p.add_argument("--model", default="convnextv2_large.fcmae_ft_in22k_in1k_384")
     p.add_argument("--data_path", default="/home/users/sthummala2/brset-convnextv2/data/finetune_multilabel")
+    p.add_argument("--amp_dtype", default="auto", choices=["auto", "fp16", "bf16", "fp32"],
+                    help="Autocast dtype. 'auto' picks bf16 on GPUs that support it. The focal "
+                         "run afl40_focal_control diverged to NaN at epoch 26 under fp16: ConvNeXt "
+                         "V2's GRN takes an L2 norm over a 512x512 map, which can exceed the fp16 "
+                         "max of 65504. bf16 has fp32's exponent range and does not overflow.")
+    p.add_argument("--warm_start_ckpt", default="",
+                    help="Initialize weights from this checkpoint instead of ImageNet. Used to "
+                         "fine-tune a BRSET-trained model on mBRSET. The classifier head is kept "
+                         "since both datasets share the same two labels.")
     p.add_argument("--nb_classes", default=2, type=int)
     p.add_argument("--input_size", default=512, type=int)
     p.add_argument("--resize_size", default=560, type=int)
@@ -257,7 +279,8 @@ def run_inference(model, loader, device, tta="none"):
     all_targets, all_probs = [], []
     for images, targets in loader:
         images = images.to(device, non_blocking=True)
-        with torch.autocast(device_type="cuda", dtype=torch.float16):
+        with torch.autocast(device_type="cuda", dtype=_EVAL_DTYPE[0],
+                            enabled=_EVAL_DTYPE[0] is not None):
             views = [images]
             if tta in ("hflip", "flip4"):
                 views.append(torch.flip(images, dims=[3]))
@@ -333,7 +356,7 @@ def mixup_batch(images, targets, alpha):
 def train_one_epoch(model, ema, loader, optimizer, scheduler, scaler, criterion, device,
                      epoch, args, print_freq=40):
     model.train()
-    running_loss, n_batches = 0.0, 0
+    running_loss, n_batches, n_bad = 0.0, 0, 0
     t0 = time.time()
     optimizer.zero_grad(set_to_none=True)
     for i, (images, targets) in enumerate(loader):
@@ -343,8 +366,15 @@ def train_one_epoch(model, ema, loader, optimizer, scheduler, scaler, criterion,
             images, targets = mixup_batch(images, targets, args.mixup_alpha)
         if args.label_smoothing > 0:
             targets = targets * (1 - args.label_smoothing) + 0.5 * args.label_smoothing
-        with torch.autocast(device_type="cuda", dtype=torch.float16):
+        with torch.autocast(device_type="cuda", dtype=AMP_DTYPE[args.amp_dtype],
+                            enabled=args.amp_dtype != "fp32"):
             loss = criterion(model(images), targets) / args.accum_iter
+        # A single non-finite batch poisons the accumulated gradients, and from
+        # there the weights. Drop the whole accumulation group instead.
+        if not torch.isfinite(loss):
+            n_bad += 1
+            optimizer.zero_grad(set_to_none=True)
+            continue
         scaler.scale(loss).backward()
         if (i + 1) % args.accum_iter == 0 or (i + 1) == len(loader):
             scaler.step(optimizer)
@@ -359,6 +389,8 @@ def train_one_epoch(model, ema, loader, optimizer, scheduler, scaler, criterion,
                   f"loss: {loss.item()*args.accum_iter:.4f}  avg: {running_loss/n_batches:.4f}  "
                   f"{time.time()-t0:.0f}s", flush=True)
     scheduler.step()
+    if n_bad:
+        print(f"WARNING epoch {epoch}: skipped {n_bad} non-finite batches", flush=True)
     return running_loss / max(n_batches, 1)
 
 
@@ -411,9 +443,24 @@ def main():
     loader_test = DataLoader(ds_test, batch_size=args.batch_size, shuffle=False,
                               num_workers=args.num_workers, pin_memory=True)
 
+    if args.amp_dtype == "auto":
+        args.amp_dtype = "bf16" if torch.cuda.is_bf16_supported() else "fp16"
+    print(f"autocast dtype: {args.amp_dtype}", flush=True)
+    _EVAL_DTYPE[0] = (None if args.amp_dtype == "fp32" else AMP_DTYPE[args.amp_dtype])
+
     model = timm.create_model(args.model, pretrained=True, num_classes=args.nb_classes,
                                drop_path_rate=args.drop_path).to(device)
     print(f"n_parameters: {sum(p.numel() for p in model.parameters())}", flush=True)
+
+    if args.warm_start_ckpt:
+        ck = torch.load(args.warm_start_ckpt, map_location="cpu", weights_only=False)
+        missing, unexpected = model.load_state_dict(ck["model"], strict=False)
+        print(f"warm start: {args.warm_start_ckpt}", flush=True)
+        print(f"  source epoch {ck.get('epoch')} variant {ck.get('variant')}; "
+              f"missing={len(missing)} unexpected={len(unexpected)}", flush=True)
+        if missing or unexpected:
+            raise SystemExit(f"refusing to continue: state_dict mismatch "
+                             f"missing={missing[:5]} unexpected={unexpected[:5]}")
 
     if args.loss == "afl":
         criterion = AsymmetricFocalLoss(gamma=args.afl_gamma, delta=args.afl_delta)
