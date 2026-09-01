@@ -86,40 +86,45 @@ takeaway(s, "This right-hand column is the number to beat. Everything from here 
 # ═════════════════════════════════════════════ 3. what the gap is made of
 s = slide()
 title(s, "What the gap is made of, and what it is not",
-      "Diabetic retinopathy, diseased-class F1 on mBRSET. Every value measured, none assumed.")
+      "Diabetic retinopathy, diseased-class F1 on mBRSET. Seven models measured, none assumed.")
 
-BX0, BW, BY, BH = 1.30, 10.6, 2.95, 0.62
-LO, HI = 0.7842, 0.8317
+BX0, BW, BY, BH = 1.30, 10.6, 2.85, 0.60
+LO, HI = 0.7842, 0.8355
 def bx(v):
     return BX0 + BW * (v - LO) / (HI - LO)
 
 for a, b, fill, fg, delta, cap in [
-        (0.7842, 0.7927, RGBColor(0xA8, 0xC0, 0xD8), INK, "+0.009", "all that a better\ncutoff can give"),
-        (0.7927, 0.8317, RGBColor(0x9B, 0x45, 0x35), WHITE, "+0.039", "needs a better model.\nNo cutoff reaches it")]:
-    box(s, bx(a), BY, bx(b) - bx(a), BH, delta, fill, fg, 15, True, line=WHITE)
-    label(s, bx(a), BY + BH + 0.12, bx(b) - bx(a), cap, 11, INK, False, h=0.62)
+        (0.7842, 0.7927, RGBColor(0xA8, 0xC0, 0xD8), INK, "+0.009", "all a better cutoff can give"),
+        (0.7927, 0.8355, RGBColor(0x9B, 0x45, 0x35), WHITE, "+0.043", "needs a better model")]:
+    box(s, bx(a), BY, bx(b) - bx(a), BH, delta, fill, fg, 14, True, line=WHITE)
+    label(s, bx(a), BY + BH + 0.10, bx(b) - bx(a), cap, 11, INK, False, h=0.32)
 
 for v, cap in [(0.7842, "0.7842\ntransferred"), (0.7927, "0.7927\nbest cutoff"),
-               (0.8317, "0.8317\nwith labels")]:
-    label(s, bx(v) - 0.90, 1.70, 1.8, cap, 11.5, ACCENT, True, h=0.60)
-    box(s, bx(v) - 0.006, 2.32, 0.012, BY - 2.32, "", RULE, INK, 8, False)
+               (0.8355, "0.8355\nwith labels")]:
+    label(s, bx(v) - 0.90, 1.66, 1.8, cap, 11.5, ACCENT, True, h=0.58)
+    box(s, bx(v) - 0.006, 2.26, 0.012, BY - 2.26, "", RULE, INK, 8, False)
 
-label(s, 0.65, 4.30, 12.1, "Only 18 percent of the remaining gap is the cutoff. 82 percent needs a better model.",
-      13, ACCENT, True, PP_ALIGN.LEFT)
+label(s, 0.65, 3.90, 12.1,
+      "The split does not depend on which target-trained model is used as the endpoint",
+      12.5, ACCENT, True, PP_ALIGN.LEFT)
+table(s, [
+    ["Endpoint (model trained with mBRSET labels)", "F1", "Cutoff", "Representation"],
+    ["mBRSET from scratch, old recipe", "0.8146", "28%", "72%"],
+    ["mBRSET from scratch, stable schedule", "0.8239", "22%", "78%"],
+    ["BRSET and mBRSET trained jointly", "0.8250", "21%", "79%"],
+    ["BRSET pretrain, mBRSET finetune (best)", "0.8355", "17%", "83%"],
+], top=4.24, left=0.65, width=12.1, col_w=[6.2, 1.6, 2.0, 2.3], font=10, height=1.35)
 
 bullets(s, [
+    "Across six target-trained models the cutoff never accounts for more than 28 percent. At least 72 "
+    "percent is the representation, whichever endpoint is chosen.",
     "The 0.7927 ceiling was found by sweeping every cutoff from 0.005 to 0.995. Calibration, temperature "
-    "scaling and label-shift correction only rescale scores, so all of them land on this same curve and "
-    "none can pass it. That family is exhausted.",
-    "The shift is not only that patients are sicker. AUC is mathematically unaffected by how many patients "
-    "are diseased (Fawcett 2006), so if prevalence alone had changed, AUC would have held. It fell from "
-    "0.9906 to 0.9060, which means the images themselves are different.",
-    "0.8317 is what fine-tuning on labelled mBRSET achieves, so it is the value of target labels, not a "
-    "hard limit. The research question is how close a method with no target labels can get to it.",
-], top=4.66, size=12, bottom=6.45)
+    "scaling and label-shift correction only rescale scores, so none can pass it. That family is exhausted.",
+    "Even the best model trained on labelled mBRSET still misses 27 of 159 diseased patients, so target "
+    "labels alone do not solve this.",
+], top=5.70, size=11.5, bottom=6.62)
 
-takeaway(s, "The cutoff route is nearly exhausted. The remaining work is representation, which is where "
-            "the literature points.", top=6.52)
+takeaway(s, "The cutoff route is exhausted. The remaining work is representation.", top=6.66)
 
 # ═════════════════════════════════════════════ 4. literature
 s = slide()
@@ -183,25 +188,27 @@ steps = [
      "Three method families eliminated, augmentation identified as the one with evidence", "Done"],
     ["5", "Stabilise the Part-1 baseline",
      "bf16 rerun completed 40 clean epochs. Both runs peak at the identical validation\nscore of 0.9218, so the divergence cost nothing and the baseline is confirmed", "Done"],
-    ["6", "Device-calibrated degradation augmentation",
-     "Fit degradation parameters to measured mBRSET statistics, using no target labels", "Next"],
-    ["7", "Control experiment",
+    ["6", "Establish the target-trained endpoint",
+     "Six configurations measured. Best is 0.8355 (BRSET pretrain, mBRSET finetune).\nEven with labels, 27 of 159 diseased patients are still missed", "Done"],
+    ["7", "Device-calibrated degradation augmentation",
+     "Fit degradation to measured mBRSET statistics using cofe-Net's physical model,\nwith no target labels. This is the novel contribution", "Next"],
+    ["8", "Control experiment",
      "Compare against generic FundusAug at published settings, as Gulrajani requires", "Planned"],
 ]
 shp = table(s, steps, top=1.60, col_w=[0.4, 3.0, 6.5, 0.9], font=10, height=3.3)
-for r, st in enumerate(["Done", "Done", "Done", "Done", "Done", "Next", "Planned"], start=1):
+for r, st in enumerate(["Done"]*6 + ["Next", "Planned"], start=1):
     cell_color(shp, r, 3, GOOD if st == "Done" else (AMBER if st == "Next" else MUTED))
 
-label(s, 0.65, 5.10, 12.1, "The idea behind step 6", 12.5, ACCENT, True, PP_ALIGN.LEFT)
+label(s, 0.65, 5.36, 12.1, "The idea behind step 7, the novel contribution", 12.5, ACCENT, True, PP_ALIGN.LEFT)
 bullets(s, [
     "FundusAug applies its nine operations with a fixed probability of 0.5 and hand-chosen magnitudes. "
     "It is generic damage for generic robustness, tuned for no particular camera.",
     "4,272 mBRSET images already carry artifact annotations, so the handheld camera's actual degradation "
     "statistics are measurable without using a single diagnostic label. Fitting the augmentation to those "
     "measured statistics, rather than guessing them, is the novel step.",
-], top=5.44, size=12, bottom=6.50)
+], top=5.70, size=11.5, bottom=6.62)
 
-takeaway(s, "Steps 1 to 5 are complete and measured. Step 6 is the novel contribution.", GOOD, top=6.55)
+takeaway(s, "Steps 1 to 6 are measurement and diagnosis, and they are complete. Step 7 builds.", GOOD, top=6.66)
 
 prs.save(OUT)
 print(f"wrote {OUT}  ({len(prs.slides.__iter__.__self__._sldIdLst)} slides)")

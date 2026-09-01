@@ -107,14 +107,18 @@ P("Ranking barely suffers; the decision collapses. Two things change at once. Th
 H("2. Where the gap lives, measured rather than assumed")
 table([
     ["Diabetic retinopathy, diseased-class F1 on mBRSET", "F1"],
-    ["Transferred as is", "0.7842"],
+    ["Transferred as is, no mBRSET labels", "0.7842"],
     ["Best reachable at any decision threshold", "0.7927"],
-    ["Fine-tuned on labelled mBRSET", "0.8317"],
+    ["Best of six models trained with mBRSET labels", "0.8355"],
 ], [4.7, 2.3])
 P("Sweeping every threshold from 0.005 to 0.995 shows the best any threshold can reach is 0.7927. "
   "Calibration, temperature scaling and label-shift correction only rescale scores, so each selects a point "
-  "on that same curve and none can exceed it. That family is ruled out by measurement rather than by trial. "
-  "Of the remaining gap, 18 percent is the decision threshold and 82 percent is the representation.")
+  "on that same curve and none can exceed it. That family is ruled out by measurement rather than by trial.")
+P("I measured six target-trained models, from mBRSET-only training through joint training to BRSET "
+  "pre-training with mBRSET fine-tuning, spanning F1 0.8146 to 0.8355. Across all six the decision "
+  "threshold never accounts for more than 28 percent of the gap, so at least 72 percent is the "
+  "representation regardless of which endpoint is taken as the target. Even the best of them still misses "
+  "27 of 159 diseased patients, so target labels alone do not solve this problem.")
 P("The shift is not only a change in prevalence. ROC is invariant to class balance [11], so if only the "
   "disease rate had moved, AUC would have held. It fell from 0.9906 to 0.9060, which means the images "
   "themselves differ.")
