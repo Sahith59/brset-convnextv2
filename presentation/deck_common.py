@@ -142,6 +142,14 @@ def label(s, x, y, w, text, size=11, color=INK, bold=False, align=PP_ALIGN.CENTE
     return b
 
 
+def arrow(s, x, y, w, h=0.20, color=None):
+    """Right-pointing flow arrow."""
+    sh = s.shapes.add_shape(MSO_SHAPE.RIGHT_ARROW, Inches(x), Inches(y), Inches(w), Inches(h))
+    sh.fill.solid(); sh.fill.fore_color.rgb = color or RULE
+    sh.line.fill.background(); sh.shadow.inherit = False
+    return sh
+
+
 def takeaway(s, text, color=ACCENT, top=6.55):
     b = s.shapes.add_textbox(Inches(0.65), Inches(top), Inches(12.1), Inches(0.7))
     tf = b.text_frame; tf.word_wrap = True
