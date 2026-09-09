@@ -33,3 +33,22 @@ presentation/speaker_notes.md
 # Ad-hoc screenshots pasted in while reviewing slides (not repo content).
 Screenshot*.png
 presentation/Screenshot*.png
+
+# Personal meeting aids, not repo content.
+presentation/findings_speaker_notes.md
+presentation/cluely_context_prompt.md
+
+# Figures containing actual BRSET / mBRSET fundus photographs. The PhysioNet
+# DUA forbids redistributing images, so these stay on the cluster. Regenerate
+# with: python scripts/58_degradation_figure.py
+results/degradation_examples*.png
+
+# The status deck embeds the degradation figure above, so the built file carries
+# patient images even though its build script does not. Rebuild locally with:
+# python presentation/build_status.py
+presentation/BRSET_mBRSET_Status.pptx
+
+# Per-image mBRSET filenames with quality statistics, used for the abstention
+# analysis. Aggregate conclusion is in report/RESEARCH_PLAN.md; the filename
+# column is a per-patient identifier list and does not belong in the repo.
+results/mbrset_test_quality.csv
