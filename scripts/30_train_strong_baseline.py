@@ -195,6 +195,14 @@ def get_args():
                          "run afl40_focal_control diverged to NaN at epoch 26 under fp16: ConvNeXt "
                          "V2's GRN takes an L2 norm over a 512x512 map, which can exceed the fp16 "
                          "max of 65504. bf16 has fp32's exponent range and does not overflow.")
+    p.add_argument("--resize_mode", default="squash", choices=["squash", "preserve"],
+                    help="How images are brought to resize_size. 'squash' is Resize((S,S)), which "
+                         "forces both dimensions and IGNORES aspect ratio. Measured 3 Sep 2026: every "
+                         "BRSET image is non-square (mean aspect 1.287) and every mBRSET image is "
+                         "exactly square, so squash compresses BRSET horizontally by about 23 percent "
+                         "while leaving mBRSET untouched, creating a geometric domain gap in "
+                         "preprocessing. 'preserve' resizes the short side and centre crops, treating "
+                         "both datasets identically.")
     p.add_argument("--warm_start_ckpt", default="",
                     help="Initialize weights from this checkpoint instead of ImageNet. Used to "
                          "fine-tune a BRSET-trained model on mBRSET. The classifier head is kept "
@@ -241,8 +249,14 @@ def get_args():
 
 
 def build_transforms(args):
+    mode = getattr(args, "resize_mode", "squash")
+    if mode == "preserve":
+        # short side to resize_size, aspect ratio kept; the crop then selects the square
+        resize = transforms.Resize(args.resize_size)
+    else:
+        resize = transforms.Resize((args.resize_size, args.resize_size))
     train_tf = transforms.Compose([
-        transforms.Resize((args.resize_size, args.resize_size)),
+        resize,
         transforms.RandomCrop(args.input_size),
         transforms.RandomHorizontalFlip(),
         transforms.RandomRotation(15),
@@ -251,7 +265,7 @@ def build_transforms(args):
         transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
     ])
     eval_tf = transforms.Compose([
-        transforms.Resize((args.resize_size, args.resize_size)),
+        resize,
         transforms.CenterCrop(args.input_size),
         transforms.ToTensor(),
         transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),

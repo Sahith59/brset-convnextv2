@@ -155,6 +155,11 @@ def main():
     p.add_argument("--thr_bootstrap", default=200, type=int)
     p.add_argument("--num_workers", default=8, type=int)
     p.add_argument("--seed", default=0, type=int)
+    p.add_argument("--select_metric", default="score", choices=["score", "f1"],
+                    help="Which validation quantity picks the best checkpoint. 'score' is the "
+                         "project default, 0.5*(macro AUC + macro F1). 'f1' uses macro F1 alone. "
+                         "Experiment 1 improved AUC while losing F1 and recall, so the default may "
+                         "have selected for the wrong thing on this architecture.")
     p.add_argument("--task", default="dsn_joint")
     p.add_argument("--output_dir", default="/home/users/sthummala2/brset-convnextv2/results")
     args = p.parse_args()
@@ -233,8 +238,9 @@ def main():
             yv, pv = infer(net, dl_va, device, args.amp_dtype, args.tta)
             thr = t30.tune_thresholds(yv, pv, n_boot=0, seed=args.seed)
             per, mauc, mf1 = t30.compute_per_label_metrics(yv, pv, thr)
-            score = 0.5 * (mauc + mf1)
-            print(f"val[{variant}]: macro_auc={mauc:.4f} macro_f1={mf1:.4f} score={score:.4f}", flush=True)
+            score = mf1 if args.select_metric == "f1" else 0.5 * (mauc + mf1)
+            print(f"val[{variant}]: macro_auc={mauc:.4f} macro_f1={mf1:.4f} "
+                  f"score={score:.4f} (select_metric={args.select_metric})", flush=True)
             if score > best_score:
                 best_score, best_epoch, best_variant = score, epoch, variant
                 torch.save({"model": net.state_dict(), "epoch": epoch, "variant": variant,
