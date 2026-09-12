@@ -2,6 +2,7 @@
   "status": "running",
   "submitted_utc": "2026-09-12T14:21:34Z",
   "job_id": 4379924,
+  "dependent_finalize_job_id": 4379931,
   "nodes": ["arctrdagn032", "arctrdagn033", "arctrdagn034"],
   "resources": "one NVIDIA A40, 8 CPUs and 64 GiB per task; three tasks on three nodes; nonexclusive",
   "task_arm_map": {
@@ -12,6 +13,7 @@
   "seed": 0,
   "updates_per_arm": 5775,
   "assessment": "mBRSET validation only; no test assessment submitted",
+  "automatic_finalization": "after all three tasks succeed, verify contracts/hashes/exposures/validation metrics and rebuild the living DOCX/PPTX",
   "preflight_job": 4379902,
   "smoke_job": 4379912,
   "sha256": {

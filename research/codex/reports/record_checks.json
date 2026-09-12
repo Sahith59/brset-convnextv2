@@ -3,7 +3,7 @@
   "generated": "12 September 2026",
   "docx": {
     "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Record.docx",
-    "sha256": "d218f6135fd8600053570c0279b67f44c83f0ab36e57c43cf9ac6dfd399674f5",
+    "sha256": "3daeb8beaaf2b86f89e48e3b95845863d9281e46ecb7a5c43e4ce3d5413779e1",
     "sections": 1,
     "tables": 7,
     "paragraphs": 42,
@@ -11,7 +11,7 @@
   },
   "pptx": {
     "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Update.pptx",
-    "sha256": "94ef1e7f2b2f255a73cc4269dcb2e166ca6671d574f9751b3a7c7f2915ac9009",
+    "sha256": "a46d7f198d804ee90fbfd0e221eeefd900e799c5cebf2ae8f1616ba11bbd2508",
     "slides": 8,
     "times_new_roman_present": true
   },

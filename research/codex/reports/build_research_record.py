@@ -144,6 +144,8 @@ def step3_state(preflight):
     controls = step3_validation_rows()
     completed = {row[0] for row in controls}
     if {"C1", "C2", "C3"}.issubset(completed):
+        if (ROOT / "research/codex/step3/seed0_validation_summary.json").exists():
+            return "seed-0 controls verified; review the replication screen", controls
         return "seed-0 controls complete; validation results require verification", controls
     if STEP3_LAUNCH.exists():
         return "seed-0 controls submitted/running; no control result claimed yet", controls
@@ -404,8 +406,17 @@ def build_pptx(summary, preflight):
                 "Untouched external generalization.", "A defensible novel mechanism."], x=7.0, y=2.3, w=5.45, h=3.6, size=17)
 
     s = prs.slides.add_slide(blank); slide_title(s, "Step 3: isolate domain frequency and label composition")
-    ppt_table(s, [["", "Natural label mix", "Target-matched DR/ME mix"], ["Natural domain ratio", "B1 existing", "C2"],
-                  ["50% BRSET / 50% mBRSET", "C1", "C3"]], 1.15, 1.55, 11.0, 2.25, [3.4, 3.8, 3.8], 16)
+    if len(control_rows) > 1:
+        ref_dr, ref_me = float(control_rows[0][1]), float(control_rows[0][3])
+        result_rows = [["Arm", "DR F1", "Δ", "DR AUROC", "ME F1", "Δ", "ME AUROC"]]
+        for row in control_rows:
+            dr, me = float(row[1]), float(row[3])
+            result_rows.append([row[0], row[1], "—" if row[0].startswith("B1") else f"{dr-ref_dr:+.4f}", row[2],
+                                row[3], "—" if row[0].startswith("B1") else f"{me-ref_me:+.4f}", row[4]])
+        ppt_table(s, result_rows, .45, 1.48, 12.45, 2.55, [1.4, 1.25, .9, 1.5, 1.25, .9, 1.5], 12)
+    else:
+        ppt_table(s, [["", "Natural label mix", "Target-matched DR/ME mix"], ["Natural domain ratio", "B1 existing", "C2"],
+                      ["50% BRSET / 50% mBRSET", "C1", "C3"]], 1.15, 1.55, 11.0, 2.25, [3.4, 3.8, 3.8], 16)
     status = "PASSED" if preflight and preflight.get("pass") else "PENDING"
     ppt_box(s, 1.0, 4.35, 3.45, 1.0, "Only the sampler changes", PALE, BLUE, 18, True)
     ppt_box(s, 4.95, 4.35, 3.45, 1.0, "Validation-only screening", PALE, BLUE, 18, True)
