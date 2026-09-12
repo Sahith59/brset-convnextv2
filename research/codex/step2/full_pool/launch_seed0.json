@@ -1,0 +1,33 @@
+{
+  "submitted_utc": "2026-09-10T15:51:35.744109+00:00",
+  "state": "submitted_with_preflight_and_smoke_dependencies",
+  "superseded_cancelled_jobs": [
+    "4372453",
+    "4372454"
+  ],
+  "preflight_job": "4372856",
+  "smoke_job": "4372877",
+  "training_jobs": {
+    "B0": "4372880",
+    "B1": "4372881",
+    "B2": "4372882"
+  },
+  "gpu_concurrency_max": 3,
+  "baseline_nodes": {
+    "B0": "arctrdagn035",
+    "B1": "arctrdagn036",
+    "B2": "arctrdagn037"
+  },
+  "reason": "User requests full original training pools and replacement of reduced-pool runs",
+  "source_sha256": {
+    "train_baseline.py": "2dc043cd845346d491efe88c637008e25a744d1620cbf99a0cb91e691bd99c47",
+    "check_image_duplicates.py": "0807f93e7fee58c26b72c41e54e398d0428dcf900fa4f3d6f76531012c3f63cc",
+    "assess_baselines.py": "7dce7e6acc3249a393a3d9c72f474af6a189e5be02bbaea9a4fe92b26b465839",
+    "prepare_manifest.py": "4956391160a90c8f5da3730f4f24cbb2ac94f8060f605054fd6830e80db00d74",
+    "baseline_core.py": "bf6b95bbe57d4127b2b20854b7915a40d5d6c5cdda129e7026e5c1a7247632c0",
+    "launch_gate.py": "8ec2f6e22ec278c7003ae9323719f097632af1e32a51750e3f40ca6895a888c8",
+    "verify_smoke.py": "08c8dc8709f1d5df77ec7f0f2408180d25195df193240281b30e4b3e96fc8d99",
+    "test_baseline.py": "b61c8843e155f31f6fbfff128e192ca82c60e359c0ded1da418bd52352b53620"
+  },
+  "assessment_job": "4372883"
+}

@@ -1,0 +1,153 @@
+1 / 3
+Degradation validation for BRSET–mBRSET
+Result. Applying the existing fitted transformation to a new training-only sample reduced the difference in five
+appearance summaries. This is evidence of appearance matching, not yet evidence of better diabetic-retinopathy (DR)
+or macular-edema (ME) prediction.
+1. What was tested
+The source is BRSET; the target is mBRSET. The new check uses 64 BRSET images from 64 patients and 64
+mBRSET images from 59 patients. Their patients are separate from the original measurement/fitting samples
+reconstructed from the saved scripts and random seeds. Parameters were frozen: kept unchanged rather than fitted
+again. No diagnosis labels, validation/test images or classifier predictions were used. [1,2]
+Image preparation: two explicitly defined settings
+Direct 512 × 512 resize (called “legacy 512” in older files): resize the whole photograph to a 512-pixel square, using
+Pillow’s default bicubic interpolation (pixel estimation during resizing) for RGB images. This reproduces the earlier
+measurement procedure and stretches non-square photographs.
+560 × 560 resize, then 512 × 512 center crop: resize the whole photograph to a 560-pixel square with bilinear
+interpolation, then remove 24 pixels from each edge. This matches the classifier’s evaluation geometry before
+normalization. The transformation is applied after this preparation in the present check; random training
+augmentations are not included. [2]
+What “appearance distance” means
+Five quantities are measured within a threshold-based retinal mask: high-frequency energy (“sharpness”), mean
+brightness, intensity variation (“contrast”), center-to-edge brightness difference (“falloff”), and saturation (color
+intensity). Their exact definitions are on page 2.
+Dr (A, T) = ∑
+5
+k = 1[
+μ A,r,k −
+μ T,k
+max(sT,k , 10 −6 ) ]
+2
+For measure k, μA,r,k is its average across transformed source images at random seed r; μT,k and sT,k are the
+target-image mean and sample standard deviation. Dividing by target spread puts different units on a comparable
+scale. Smaller is closer on these five averages. It is not a percentage, diagnostic score or comparison of complete
+image distributions.
+Results on the new sample
+Preparation
+Unchanged
+BRSET
+Local
+generic
+Frozen
+fitted
+Direct 512 × 512
+6.742
+10.092
+1.261
+560 × 560 → center 512 × 512
+8.474
+12.011
+4.294
+Transform columns average Dr over seeds 0, 1 and 2 on the same images; unchanged BRSET is deterministic. Target means and
+spreads are recalculated for each row, so interpret comparisons within a row. These three transform draws do not provide uncertainty
+across patient samples. The local generic control is handcrafted, not official FundusAug or full GDRNet. [2,3]
+
+2 / 3
+2. How the degradation was produced
+The code applies this ordered chain: Gaussian blur → uneven illumination → bright/dark spots and halo →
+sensor-like noise → brightness, contrast and saturation adjustments. Pixel values are clipped to the valid image
+range. Each configured operation is applied; there is no independent 50% application gate. This is an empirical
+simulator, not an identified physical model of the target camera. [1]
+Parameter search and selected settings
+The original search measured 400 training images per dataset and evaluated 150 random parameter combinations
+on 25 BRSET training images. It minimized the distance above to the saved mBRSET means/spreads. Source fitting
+images used direct 512-square resizing; the original target measurement used short-side resizing to 512 followed by a
+center crop. Continuous parameters were sampled uniformly; counts were sampled uniformly over inclusive integers.
+[1]
+Parameter (meaning)
+Search range
+Local generic
+Selected fit
+Blur standard deviation (pixels)
+0–1.2
+1.0000
+0.9071
+Illumination strength
+0–0.6
+0.2500
+0.2613
+Number of bright spots
+0–4
+2
+1
+Number of dark spots
+0–3
+1
+3
+Halo amplitude
+0–0.20
+0.1000
+0.0857
+Brightness multiplier
+0.70–1.15
+1.1500
+1.0767
+Contrast multiplier
+0.90–2.00
+1.1500
+0.9160
+Saturation multiplier
+0.50–1.20
+1.1000
+1.0028
+Noise standard deviation (0–1 RGB)
+0–0.030
+0.0000
+0.0120
+Displayed settings are rounded; the saved parameter file retains full precision. A random-number generator (RNG) makes sampling
+reproducible. Search/sample seed: 0; transform RNG at trial t: t. The stored parameter vector matches trial 87 (zero-based) in the
+reconstructed draw sequence. New-sample selection seed: 20260910. New quantitative transform seeds: 0–2; figure generic/fitted
+seeds: 100–102 / 200–202.
+Random placement and fixed operator details
+Let R be half the shorter image side. Spot centers are uniform within 15–85% of image height/width. Bright-spot Gaussian radius:
+0.015–0.055R; dark-spot radius: 0.015–0.045R; amplitude: 0.10–0.30. Halo radius: 0.82R, width: 0.10R. Illumination-center offsets
+are within ±22% of each side; Gaussian width is 55% of the shorter side. Its multiplicative field is 1 + strength × (Gaussian − 0.5).
+Noise is zero-mean Gaussian per RGB channel, applied where the pre-noise mask is positive. [1]
+Exact appearance measurements
+RGB values are scaled to [0,1]; grayscale is their channel mean. The mask contains pixels with grayscale > 0.04. “Sharpness” is the
+variance of the grayscale Laplacian (a local intensity-change operator) within that mask; noise can increase it. Brightness is masked
+mean intensity; contrast is masked population standard deviation. Falloff is mean intensity at radius < 25% of the shorter side minus
+that at radius > 39%, both masked. Saturation averages (maximum RGB − minimum RGB) / maximum RGB, with a 10−6 denominator
+floor. Target spread in the distance uses sample standard deviation across images. [1,2]
+Scope: the mask excludes most black background but is not an anatomical segmentation. This check does not test whether simulated
+spots obscure or resemble lesions. Training and clinical validation remain necessary.
+
+3 / 3
+3. Verified image examples and next step
+Each row contains one original BRSET image, two transformations of that same image, and an unrelated real mBRSET reference.
+The first three randomly selected images from each new-sample manifest are shown; they were not selected by diagnosis or visual
+quality. “Original” means no added degradation, after the stated resize/crop.
+BRSET
+original
+Local generic
+transform
+Frozen fitted
+transform
+Real mBRSET
+(unpaired)
+Provenance. BRSET rows: img04157.jpg, img06199.jpg, img15850.jpg; mBRSET rows: 1317.1.jpg, 252.3.jpg, 927.1.jpg. All six
+resolve to their respective BRSET v1.0.1 / mBRSET v1.0 dataset files and match the raw label tables and training manifests. File
+hashes and transform seeds are retained in the internal provenance record. The panels use classifier evaluation geometry; the added
+spots are simulator outputs, not new annotations. [2]
+Interpretation and planned validation
+The frozen fit improves the measured appearance objective beyond its original fitting sample. The images still show synthetic spots
+and remaining differences in color, framing and illumination. Diagnostic preservation, classification improvement and novelty are
+not established. Next: obtain ophthalmic review of representative lesion-bearing pairs; lock a fair training protocol; then compare
+ordinary augmentation, faithful FundusAug and fitted augmentation before adding distillation.
+Evidence and reproduction
+[1] Repository: scripts/55_degradation_ops.py, 56_measure_datasets.py, 57_fit_degradation.py;
+results/fitted_degradation_params.json.
+[2] Evaluation: research/codex/tools/degradation_update.py; appearance_statistics.csv, appearance_distances.csv,
+validation_summary.json; revision_2/figure_provenance.json. Original samples are reconstructed from saved code/seeds, not a
+contemporaneous file manifest.
+[3] Che et al., Towards Generalizable Diabetic Retinopathy Grading in Unseen Domains, MICCAI 2023. Official FundusAug
+implementation.

@@ -1,0 +1,7 @@
+domain,role,images,patients,DR_positive_images,ME_positive_images
+BRSET,assessment,2285,1194,159,58
+BRSET,fit,6826,3579,442,165
+BRSET,selection,2261,1193,147,51
+mBRSET,assessment,673,180,146,49
+mBRSET,fit,2043,539,481,180
+mBRSET,selection,686,180,170,62

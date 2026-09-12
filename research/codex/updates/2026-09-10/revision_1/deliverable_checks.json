@@ -1,0 +1,9 @@
+{
+  "geometry_matches_torchvision": true,
+  "source_and_parameter_hashes_match": true,
+  "sample_manifest_checks": "pass",
+  "local_document_links": "pass",
+  "note_visual_review": "both rendered PDF pages inspected",
+  "classifier_training_performed": false,
+  "external_message_sent": false
+}

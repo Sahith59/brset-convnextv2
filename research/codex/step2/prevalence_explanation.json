@@ -1,0 +1,125 @@
+{
+  "patient_definition": "At least one image with manifest DR label 1; descriptive aggregation, not a separately confirmed patient diagnosis.",
+  "manifest_sha256": "32ed750db16b299c92d209644c61be29074fc706e6ba13f833b4873b0d49f065",
+  "current": [
+    {
+      "group": "BRSET fit",
+      "images": 6826,
+      "DR_positive_images": 442,
+      "DR_positive_images_pct": 6.475241722824495,
+      "patients": 3579,
+      "patients_with_DR_positive_image": 262,
+      "patients_with_DR_positive_image_pct": 7.320480581167924
+    },
+    {
+      "group": "BRSET selection",
+      "images": 2261,
+      "DR_positive_images": 147,
+      "DR_positive_images_pct": 6.501547987616099,
+      "patients": 1193,
+      "patients_with_DR_positive_image": 87,
+      "patients_with_DR_positive_image_pct": 7.292539815590947
+    },
+    {
+      "group": "BRSET assessment",
+      "images": 2285,
+      "DR_positive_images": 159,
+      "DR_positive_images_pct": 6.958424507658643,
+      "patients": 1194,
+      "patients_with_DR_positive_image": 88,
+      "patients_with_DR_positive_image_pct": 7.370184254606365
+    },
+    {
+      "group": "mBRSET fit",
+      "images": 2043,
+      "DR_positive_images": 481,
+      "DR_positive_images_pct": 23.543808125305922,
+      "patients": 539,
+      "patients_with_DR_positive_image": 166,
+      "patients_with_DR_positive_image_pct": 30.79777365491651
+    },
+    {
+      "group": "mBRSET selection",
+      "images": 686,
+      "DR_positive_images": 170,
+      "DR_positive_images_pct": 24.78134110787172,
+      "patients": 180,
+      "patients_with_DR_positive_image": 55,
+      "patients_with_DR_positive_image_pct": 30.555555555555557
+    },
+    {
+      "group": "mBRSET assessment",
+      "images": 673,
+      "DR_positive_images": 146,
+      "DR_positive_images_pct": 21.693907875185737,
+      "patients": 180,
+      "patients_with_DR_positive_image": 55,
+      "patients_with_DR_positive_image_pct": 30.555555555555557
+    },
+    {
+      "group": "joint fit",
+      "images": 8869,
+      "DR_positive_images": 923,
+      "DR_positive_images_pct": 10.407035742473784,
+      "patients": 4118,
+      "patients_with_DR_positive_image": 428,
+      "patients_with_DR_positive_image_pct": 10.39339485186984
+    }
+  ],
+  "legacy": [
+    {
+      "group": "BRSET legacy train",
+      "images": 11372,
+      "DR_positive_images": 748,
+      "DR_positive_images_pct": 6.577558916637355,
+      "patients": 5966,
+      "patients_with_DR_positive_image": 437,
+      "patients_with_DR_positive_image_pct": 7.32484076433121
+    },
+    {
+      "group": "BRSET legacy val",
+      "images": 2451,
+      "DR_positive_images": 159,
+      "DR_positive_images_pct": 6.487148102815177,
+      "patients": 1279,
+      "patients_with_DR_positive_image": 94,
+      "patients_with_DR_positive_image_pct": 7.349491790461298
+    },
+    {
+      "group": "BRSET legacy test",
+      "images": 2435,
+      "DR_positive_images": 162,
+      "DR_positive_images_pct": 6.652977412731006,
+      "patients": 1279,
+      "patients_with_DR_positive_image": 94,
+      "patients_with_DR_positive_image_pct": 7.349491790461298
+    },
+    {
+      "group": "mBRSET legacy train",
+      "images": 3402,
+      "DR_positive_images": 797,
+      "DR_positive_images_pct": 23.42739564961787,
+      "patients": 899,
+      "patients_with_DR_positive_image": 276,
+      "patients_with_DR_positive_image_pct": 30.700778642936598
+    },
+    {
+      "group": "mBRSET legacy val",
+      "images": 725,
+      "DR_positive_images": 176,
+      "DR_positive_images_pct": 24.275862068965516,
+      "patients": 193,
+      "patients_with_DR_positive_image": 60,
+      "patients_with_DR_positive_image_pct": 31.088082901554404
+    },
+    {
+      "group": "mBRSET legacy test",
+      "images": 732,
+      "DR_positive_images": 159,
+      "DR_positive_images_pct": 21.721311475409838,
+      "patients": 193,
+      "patients_with_DR_positive_image": 59,
+      "patients_with_DR_positive_image_pct": 30.569948186528496
+    }
+  ]
+}

@@ -1,0 +1,451 @@
+{
+  "status": "seed-1 development assessment, not external evidence",
+  "observed": {
+    "B0": {
+      "diabetic_retinopathy": {
+        "threshold": 0.36,
+        "f1_positive": 0.805111821086262,
+        "f1_class_macro": 0.8760572137577269,
+        "auroc": 0.9442194342915474,
+        "average_precision": 0.8947013166440169,
+        "precision": 0.8181818181818182,
+        "sensitivity": 0.7924528301886793,
+        "specificity": 0.9511343804537522,
+        "confusion_matrix": [
+          [
+            545,
+            28
+          ],
+          [
+            33,
+            126
+          ]
+        ],
+        "n_images": 732
+      },
+      "macular_edema": {
+        "threshold": 0.371,
+        "f1_positive": 0.8,
+        "f1_class_macro": 0.8918759231905465,
+        "auroc": 0.9888011009087242,
+        "average_precision": 0.9186403773668195,
+        "precision": 0.9361702127659575,
+        "sensitivity": 0.6984126984126984,
+        "specificity": 0.9955156950672646,
+        "confusion_matrix": [
+          [
+            666,
+            3
+          ],
+          [
+            19,
+            44
+          ]
+        ],
+        "n_images": 732
+      }
+    },
+    "B1": {
+      "diabetic_retinopathy": {
+        "threshold": 0.554,
+        "f1_positive": 0.8309859154929577,
+        "f1_class_macro": 0.8951539746956314,
+        "auroc": 0.948862326714742,
+        "average_precision": 0.9088595026441513,
+        "precision": 0.944,
+        "sensitivity": 0.7421383647798742,
+        "specificity": 0.987783595113438,
+        "confusion_matrix": [
+          [
+            566,
+            7
+          ],
+          [
+            41,
+            118
+          ]
+        ],
+        "n_images": 732
+      },
+      "macular_edema": {
+        "threshold": 0.569,
+        "f1_positive": 0.822429906542056,
+        "f1_class_macro": 0.9042142163513522,
+        "auroc": 0.9949699860013761,
+        "average_precision": 0.9591846884851946,
+        "precision": 1.0,
+        "sensitivity": 0.6984126984126984,
+        "specificity": 1.0,
+        "confusion_matrix": [
+          [
+            669,
+            0
+          ],
+          [
+            19,
+            44
+          ]
+        ],
+        "n_images": 732
+      }
+    },
+    "B2": {
+      "diabetic_retinopathy": {
+        "threshold": 0.482,
+        "f1_positive": 0.8239202657807309,
+        "f1_class_macro": 0.8891742343521023,
+        "auroc": 0.9448999528027484,
+        "average_precision": 0.9008744279041858,
+        "precision": 0.8732394366197183,
+        "sensitivity": 0.779874213836478,
+        "specificity": 0.9685863874345549,
+        "confusion_matrix": [
+          [
+            555,
+            18
+          ],
+          [
+            35,
+            124
+          ]
+        ],
+        "n_images": 732
+      },
+      "macular_edema": {
+        "threshold": 0.389,
+        "f1_positive": 0.8429752066115702,
+        "f1_class_macro": 0.9144138877436109,
+        "auroc": 0.98903836571998,
+        "average_precision": 0.9344270772480472,
+        "precision": 0.8793103448275862,
+        "sensitivity": 0.8095238095238095,
+        "specificity": 0.9895366218236173,
+        "confusion_matrix": [
+          [
+            662,
+            7
+          ],
+          [
+            12,
+            51
+          ]
+        ],
+        "n_images": 732
+      }
+    }
+  },
+  "paired_patient_differences": {
+    "B1-B0": {
+      "diabetic_retinopathy": {
+        "f1_positive": {
+          "difference": 0.025874094406695747,
+          "percentile_95": [
+            -0.01826845254219247,
+            0.06883968273823102
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "auroc": {
+          "difference": 0.0046428924231946,
+          "percentile_95": [
+            -0.005790132746262208,
+            0.014668832614471335
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "average_precision": {
+          "difference": 0.01415818600013441,
+          "percentile_95": [
+            -0.00042214430047582955,
+            0.029743773059270593
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "sensitivity": {
+          "difference": -0.05031446540880513,
+          "percentile_95": [
+            -0.09756760339342521,
+            -0.006249999999999978
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "specificity": {
+          "difference": 0.03664921465968585,
+          "percentile_95": [
+            0.021351365018362416,
+            0.05410447761194026
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        }
+      },
+      "macular_edema": {
+        "f1_positive": {
+          "difference": 0.02242990654205601,
+          "percentile_95": [
+            -0.0367745073672998,
+            0.10256554307116102
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "auroc": {
+          "difference": 0.006168885092651899,
+          "percentile_95": [
+            0.0019823514740598376,
+            0.011787046594291807
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "average_precision": {
+          "difference": 0.04054431111837509,
+          "percentile_95": [
+            0.012653781900534896,
+            0.07937443061791105
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "sensitivity": {
+          "difference": 0.0,
+          "percentile_95": [
+            -0.08109487038058462,
+            0.09679386309992113
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "specificity": {
+          "difference": 0.004484304932735439,
+          "percentile_95": [
+            0.0,
+            0.010355413105413101
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        }
+      }
+    },
+    "B2-B0": {
+      "diabetic_retinopathy": {
+        "f1_positive": {
+          "difference": 0.01880844469446885,
+          "percentile_95": [
+            -0.019791089532363262,
+            0.05760094801954908
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "auroc": {
+          "difference": 0.0006805185112009893,
+          "percentile_95": [
+            -0.014413601766115365,
+            0.01512498322848978
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "average_precision": {
+          "difference": 0.006173111260168951,
+          "percentile_95": [
+            -0.013223375200573725,
+            0.025310402921656466
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "sensitivity": {
+          "difference": -0.012578616352201255,
+          "percentile_95": [
+            -0.06382978723404253,
+            0.03497848305540598
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "specificity": {
+          "difference": 0.017452006980802737,
+          "percentile_95": [
+            0.0017452006980802626,
+            0.033334879406307964
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        }
+      },
+      "macular_edema": {
+        "f1_positive": {
+          "difference": 0.04297520661157017,
+          "percentile_95": [
+            -0.02869393406158112,
+            0.12659719575660094
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "auroc": {
+          "difference": 0.00023726481125585508,
+          "percentile_95": [
+            -0.01034977722832128,
+            0.009100302120839761
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "average_precision": {
+          "difference": 0.015786699881227717,
+          "percentile_95": [
+            -0.02665187567633923,
+            0.06174746554028654
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "sensitivity": {
+          "difference": 0.11111111111111116,
+          "percentile_95": [
+            0.016129032258064502,
+            0.21739130434782605
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "specificity": {
+          "difference": -0.005979073243647215,
+          "percentile_95": [
+            -0.01470915517542334,
+            0.001543269505982031
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        }
+      }
+    },
+    "B2-B1": {
+      "diabetic_retinopathy": {
+        "f1_positive": {
+          "difference": -0.007065649712226896,
+          "percentile_95": [
+            -0.04529415066013786,
+            0.027778314028314037
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "auroc": {
+          "difference": -0.003962373911993611,
+          "percentile_95": [
+            -0.01270664043859918,
+            0.005861244905522939
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "average_precision": {
+          "difference": -0.007985074739965459,
+          "percentile_95": [
+            -0.020651491665579856,
+            0.003678516774393533
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "sensitivity": {
+          "difference": 0.037735849056603876,
+          "percentile_95": [
+            -0.007527677461370016,
+            0.08208955223880599
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "specificity": {
+          "difference": -0.01919720767888311,
+          "percentile_95": [
+            -0.03220475669764904,
+            -0.00850340136054428
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        }
+      },
+      "macular_edema": {
+        "f1_positive": {
+          "difference": 0.02054530006951416,
+          "percentile_95": [
+            -0.04131629677945883,
+            0.07855183364383742
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "auroc": {
+          "difference": -0.005931620281396044,
+          "percentile_95": [
+            -0.015373052649922146,
+            0.00011772209450987273
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "average_precision": {
+          "difference": -0.02475761123714737,
+          "percentile_95": [
+            -0.05746148995206859,
+            -0.0007088785254004861
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "sensitivity": {
+          "difference": 0.11111111111111116,
+          "percentile_95": [
+            0.03633173843700161,
+            0.19356042368801143
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        },
+        "specificity": {
+          "difference": -0.010463378176382654,
+          "percentile_95": [
+            -0.018663975174870145,
+            -0.003057987254009404
+          ],
+          "valid_draws": 2000,
+          "undefined_draws": 0
+        }
+      }
+    }
+  },
+  "bootstrap_seed": 20260911,
+  "thresholds_fixed": {
+    "B0": [
+      0.36,
+      0.371
+    ],
+    "B1": [
+      0.554,
+      0.569
+    ],
+    "B2": [
+      0.482,
+      0.389
+    ]
+  },
+  "images": 732,
+  "patients": 193,
+  "prediction_sha256": {
+    "B0": "745b50e1498074bbb20531bedce619e1b14a48611d536197bc888b225e048908",
+    "B1": "bd8a622edf737244db0136a51cf5015e2a58eee8cd421eeb45ff6d0cb803c8ce",
+    "B2": "60b428363f2103ff9bb5e1bab1fc075ccb64b2c716965ec13dfe2b2ee5dbc3ed"
+  },
+  "limitations": "Intervals condition on selected trained models; do not account for all training or method-selection uncertainty.",
+  "training_seed": 1
+}

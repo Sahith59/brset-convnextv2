@@ -1,0 +1,28 @@
+{
+  "date": "2026-09-10",
+  "authorization": "User explicitly requested three-node concurrent execution while preserving shared resources",
+  "array": "4372453",
+  "previous_throttle": 1,
+  "current_throttle": 3,
+  "nodes": {
+    "B0": "arctrdagn031",
+    "B1": "arctrdagn035",
+    "B2": "arctrdagn036"
+  },
+  "resources_per_run": {
+    "A40_GPUs": 1,
+    "CPUs": 8,
+    "RAM_GiB": 64,
+    "exclusive_node": false
+  },
+  "commands": [
+    "scontrol update JobId=4372453_1 NodeList=arctrdagn035",
+    "scontrol update JobId=4372453_2 NodeList=arctrdagn036",
+    "scontrol update JobId=4372453 ArrayTaskThrottle=3"
+  ],
+  "observed": "All three RUNNING; B1/B2 first real updates logged with finite loss",
+  "scientific_configuration_changed": false,
+  "existing_B0_restarted": false,
+  "additional_runs_created": false,
+  "assessment_dependency": "4372454 after all array tasks succeed"
+}

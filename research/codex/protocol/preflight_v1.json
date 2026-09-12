@@ -1,0 +1,112 @@
+{
+  "split_seed": 20260910,
+  "input_manifest_sha256": {
+    "splits_multilabel.csv": "189d1eae20f23999701525e93a82caaf57b8e657a4e7d23adbace8d2b97517a7",
+    "splits_mbrset_multilabel.csv": "10d5e76b1b0b819f8721420ca0dd0043461001fa374d5d8efad9723dfdc27c4e"
+  },
+  "development_manifest_sha256": "32ed750db16b299c92d209644c61be29074fc706e6ba13f833b4873b0d49f065",
+  "counts": [
+    {
+      "domain": "BRSET",
+      "role": "assessment",
+      "images": 2285,
+      "patients": 1194,
+      "DR_positive_images": 159,
+      "ME_positive_images": 58
+    },
+    {
+      "domain": "BRSET",
+      "role": "fit",
+      "images": 6826,
+      "patients": 3579,
+      "DR_positive_images": 442,
+      "ME_positive_images": 165
+    },
+    {
+      "domain": "BRSET",
+      "role": "selection",
+      "images": 2261,
+      "patients": 1193,
+      "DR_positive_images": 147,
+      "ME_positive_images": 51
+    },
+    {
+      "domain": "mBRSET",
+      "role": "assessment",
+      "images": 673,
+      "patients": 180,
+      "DR_positive_images": 146,
+      "ME_positive_images": 49
+    },
+    {
+      "domain": "mBRSET",
+      "role": "fit",
+      "images": 2043,
+      "patients": 539,
+      "DR_positive_images": 481,
+      "ME_positive_images": 180
+    },
+    {
+      "domain": "mBRSET",
+      "role": "selection",
+      "images": 686,
+      "patients": 180,
+      "DR_positive_images": 170,
+      "ME_positive_images": 62
+    }
+  ],
+  "stratification": {
+    "BRSET": {
+      "joint_patient_label_counts": {
+        "00": 5509,
+        "10": 264,
+        "11": 173,
+        "01": 20
+      },
+      "rule": "joint patient-level maximum DR/ME labels"
+    },
+    "mBRSET": {
+      "joint_patient_label_counts": {
+        "00": 618,
+        "10": 170,
+        "11": 106,
+        "01": 5
+      },
+      "rule": "joint patient-level maximum DR/ME labels"
+    }
+  },
+  "checks": {
+    "patient_roles_disjoint_within_domain": true,
+    "original_train_only": true,
+    "labels_match_training_csv": true,
+    "all_image_paths_resolve": true,
+    "resolved_paths_unique": true,
+    "both_classes_each_label_each_role": true,
+    "cross_dataset_person_identity_known": false,
+    "decoded_image_duplicate_scan_completed_here": false
+  },
+  "initialization": {
+    "model": "convnextv2_large.fcmae_ft_in22k_in1k_384",
+    "cached_hf_revision": "4b4ce03d1a7a884ac2242b5fadcf7f0e55a66482",
+    "weight_path": "/home/users/sthummala2/.cache/huggingface/hub/models--timm--convnextv2_large.fcmae_ft_in22k_in1k_384/blobs/075703d09f806c09597fa3d68d8c6733a18ba1126adfbc1de97f8eb096402c2f",
+    "weight_sha256": "075703d09f806c09597fa3d68d8c6733a18ba1126adfbc1de97f8eb096402c2f",
+    "weight_bytes": 791865952,
+    "head": "replace pretrained head with two outputs; save per-seed initialized state before any training"
+  },
+  "environment": {
+    "torch": "2.5.1+cu121",
+    "torchvision": "0.20.1+cu121",
+    "timm": "0.9.16",
+    "numpy": "1.26.4",
+    "pandas": "3.0.3",
+    "scikit-learn": "1.4.2",
+    "Pillow": "10.2.0",
+    "scipy": "1.17.1"
+  },
+  "tracked_code_commit": "afbd9745678012cd5e3d5b4fef47e3520470350a",
+  "local_source_sha256": {
+    "scripts/30_train_strong_baseline.py": "b732857bcf779971392c555f67c18252a4f3eed3e1c3ba6552758868154a343f",
+    "scripts/55_degradation_ops.py": "7740ce15549da0d16642cd1e1a022a5eff393e2033b0d092bfee6cd5930c1838",
+    "scripts/57_fit_degradation.py": "b51a1f60137ce3efee40ce05cb9584eb52abb11194a8e39d7780fbe9759f94b3"
+  }
+}

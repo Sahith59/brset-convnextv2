@@ -1,0 +1,20 @@
+{
+  "pdf_pages": 3,
+  "embedded_fonts_bytes": {
+    "AAAAAA+TimesNewRomanPSMT": 56008,
+    "AAAAAA+TimesNewRomanPS-BoldMT": 53648,
+    "AAAAAA+TimesNewRomanPS-ItalicMT": 50736,
+    "AAAAAA+TimesNewRomanPS-BoldItalicMT": 48816
+  },
+  "all_text_within_page_bounds": true,
+  "visually_reviewed_pages": [
+    1,
+    2,
+    3
+  ],
+  "source_images_verified": 6,
+  "embedded_panels_pixel_verified": 12,
+  "distance_reconstruction_matches": true,
+  "pdf_sha256": "423312e755f44b72fd2f2055b9a9942a14ce02bae5e8221e89abc7215850b3d5",
+  "limitations": "Appearance summary validation only; no lesion preservation or diagnostic improvement established. DOCX pagination not validated; PDF is pagination master."
+}

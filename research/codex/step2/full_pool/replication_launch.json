@@ -1,0 +1,34 @@
+{
+  "state": "seed1 resumed after diagnosed transient filesystem read failure",
+  "submitted_date_utc": "2026-09-11",
+  "reason": "Seed-0 completed and independently verified; replicate all three full-pool baseline arms before Step-2 conclusions",
+  "seed0_verification_job": "4376489",
+  "replication_preflight_job": "4376502",
+  "seed_initialization_jobs": {
+    "1": "4376505",
+    "2": "4376506"
+  },
+  "seed1_training_wave_job": "4376507",
+  "seed1_assessment_job": "4376508",
+  "seed2_training_wave_job": "4376509",
+  "seed2_assessment_job": "4376510",
+  "superseded_failed_or_cancelled_jobs": {
+    "seed1_training_wave": "4376507 failed after transient FileNotFoundError on node039",
+    "seed1_assessment": "4376508 cancelled by failed dependency",
+    "seed2_training_wave": "4376509 cancelled by failed dependency",
+    "seed2_assessment": "4376510 cancelled by failed dependency"
+  },
+  "failure_diagnosis_job": "4378211",
+  "failure_diagnosis_artifact": "seed1_failure_diagnosis.json",
+  "replacement_seed1_resume_wave_job": "4378228",
+  "replacement_seed1_assessment_job": "4378229",
+  "replacement_seed2_training_wave_job": "4378230",
+  "replacement_seed2_assessment_job": "4378231",
+  "dependency_order": "preflight -> seed initializations; seed1 wave -> seed1 assessment -> seed2 wave -> seed2 assessment",
+  "maximum_concurrent_training_gpus": 3,
+  "training_wave_resources": "3 nodes; 1 task, 1 A40, 8 CPUs and 64 GiB per node; non-exclusive",
+  "estimated_hours_per_wave_after_start": 7.4,
+  "protocol_sha256": "58ab3a2d6790eff50d6ada2d61fc0357c070436c09e90a26fefa0ee56fb05e2f",
+  "preflight_artifact": "replication_preflight.json",
+  "seed0_result_review": "SEED0_RESULTS_REVIEW.md"
+}

@@ -1,0 +1,26 @@
+{
+  "state": "training_and_gated_assessment_submitted",
+  "source_sha256": {
+    "baseline_core.py": "d642de51908ab3440488bdb739644733986563c081e6aea2ff713111064c161a",
+    "train_baseline.py": "0b252873f09dd2984d15724539603035c719987aa7641ade470f4166cde1b8c6",
+    "assess_baselines.py": "7dce7e6acc3249a393a3d9c72f474af6a189e5be02bbaea9a4fe92b26b465839",
+    "test_baseline.py": "23bd2408f2d502755c5e6fbbc0630c767ebd4c4ca3ccc7344f0d1fdcc547cd48",
+    "verify_smoke.py": "7ef944d645c8fc164fcd8ab26fbbad90e50e0b2c1dfb11817234d4fa4fcaf0d1"
+  },
+  "protocol_sha256": "5546c9009ef930bc345e158ace61a5a43985ef8112791267d8d616aad10b98cc",
+  "manifest_sha256": "32ed750db16b299c92d209644c61be29074fc706e6ba13f833b4873b0d49f065",
+  "initialization_sha256": "585d641a9703651328067f8d193e59eb2217e44764c5bd538363bce78ed647fd",
+  "estimated_hours_per_run": 7.3554686788366075,
+  "planning_hours_per_run_with_35pct_buffer": 9.92988271642942,
+  "expected_three_run_gpu_hours": 22.06640603650982,
+  "gpu_concurrency": 1,
+  "gpu_type": "A40",
+  "job_limit_hours_each": 12,
+  "smoke_job": "4372389",
+  "smoke_model_cleanup": [],
+  "checkpoint_storage": "/data/users3/sthummala2/brset-codex/step2-runs",
+  "checkpoint_storage_free_bytes_at_launch": 28628046839808,
+  "tracked_commit": "afbd9745678012cd5e3d5b4fef47e3520470350a",
+  "baseline_array_job": "4372453",
+  "assessment_job": "4372454"
+}

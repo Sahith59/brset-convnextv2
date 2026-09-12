@@ -1,0 +1,10 @@
+{
+  "cancelled": [
+    "4372453",
+    "4372454"
+  ],
+  "reason": "User requested full original train pools instead of continuing reduced-pool baselines",
+  "artifacts_preserved": true,
+  "resume_cancelled_models": false,
+  "new_launch": "launch_seed0.json"
+}

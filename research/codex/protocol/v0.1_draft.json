@@ -1,0 +1,70 @@
+{
+  "version": "0.1",
+  "status": "draft; not yet a launch configuration",
+  "task": "supervised multilabel BRSET/mBRSET transfer",
+  "label_contract": {
+    "brset": "retain current manifest diabetic_retinopathy and macular_edema; standalone DR vs ICDR disagreements disclosed, not silently relabeled",
+    "mbrset": "retain current manifest derived any-DR/ME labels",
+    "unit": "image",
+    "uncertainty_cluster": "patient"
+  },
+  "outcomes": {
+    "primary_provisional": "DR positive-class F1 at development-selected threshold",
+    "secondary": [
+      "ME positive-class F1",
+      "per-label AUROC",
+      "per-label AUPRC",
+      "per-label sensitivity and specificity",
+      "per-label class-macro F1",
+      "per-label confusion matrix"
+    ],
+    "clinical_operating_point": "not yet agreed with Dong"
+  },
+  "development": "patient-grouped folds restricted to current training pool; exact manifest to be generated before launch",
+  "legacy_test": "exploratory; no routine method/threshold selection",
+  "candidate_common_recipe": {
+    "backbone": "existing ConvNeXt V2 Large pretrained initialization; exact checkpoint identifier to be pinned",
+    "precision": "bf16",
+    "microbatch": 16,
+    "accumulation": 4,
+    "resize": 560,
+    "crop": 512,
+    "resize_mode": "squash for continuity controls; any geometry change separately ablated",
+    "optimizer": "AdamW",
+    "learning_rate": 3e-05,
+    "weight_decay": 0.1,
+    "loss": "existing focal gamma2; formula and soft-label behavior to be documented",
+    "mixup_alpha": 0.2,
+    "label_smoothing": 0.1,
+    "drop_path": 0.3,
+    "ema_decay": 0.999,
+    "seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "must_resolve_before_launch": [
+    "same checkpoint-selection and validation TTA procedure across arms",
+    "matched optimization-update budget where dataset exposure is the question",
+    "exact threshold grid/tie rule and independent RNG",
+    "development split hashes and initialization provenance",
+    "compute estimate and available hardware"
+  ],
+  "future_prediction_artifact": [
+    "file_id",
+    "patient_id",
+    "split",
+    "domain",
+    "y_true",
+    "logits",
+    "probabilities",
+    "thresholds",
+    "checkpoint_hash",
+    "code_commit",
+    "configuration",
+    "seed",
+    "split_hash"
+  ],
+  "novelty_status": "unproven; require closest-work and ablation comparison"
+}

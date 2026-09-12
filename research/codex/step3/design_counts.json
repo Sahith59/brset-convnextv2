@@ -1,0 +1,127 @@
+{
+  "manifest": "/home/users/sthummala2/brset-convnextv2/research/codex/step2/full_pool/protocol/full_pool_manifest.csv",
+  "common_updates": 5775,
+  "effective_batch": 64,
+  "groups": [
+    {
+      "domain": "BRSET",
+      "images": 11372,
+      "patients": 5966,
+      "image_label_strata": {
+        "DR0_ME0": 10602,
+        "DR0_ME1": 22,
+        "DR1_ME0": 496,
+        "DR1_ME1": 252
+      },
+      "patient_any_image_strata": {
+        "DR0_ME0": 5509,
+        "DR0_ME1": 20,
+        "DR1_ME0": 264,
+        "DR1_ME1": 173
+      },
+      "positive_images": {
+        "diabetic_retinopathy": 748,
+        "macular_edema": 274
+      },
+      "positive_image_fraction": {
+        "diabetic_retinopathy": 0.06577558916637355,
+        "macular_edema": 0.02409426661976785
+      }
+    },
+    {
+      "domain": "mBRSET",
+      "images": 3402,
+      "patients": 899,
+      "image_label_strata": {
+        "DR0_ME0": 2591,
+        "DR0_ME1": 14,
+        "DR1_ME0": 520,
+        "DR1_ME1": 277
+      },
+      "patient_any_image_strata": {
+        "DR0_ME0": 618,
+        "DR0_ME1": 5,
+        "DR1_ME0": 170,
+        "DR1_ME1": 106
+      },
+      "positive_images": {
+        "diabetic_retinopathy": 797,
+        "macular_edema": 291
+      },
+      "positive_image_fraction": {
+        "diabetic_retinopathy": 0.23427395649617871,
+        "macular_edema": 0.0855379188712522
+      }
+    },
+    {
+      "domain": "joint",
+      "images": 14774,
+      "patients": 6865,
+      "image_label_strata": {
+        "DR0_ME0": 13193,
+        "DR0_ME1": 36,
+        "DR1_ME0": 1016,
+        "DR1_ME1": 529
+      },
+      "patient_any_image_strata": {
+        "DR0_ME0": 6127,
+        "DR0_ME1": 25,
+        "DR1_ME0": 434,
+        "DR1_ME1": 279
+      },
+      "positive_images": {
+        "diabetic_retinopathy": 1545,
+        "macular_edema": 565
+      },
+      "positive_image_fraction": {
+        "diabetic_retinopathy": 0.10457560579396237,
+        "macular_edema": 0.038242859076756466
+      }
+    }
+  ],
+  "expected_exposures": [
+    {
+      "name": "B0 target-only",
+      "total_draws": 369600,
+      "BRSET_draws": 0,
+      "mBRSET_draws": 369600,
+      "BRSET_nominal_passes": 0.0,
+      "mBRSET_nominal_passes": 108.64197530864197
+    },
+    {
+      "name": "B1 natural joint",
+      "total_draws": 369600.0,
+      "BRSET_draws": 284492.43265195616,
+      "mBRSET_draws": 85107.56734804386,
+      "BRSET_nominal_passes": 25.016921619060515,
+      "mBRSET_nominal_passes": 25.01692161906051
+    },
+    {
+      "name": "equal-domain joint",
+      "total_draws": 369600.0,
+      "BRSET_draws": 184800.0,
+      "mBRSET_draws": 184800.0,
+      "BRSET_nominal_passes": 16.25043967639817,
+      "mBRSET_nominal_passes": 54.32098765432099
+    },
+    {
+      "name": "B2 sequential",
+      "total_draws": 369600,
+      "BRSET_draws": 184768,
+      "mBRSET_draws": 184832,
+      "BRSET_nominal_passes": 16.247625747449877,
+      "mBRSET_nominal_passes": 54.33039388594944
+    },
+    {
+      "name": "equal-domain joint with B0-matched target draws",
+      "total_draws": 739200,
+      "BRSET_draws": 369600,
+      "mBRSET_draws": 369600,
+      "BRSET_nominal_passes": 32.50087935279634,
+      "mBRSET_nominal_passes": 108.64197530864197
+    }
+  ],
+  "target_exposure_matched_equal_domain_updates": 11550,
+  "target_exposure_matched_runtime_warning": "11,550 updates are twice the common optimizer budget and require a separate compute control and likely checkpoint resume under the 12-hour limit.",
+  "interpretation": "Expected natural-joint draws are fractional expectations. Actual exposure is recorded during training. Label balancing must use all four joint label strata to preserve DR/ME co-occurrence rather than balancing each label independently."
+}

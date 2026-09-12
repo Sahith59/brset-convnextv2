@@ -1,0 +1,18 @@
+{
+  "pass": true,
+  "state_mismatches": [],
+  "updates": 6,
+  "effective_batch": 64,
+  "interruption_after_update": 3,
+  "assessment_accessed": false,
+  "median_update_seconds": 4.33750482276082,
+  "median_selection_seconds": 52.19985688012093,
+  "estimated_baseline_hours": 7.382609480827426,
+  "gpu_peak_allocated_gib": 31.388509273529053,
+  "checkpoint_hashes": {
+    "smoke_full": "5e016c81b9a216ffcfc87bd944a6bcb7b373eab63e1100e8317040f8a4e431ff",
+    "smoke_resume": "6be4bfb1e48dc1446bb1a5f7c840e9d720e6b46dfb4182d785c7c2c4e08ac807"
+  },
+  "scope": "Short deterministic smoke including real images and full selection inference. Not convergence, performance or full-run stability evidence.",
+  "resume_checkpoint_cleanup": "Successful smoke last.pth files removed after verification; hashes retained; best.pth retained."
+}

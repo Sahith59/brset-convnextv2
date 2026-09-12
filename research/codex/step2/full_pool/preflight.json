@@ -1,0 +1,66 @@
+{
+  "pass_checks": true,
+  "counts": [
+    {
+      "domain": "BRSET",
+      "role": "fit",
+      "images": 11372,
+      "patients": 5966,
+      "positive_images": {
+        "diabetic_retinopathy": 748,
+        "macular_edema": 274
+      },
+      "positive_patients": {
+        "diabetic_retinopathy": 437,
+        "macular_edema": 193
+      }
+    },
+    {
+      "domain": "mBRSET",
+      "role": "assessment",
+      "images": 732,
+      "patients": 193,
+      "positive_images": {
+        "diabetic_retinopathy": 159,
+        "macular_edema": 63
+      },
+      "positive_patients": {
+        "diabetic_retinopathy": 59,
+        "macular_edema": 22
+      }
+    },
+    {
+      "domain": "mBRSET",
+      "role": "fit",
+      "images": 3402,
+      "patients": 899,
+      "positive_images": {
+        "diabetic_retinopathy": 797,
+        "macular_edema": 291
+      },
+      "positive_patients": {
+        "diabetic_retinopathy": 276,
+        "macular_edema": 111
+      }
+    },
+    {
+      "domain": "mBRSET",
+      "role": "selection",
+      "images": 725,
+      "patients": 193,
+      "positive_images": {
+        "diabetic_retinopathy": 176,
+        "macular_edema": 68
+      },
+      "positive_patients": {
+        "diabetic_retinopathy": 60,
+        "macular_edema": 22
+      }
+    }
+  ],
+  "source_manifest_sha256": {
+    "/home/users/sthummala2/brset-convnextv2/results/splits_multilabel.csv": "189d1eae20f23999701525e93a82caaf57b8e657a4e7d23adbace8d2b97517a7",
+    "/home/users/sthummala2/brset-convnextv2/results/splits_mbrset_multilabel.csv": "10d5e76b1b0b819f8721420ca0dd0043461001fa374d5d8efad9723dfdc27c4e"
+  },
+  "manifest_sha256": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc"
+}

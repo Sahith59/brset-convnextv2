@@ -38,6 +38,32 @@ presentation/Screenshot*.png
 presentation/findings_speaker_notes.md
 presentation/cluely_context_prompt.md
 
+# Codex research workspace: keep reproducible code, protocols, aggregate
+# summaries, and decision records in Git. Keep credentialed data derivatives,
+# patient-level manifests, model states, generated image-bearing reports,
+# scratch predictions, raw logs, and machine-local symlinks private.
+research/codex/**/__pycache__/
+research/codex/**/*.pyc
+research/codex/**/*.pth
+research/codex/**/*.npz
+research/codex/**/*.out
+research/codex/**/*.err
+research/codex/**/*.log
+research/codex/**/logs/
+research/codex/**/runs
+research/codex/**/initializations
+research/codex/**/smoke_full
+research/codex/**/smoke_resume
+research/codex/**/phase_smoke_full
+research/codex/**/phase_smoke_resume
+research/codex/**/*private*.csv
+research/codex/protocol/development_manifest_v1.csv
+research/codex/step2/full_pool/protocol/full_pool_manifest.csv
+research/codex/updates/**/*.png
+research/codex/updates/**/*.pdf
+research/codex/updates/**/*.docx
+research/codex/updates/**/figure_provenance.json
+
 # Figures containing actual BRSET / mBRSET fundus photographs. The PhysioNet
 # DUA forbids redistributing images, so these stay on the cluster. Regenerate
 # with: python scripts/58_degradation_figure.py

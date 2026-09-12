@@ -1,0 +1,9 @@
+{
+  "manifest_sha256": "32ed750db16b299c92d209644c61be29074fc706e6ba13f833b4873b0d49f065",
+  "images": 14774,
+  "decode_errors": [],
+  "duplicate_groups": [],
+  "cross_role_groups": 0,
+  "scope": "Exact native RGB and EXIF-normalized RGB; near duplicates/recompressed/registered eyes are not excluded by this test.",
+  "pass": true
+}

@@ -1,0 +1,99 @@
+{
+  "date": "2026-09-10",
+  "frozen_params": {
+    "blur_sigma": 0.9071263698686152,
+    "light_strength": 0.2612641051923661,
+    "n_spot": 1.0,
+    "n_hole": 3.0,
+    "halo": 0.08574542749696107,
+    "brightness_gain": 1.0767383570065956,
+    "contrast_gain": 0.9159957944971213,
+    "saturation_gain": 1.0027548855652177,
+    "noise_sigma": 0.011954353283547362
+  },
+  "cohorts": {
+    "BRSET": {
+      "excluded_reference_files": 421,
+      "excluded_patients": 414,
+      "eligible_images": 10566,
+      "evaluation_images": 64,
+      "evaluation_patients": 64
+    },
+    "mBRSET": {
+      "excluded_reference_files": 400,
+      "excluded_patients": 338,
+      "eligible_images": 2101,
+      "evaluation_images": 64,
+      "evaluation_patients": 59
+    }
+  },
+  "original_fit_sample_recheck": {
+    "BRSET_unaltered": 5.133226588342585,
+    "local_generic": 7.754713579646083,
+    "fitted_saved_summary_seed999": 1.3475365103661494
+  },
+  "heldout_distances": [
+    {
+      "preprocessing": "legacy_512",
+      "arm": "BRSET_unaltered",
+      "mean": 6.742272431880171,
+      "min": 6.742272431880171,
+      "max": 6.742272431880171
+    },
+    {
+      "preprocessing": "legacy_512",
+      "arm": "fitted_frozen",
+      "mean": 1.2607503005384497,
+      "min": 1.247095967799273,
+      "max": 1.2785415358881256
+    },
+    {
+      "preprocessing": "legacy_512",
+      "arm": "local_generic",
+      "mean": 10.091641723404,
+      "min": 10.072587317028287,
+      "max": 10.11420222216776
+    },
+    {
+      "preprocessing": "legacy_512",
+      "arm": "mBRSET_reference",
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    {
+      "preprocessing": "model_eval_560_crop512",
+      "arm": "BRSET_unaltered",
+      "mean": 8.473733829618794,
+      "min": 8.473733829618794,
+      "max": 8.473733829618794
+    },
+    {
+      "preprocessing": "model_eval_560_crop512",
+      "arm": "fitted_frozen",
+      "mean": 4.294195622590309,
+      "min": 4.262209462366721,
+      "max": 4.348450974429663
+    },
+    {
+      "preprocessing": "model_eval_560_crop512",
+      "arm": "local_generic",
+      "mean": 12.011400533168976,
+      "min": 11.976193983543936,
+      "max": 12.051075695106395
+    },
+    {
+      "preprocessing": "model_eval_560_crop512",
+      "arm": "mBRSET_reference",
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    }
+  ],
+  "scope": "64 training images per dataset; patients disjoint from reconstructed original 400-image measurement sets and 25-image fit set. Three degradation seeds; no refitting, diagnosis labels, validation/test images, classifier inference or training. Actual-model preprocessing check is evaluation resize/crop before normalization; no random training augmentations. Figure uses first three random samples; target images are unrelated to source rows. Distances are descriptive standardized squared mean differences, not classifier accuracy or a formal distributional test.",
+  "hashes": {
+    "scripts/55_degradation_ops.py": "7740ce15549da0d16642cd1e1a022a5eff393e2033b0d092bfee6cd5930c1838",
+    "results/fitted_degradation_params.json": "b3ba37eb309de31786a7fab80f54bd024a6fd582c10936012ab3823705513009",
+    "research/codex/updates/2026-09-10/image_manifest_private.csv": "3e5c6adc97b4aa888796bffe1976f50bc10c5c7281da8f05c0963cbc2edb1884"
+  }
+}

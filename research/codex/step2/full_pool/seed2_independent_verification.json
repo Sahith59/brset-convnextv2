@@ -1,0 +1,101 @@
+{
+  "pass": true,
+  "training_seed": 2,
+  "scope": "Independent metric/provenance/exposure recomputation; bootstrap draws not independently regenerated.",
+  "assessment_images": 732,
+  "assessment_patients": 193,
+  "same_ordered_assessment_cohort_all_arms": true,
+  "checks": [
+    {
+      "arm": "B0",
+      "checkpoint_update": 2079,
+      "thresholds": [
+        0.451,
+        0.606
+      ],
+      "checkpoint_sha256": "624eabcf9e83ab61dbb0ed7a544e15b0bddef02b95b422c6328f81d3cfb86cf5",
+      "prediction_sha256": "f0ab59aa7f2abb977f3c044b132c444e1e3637e495e8272ad1d22219b3be54c3",
+      "recomputed_metrics_match": true,
+      "phase_exposure": {
+        "main": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            369600,
+            86585,
+            31618
+          ]
+        ]
+      },
+      "resume_starts": 0
+    },
+    {
+      "arm": "B1",
+      "checkpoint_update": 3234,
+      "thresholds": [
+        0.465,
+        0.549
+      ],
+      "checkpoint_sha256": "4b4e06207710bdb6e5246348583070619078475ff8f0b1481d29655fec7fb335",
+      "prediction_sha256": "b3272f441a6cbbc5097f69834b03d23715f8b9c29673dca8a41a897521a3b5de",
+      "recomputed_metrics_match": true,
+      "phase_exposure": {
+        "main": [
+          [
+            284478,
+            18712,
+            6853
+          ],
+          [
+            85122,
+            19939,
+            7277
+          ]
+        ]
+      },
+      "resume_starts": 0
+    },
+    {
+      "arm": "B2",
+      "checkpoint_update": 4043,
+      "thresholds": [
+        0.321,
+        0.513
+      ],
+      "checkpoint_sha256": "e4fdee6372c9f6a14f406c2848f0fa070647d5fa523f31ce7c53fd4cf577bc90",
+      "prediction_sha256": "0f7abf9457ecc21b4bff2ad31e0780c5bf6d12b82c1e4c2882db9701abf66852",
+      "recomputed_metrics_match": true,
+      "phase_exposure": {
+        "source": [
+          [
+            184768,
+            12164,
+            4466
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "target": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            184832,
+            43309,
+            15806
+          ]
+        ]
+      },
+      "resume_starts": 0
+    }
+  ],
+  "combined_summary_sha256": "306bd06027b30bebb9158f4490f59f85dad47e943cd219f8c6542cb9a7d3a04f"
+}

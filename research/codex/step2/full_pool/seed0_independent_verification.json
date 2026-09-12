@@ -1,0 +1,47 @@
+{
+  "pass": true,
+  "scope": "Independent deterministic recomputation of saved seed-0 predictions and provenance; bootstrap intervals were not independently regenerated.",
+  "assessment_images": 732,
+  "assessment_patients": 193,
+  "positive_images": {
+    "DR": 159,
+    "ME": 63
+  },
+  "same_ordered_assessment_cohort_all_arms": true,
+  "checks": [
+    {
+      "arm": "B0",
+      "checkpoint_update": 4389,
+      "thresholds": [
+        0.305,
+        0.639
+      ],
+      "checkpoint_sha256": "4886e08c96aa27057c089addc33ce6dfd3b999ea6e932e70b9e165ea2bd1c452",
+      "prediction_sha256": "bb5a03bd2d035d38504f2bff921674bb1c9a5760d3fcb8a61a048c95688461d2",
+      "recomputed_metrics_match": true
+    },
+    {
+      "arm": "B1",
+      "checkpoint_update": 2772,
+      "thresholds": [
+        0.468,
+        0.428
+      ],
+      "checkpoint_sha256": "ca5ab1479257ac3f38257fa19d65fe4ed024dbf8f4a7182f27918b15cdf25a47",
+      "prediction_sha256": "5222dc15e318e47f3fc8fd56ff1fbd085049a890de8c221a5469febbb6299355",
+      "recomputed_metrics_match": true
+    },
+    {
+      "arm": "B2",
+      "checkpoint_update": 3812,
+      "thresholds": [
+        0.464,
+        0.411
+      ],
+      "checkpoint_sha256": "76444249961145556859565d20fef499d7374cfcf2ad992add48003cebec7aec",
+      "prediction_sha256": "20233b51fa7396d7f74482c5e5fa79491bf6a20fae33f729260b9a7794beed7e",
+      "recomputed_metrics_match": true
+    }
+  ],
+  "combined_summary_sha256": "c60d9a6104b7d07f23c3f58499cee6dd9b707f5a7fae370a41ba7133b9f5509b"
+}

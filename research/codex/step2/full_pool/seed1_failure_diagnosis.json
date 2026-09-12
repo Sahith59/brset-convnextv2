@@ -1,0 +1,43 @@
+{
+  "pass": true,
+  "job": "4378211",
+  "host": "arctrdagn039",
+  "failure_classification": "transient_or_node_specific_visibility if current full check passes; not evidence of image deletion or model failure",
+  "failed_path_now_exists": true,
+  "failed_path_sha256": "5464e6f6baae7a6d722801ceb4724de9374c9054a9723028fb7bd935f5c29159",
+  "repeated_successful_decodes": 20,
+  "mBRSET_fit_images_decoded": 3402,
+  "decode_errors": [],
+  "checkpoints": [
+    {
+      "arm": "B0",
+      "sha256": "4379792d93bcea47fa64fc2637b95f13a9d06bead9f543a32f2db7f35b38ea59",
+      "phase_index": 0,
+      "phase_update": 3003,
+      "global_update": 3003,
+      "consumed_draws": 192192,
+      "contract_seed": 1,
+      "contract_arm": "B0"
+    },
+    {
+      "arm": "B1",
+      "sha256": "4833977681af58343c577afc90d96808654e0c93bbf30f9d6c908fec7d8f3e4d",
+      "phase_index": 0,
+      "phase_update": 3003,
+      "global_update": 3003,
+      "consumed_draws": 192192,
+      "contract_seed": 1,
+      "contract_arm": "B1"
+    },
+    {
+      "arm": "B2",
+      "sha256": "ba62388579d377a16ff40c9a9f577f68ba65fe8816ec7fd99591927c596cea80",
+      "phase_index": 1,
+      "phase_update": 231,
+      "global_update": 3118,
+      "consumed_draws": 14784,
+      "contract_seed": 1,
+      "contract_arm": "B2"
+    }
+  ]
+}

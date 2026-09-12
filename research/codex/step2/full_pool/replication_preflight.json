@@ -1,0 +1,24 @@
+{
+  "pass": true,
+  "seed0_verification_sha256": "2d9a3c29e38a623ffd5a5e2ab4e51999799f1f9dc6cefd3ab99f63c4a8914b99",
+  "protocol_sha256": "58ab3a2d6790eff50d6ada2d61fc0357c070436c09e90a26fefa0ee56fb05e2f",
+  "source_sha256": {
+    "baseline_core.py": "bf6b95bbe57d4127b2b20854b7915a40d5d6c5cdda129e7026e5c1a7247632c0",
+    "train_baseline.py": "2dc043cd845346d491efe88c637008e25a744d1620cbf99a0cb91e691bd99c47",
+    "assess_baselines.py": "7dce7e6acc3249a393a3d9c72f474af6a189e5be02bbaea9a4fe92b26b465839",
+    "assess_replication.py": "5ba56a68e0447ab48df732e9d719605cadeaa208c23e9bc9a15c843d9d5e868b",
+    "launch_gate.py": "8ec2f6e22ec278c7003ae9323719f097632af1e32a51750e3f40ca6895a888c8"
+  },
+  "free_bytes": 28140836487168,
+  "training_seeds": [
+    1,
+    2
+  ],
+  "arms_per_seed": [
+    "B0",
+    "B1",
+    "B2"
+  ],
+  "maximum_concurrent_training_gpus": 3,
+  "placement": "one task and one A40 per node; three nodes per seed wave"
+}

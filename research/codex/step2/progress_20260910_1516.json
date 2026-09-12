@@ -1,0 +1,42 @@
+{
+  "checked_UTC": "2026-09-10T15:17:00.266387+00:00",
+  "runs": [
+    {
+      "arm": "B0",
+      "last_logged_update": 450,
+      "total_updates": 5775,
+      "progress_pct": 7.792207792207792,
+      "phase": "main",
+      "median_recent_update_seconds": 4.344380650669336,
+      "selection_checks_logged": 1,
+      "last_update_time_UTC": "2026-09-10T15:14:55.493370+00:00",
+      "rough_finish_UTC": "2026-09-10T22:06:00.093352+00:00",
+      "remaining_hours_estimate": 6.816618601337282
+    },
+    {
+      "arm": "B1",
+      "last_logged_update": 200,
+      "total_updates": 5775,
+      "progress_pct": 3.463203463203463,
+      "phase": "main",
+      "median_recent_update_seconds": 4.349052459001541,
+      "selection_checks_logged": 0,
+      "last_update_time_UTC": "2026-09-10T15:15:09.508282+00:00",
+      "rough_finish_UTC": "2026-09-10T22:25:22.233846+00:00",
+      "remaining_hours_estimate": 7.139435405259331
+    },
+    {
+      "arm": "B2",
+      "last_logged_update": 200,
+      "total_updates": 5775,
+      "progress_pct": 3.463203463203463,
+      "phase": "source",
+      "median_recent_update_seconds": 4.331123683601618,
+      "selection_checks_logged": 0,
+      "last_update_time_UTC": "2026-09-10T15:15:06.993091+00:00",
+      "rough_finish_UTC": "2026-09-10T22:23:42.280923+00:00",
+      "remaining_hours_estimate": 7.111670704466394
+    }
+  ],
+  "caveat": "Latest logged update is a lower bound; logs are sampled every 25 updates. Estimate assumes observed throughput, ~50s/evaluation and checkpoint allowance; not a completion guarantee."
+}

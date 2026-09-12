@@ -1,0 +1,17 @@
+preprocessing,arm,degradation_seed,distance
+legacy_512,BRSET_unaltered,0,6.742272431880171
+legacy_512,local_generic,0,10.11420222216776
+legacy_512,local_generic,1,10.088135631015957
+legacy_512,local_generic,2,10.072587317028287
+legacy_512,fitted_frozen,0,1.2566133979279506
+legacy_512,fitted_frozen,1,1.247095967799273
+legacy_512,fitted_frozen,2,1.2785415358881256
+legacy_512,mBRSET_reference,0,0.0
+model_eval_560_crop512,BRSET_unaltered,0,8.473733829618794
+model_eval_560_crop512,local_generic,0,12.051075695106395
+model_eval_560_crop512,local_generic,1,12.006931920856598
+model_eval_560_crop512,local_generic,2,11.976193983543936
+model_eval_560_crop512,fitted_frozen,0,4.348450974429663
+model_eval_560_crop512,fitted_frozen,1,4.2719264309745455
+model_eval_560_crop512,fitted_frozen,2,4.262209462366721
+model_eval_560_crop512,mBRSET_reference,0,0.0
