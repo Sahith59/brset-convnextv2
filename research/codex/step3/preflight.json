@@ -1,0 +1,342 @@
+{
+  "pass": true,
+  "job": "4379902",
+  "host": "arctrdcn001",
+  "protocol_sha256": "58ab3a2d6790eff50d6ada2d61fc0357c070436c09e90a26fefa0ee56fb05e2f",
+  "manifest_sha256": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc",
+  "sampler_core_sha256": "e03855d8ddc9ef2c171eb11472c88930ea119a912dec9f568d1cb3c1c0dea9fe",
+  "trainer_sha256": "4c89ae333cb7a67bcbbcdcf05b3a96ecc89f43e1bc878d55abbad0c596f0dfc5",
+  "test_sha256": "0a2319142e57b1f41b46a211e54d290aadd8156eee3b804d7b6e569ff9ff32e2",
+  "ledgers": {
+    "C1_equal_domain": {
+      "arm": "C1_equal_domain",
+      "total_draws": 369600,
+      "records": [
+        {
+          "domain": "BRSET",
+          "stratum": "00",
+          "draws": 172300,
+          "unique_images": 10602,
+          "repeat_draws": 161698
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "01",
+          "draws": 355,
+          "unique_images": 22,
+          "repeat_draws": 333
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "10",
+          "draws": 8065,
+          "unique_images": 496,
+          "repeat_draws": 7569
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "11",
+          "draws": 4080,
+          "unique_images": 252,
+          "repeat_draws": 3828
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "00",
+          "draws": 140740,
+          "unique_images": 2591,
+          "repeat_draws": 138149
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "01",
+          "draws": 761,
+          "unique_images": 14,
+          "repeat_draws": 747
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "10",
+          "draws": 28248,
+          "unique_images": 520,
+          "repeat_draws": 27728
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "11",
+          "draws": 15051,
+          "unique_images": 277,
+          "repeat_draws": 14774
+        }
+      ],
+      "domain_draws": {
+        "BRSET": 184800,
+        "mBRSET": 184800
+      },
+      "positive_draws": {
+        "diabetic_retinopathy": 55444,
+        "macular_edema": 20247
+      },
+      "all_indices_in_range": true,
+      "declared_group_quotas": [
+        {
+          "domain": "BRSET",
+          "stratum": "natural",
+          "quota": 184800,
+          "available_images": 11372
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "natural",
+          "quota": 184800,
+          "available_images": 3402
+        }
+      ],
+      "resume_probe_pass": true
+    },
+    "C2_target_label": {
+      "arm": "C2_target_label",
+      "total_draws": 369600,
+      "records": [
+        {
+          "domain": "BRSET",
+          "stratum": "00",
+          "draws": 216672,
+          "unique_images": 10602,
+          "repeat_draws": 206070
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "01",
+          "draws": 1171,
+          "unique_images": 22,
+          "repeat_draws": 1149
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "10",
+          "draws": 43485,
+          "unique_images": 496,
+          "repeat_draws": 42989
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "11",
+          "draws": 23164,
+          "unique_images": 252,
+          "repeat_draws": 22912
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "00",
+          "draws": 64819,
+          "unique_images": 2591,
+          "repeat_draws": 62228
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "01",
+          "draws": 350,
+          "unique_images": 14,
+          "repeat_draws": 336
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "10",
+          "draws": 13009,
+          "unique_images": 520,
+          "repeat_draws": 12489
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "11",
+          "draws": 6930,
+          "unique_images": 277,
+          "repeat_draws": 6653
+        }
+      ],
+      "domain_draws": {
+        "BRSET": 284492,
+        "mBRSET": 85108
+      },
+      "positive_draws": {
+        "diabetic_retinopathy": 86588,
+        "macular_edema": 31615
+      },
+      "all_indices_in_range": true,
+      "declared_group_quotas": [
+        {
+          "domain": "BRSET",
+          "stratum": "00",
+          "quota": 216672,
+          "available_images": 10602
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "01",
+          "quota": 1171,
+          "available_images": 22
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "10",
+          "quota": 43485,
+          "available_images": 496
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "11",
+          "quota": 23164,
+          "available_images": 252
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "00",
+          "quota": 64819,
+          "available_images": 2591
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "01",
+          "quota": 350,
+          "available_images": 14
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "10",
+          "quota": 13009,
+          "available_images": 520
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "11",
+          "quota": 6930,
+          "available_images": 277
+        }
+      ],
+      "resume_probe_pass": true
+    },
+    "C3_equal_domain_target_label": {
+      "arm": "C3_equal_domain_target_label",
+      "total_draws": 369600,
+      "records": [
+        {
+          "domain": "BRSET",
+          "stratum": "00",
+          "draws": 140746,
+          "unique_images": 10602,
+          "repeat_draws": 130144
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "01",
+          "draws": 760,
+          "unique_images": 22,
+          "repeat_draws": 738
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "10",
+          "draws": 28247,
+          "unique_images": 496,
+          "repeat_draws": 27751
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "11",
+          "draws": 15047,
+          "unique_images": 252,
+          "repeat_draws": 14795
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "00",
+          "draws": 140746,
+          "unique_images": 2591,
+          "repeat_draws": 138155
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "01",
+          "draws": 760,
+          "unique_images": 14,
+          "repeat_draws": 746
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "10",
+          "draws": 28247,
+          "unique_images": 520,
+          "repeat_draws": 27727
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "11",
+          "draws": 15047,
+          "unique_images": 277,
+          "repeat_draws": 14770
+        }
+      ],
+      "domain_draws": {
+        "BRSET": 184800,
+        "mBRSET": 184800
+      },
+      "positive_draws": {
+        "diabetic_retinopathy": 86588,
+        "macular_edema": 31614
+      },
+      "all_indices_in_range": true,
+      "declared_group_quotas": [
+        {
+          "domain": "BRSET",
+          "stratum": "00",
+          "quota": 140746,
+          "available_images": 10602
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "01",
+          "quota": 760,
+          "available_images": 22
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "10",
+          "quota": 28247,
+          "available_images": 496
+        },
+        {
+          "domain": "BRSET",
+          "stratum": "11",
+          "quota": 15047,
+          "available_images": 252
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "00",
+          "quota": 140746,
+          "available_images": 2591
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "01",
+          "quota": 760,
+          "available_images": 14
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "10",
+          "quota": 28247,
+          "available_images": 520
+        },
+        {
+          "domain": "mBRSET",
+          "stratum": "11",
+          "quota": 15047,
+          "available_images": 277
+        }
+      ],
+      "resume_probe_pass": true
+    }
+  }
+}

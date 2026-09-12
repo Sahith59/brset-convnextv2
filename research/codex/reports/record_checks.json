@@ -1,0 +1,25 @@
+{
+  "pass": true,
+  "generated": "12 September 2026",
+  "docx": {
+    "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Record.docx",
+    "sha256": "d218f6135fd8600053570c0279b67f44c83f0ab36e57c43cf9ac6dfd399674f5",
+    "sections": 1,
+    "tables": 7,
+    "paragraphs": 42,
+    "times_new_roman_present": true
+  },
+  "pptx": {
+    "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Update.pptx",
+    "sha256": "94ef1e7f2b2f255a73cc4269dcb2e166ca6671d574f9751b3a7c7f2915ac9009",
+    "slides": 8,
+    "times_new_roman_present": true
+  },
+  "input_sha256": {
+    "research/codex/step2/full_pool/baseline_assessment_three_seeds.json": "a4797983c75ecc759eb2b94dc6014da65717b849936781481205d3c1fea437ae",
+    "research/codex/step2/full_pool/baseline_assessment_seed2.json": "306bd06027b30bebb9158f4490f59f85dad47e943cd219f8c6542cb9a7d3a04f",
+    "research/codex/step3/design_counts.json": "0d6677d709f3f0083a3383d71571ae91c2e6844da2f34f8b6b1a8b7959471b01",
+    "research/codex/step3/preflight.json": "855fd4322e15471bced68bb2514bb2973de538f74a8d1b491cbd07586dfa4e57"
+  },
+  "privacy": "No dataset images, patient identifiers, private manifests, or per-image predictions embedded."
+}

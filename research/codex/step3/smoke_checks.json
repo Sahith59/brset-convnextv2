@@ -1,0 +1,17 @@
+{
+  "status": "pass",
+  "job_id": 4379912,
+  "state": "COMPLETED",
+  "exit_code": "0:0",
+  "gpu": "NVIDIA A40",
+  "arm": "C3_equal_domain_target_label",
+  "seed": 0,
+  "updates": 6,
+  "finite_losses_and_gradients": true,
+  "source_draws": 192,
+  "target_draws": 192,
+  "selection_inference_completed": true,
+  "assessment_performed": false,
+  "interpretation": "Implementation smoke only. Its validation metrics are not research results.",
+  "cleanup": "Disposable best/last smoke checkpoints and per-image selection predictions removed after successful verification; compact contract, summaries, ledger and logs retained locally."
+}

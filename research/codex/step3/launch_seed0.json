@@ -1,0 +1,24 @@
+{
+  "status": "running",
+  "submitted_utc": "2026-09-12T14:21:34Z",
+  "job_id": 4379924,
+  "nodes": ["arctrdagn032", "arctrdagn033", "arctrdagn034"],
+  "resources": "one NVIDIA A40, 8 CPUs and 64 GiB per task; three tasks on three nodes; nonexclusive",
+  "task_arm_map": {
+    "0": "C1_equal_domain",
+    "1": "C2_target_label",
+    "2": "C3_equal_domain_target_label"
+  },
+  "seed": 0,
+  "updates_per_arm": 5775,
+  "assessment": "mBRSET validation only; no test assessment submitted",
+  "preflight_job": 4379902,
+  "smoke_job": 4379912,
+  "sha256": {
+    "sampler_core": "e03855d8ddc9ef2c171eb11472c88930ea119a912dec9f568d1cb3c1c0dea9fe",
+    "trainer": "4c89ae333cb7a67bcbbcdcf05b3a96ecc89f43e1bc878d55abbad0c596f0dfc5",
+    "preflight": "855fd4322e15471bced68bb2514bb2973de538f74a8d1b491cbd07586dfa4e57",
+    "smoke_checks": "87b691c08381de208074fc78c4ddb8090d34be664e37fca3a8262407dfc98c41",
+    "step2_protocol": "58ab3a2d6790eff50d6ada2d61fc0357c070436c09e90a26fefa0ee56fb05e2f"
+  }
+}

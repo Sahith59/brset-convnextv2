@@ -1,5 +1,11 @@
 **Research workspace**
 
+Maintained advisor-ready artifacts:
+
+- `reports/BRSET_mBRSET_Research_Record.docx` — detailed Times New Roman technical record.
+- `reports/BRSET_mBRSET_Research_Update.pptx` — concise evidence and decision-gate deck.
+- `reports/build_research_record.py` — reproducible builder; rerun after every verified result or completed step.
+
 Start with [MEMORY.md](MEMORY.md), then [PLAN.md](PLAN.md) and [DECISIONS.md](DECISIONS.md). This workspace holds the continuing research decisions separately from Claude's historical memories. The original audit remains at /home/users/sthummala2/research-audit-brset-20260909.
 
 Current deliverable: [three-page Dong degradation PDF](updates/2026-09-10/Degradation_Update.pdf), [provenance and verification](updates/2026-09-10/revision_2/figure_provenance.json), and [unsent message](updates/2026-09-10/UPDATE_FOR_DONG.md). Rebuild revision 2 with `tools/revise_dong_report.py`; `tools/build_dong_update.py` is historical. Supporting statistics and figure are in the same directory. User reports sending the update to Dong in Slack.
