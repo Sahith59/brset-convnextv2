@@ -1,0 +1,149 @@
+{
+  "status": "verified",
+  "seed": 0,
+  "selection_split": "mBRSET val, 725 images",
+  "assessment_performed": false,
+  "reference": {
+    "diabetic_retinopathy": {
+      "f1_positive": 0.8703170028818443,
+      "auroc": 0.9563358999834409,
+      "average_precision": 0.9359147343899302
+    },
+    "macular_edema": {
+      "f1_positive": 0.8489208633093526,
+      "auroc": 0.99035276210941,
+      "average_precision": 0.9251616070259433
+    }
+  },
+  "controls": {
+    "C1_equal_domain": {
+      "checkpoint_sha256": "4f673fb5284b6733dbae2162bde5537e9869db1437ab7c2038c6e1f0a1900a4b",
+      "checkpoint_update": 2772,
+      "thresholds": [
+        0.368,
+        0.595
+      ],
+      "domain_draws": {
+        "BRSET": 184800,
+        "mBRSET": 184800
+      },
+      "metrics": {
+        "diabetic_retinopathy": {
+          "f1_positive": 0.8767908309455588,
+          "auroc": 0.949018877297566,
+          "average_precision": 0.9290233350949864
+        },
+        "macular_edema": {
+          "f1_positive": 0.8636363636363636,
+          "auroc": 0.9895245769540693,
+          "average_precision": 0.9272834998104126
+        }
+      },
+      "differences_from_B1": {
+        "diabetic_retinopathy": {
+          "f1_positive": 0.006473828063714437,
+          "auroc": -0.007317022685874974,
+          "average_precision": -0.006891399294943867
+        },
+        "macular_edema": {
+          "f1_positive": 0.014715500327011077,
+          "auroc": -0.0008281851553407771,
+          "average_precision": 0.0021218927844692814
+        }
+      },
+      "replication_screen": {
+        "absolute_DR_F1_delta_at_least_0.01": false,
+        "absolute_ME_F1_delta_at_least_0.01": true,
+        "passes_numeric_screen": true
+      }
+    },
+    "C2_target_label": {
+      "checkpoint_sha256": "983f6d3d827fcf65bae1fed26fa198f5e1a5f1e6a0c7b12435724f906861fcee",
+      "checkpoint_update": 2541,
+      "thresholds": [
+        0.455,
+        0.668
+      ],
+      "domain_draws": {
+        "BRSET": 284492,
+        "mBRSET": 85108
+      },
+      "metrics": {
+        "diabetic_retinopathy": {
+          "f1_positive": 0.8771929824561403,
+          "auroc": 0.9551043219076005,
+          "average_precision": 0.9351128601962487
+        },
+        "macular_edema": {
+          "f1_positive": 0.8503937007874016,
+          "auroc": 0.9913600143253648,
+          "average_precision": 0.9293163968548851
+        }
+      },
+      "differences_from_B1": {
+        "diabetic_retinopathy": {
+          "f1_positive": 0.006875979574295976,
+          "auroc": -0.0012315780758404005,
+          "average_precision": -0.0008018741936814955
+        },
+        "macular_edema": {
+          "f1_positive": 0.0014728374780490494,
+          "auroc": 0.001007252215954768,
+          "average_precision": 0.004154789828941796
+        }
+      },
+      "replication_screen": {
+        "absolute_DR_F1_delta_at_least_0.01": false,
+        "absolute_ME_F1_delta_at_least_0.01": false,
+        "passes_numeric_screen": false
+      }
+    },
+    "C3_equal_domain_target_label": {
+      "checkpoint_sha256": "6c820db4e58161e18cec16dc1fca4608687909236001ea50307a4c7dd110e394",
+      "checkpoint_update": 2079,
+      "thresholds": [
+        0.395,
+        0.416
+      ],
+      "domain_draws": {
+        "BRSET": 184800,
+        "mBRSET": 184800
+      },
+      "metrics": {
+        "diabetic_retinopathy": {
+          "f1_positive": 0.873900293255132,
+          "auroc": 0.9559219241596292,
+          "average_precision": 0.9357058668365399
+        },
+        "macular_edema": {
+          "f1_positive": 0.8507462686567164,
+          "auroc": 0.9890097591548035,
+          "average_precision": 0.9185126580424671
+        }
+      },
+      "differences_from_B1": {
+        "diabetic_retinopathy": {
+          "f1_positive": 0.0035832903732876398,
+          "auroc": -0.0004139758238117519,
+          "average_precision": -0.00020886755339033503
+        },
+        "macular_edema": {
+          "f1_positive": 0.001825405347363862,
+          "auroc": -0.0013430029546065425,
+          "average_precision": -0.006648948983476233
+        }
+      },
+      "replication_screen": {
+        "absolute_DR_F1_delta_at_least_0.01": false,
+        "absolute_ME_F1_delta_at_least_0.01": false,
+        "passes_numeric_screen": false
+      }
+    }
+  },
+  "screen_rule": "Replicate if absolute DR F1 delta >= 0.01 or absolute ME F1 delta >= 0.01; final interpretation remains a human decision.",
+  "limitations": [
+    "Validation F1 thresholds are selected on the same validation split.",
+    "The test split was not used for Step-3 screening.",
+    "Sampler stratification changes draw composition and within-batch composition variance."
+  ]
+}

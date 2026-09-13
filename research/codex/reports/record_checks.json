@@ -1,17 +1,17 @@
 {
   "pass": true,
-  "generated": "12 September 2026",
+  "generated": "13 September 2026",
   "docx": {
     "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Record.docx",
-    "sha256": "3daeb8beaaf2b86f89e48e3b95845863d9281e46ecb7a5c43e4ce3d5413779e1",
+    "sha256": "aa6e84c0fbe5eacaf298d3225fc56c132eb6cdbc562142f29dd3e81ad4eb5646",
     "sections": 1,
-    "tables": 7,
-    "paragraphs": 42,
+    "tables": 8,
+    "paragraphs": 44,
     "times_new_roman_present": true
   },
   "pptx": {
     "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Update.pptx",
-    "sha256": "a46d7f198d804ee90fbfd0e221eeefd900e799c5cebf2ae8f1616ba11bbd2508",
+    "sha256": "ac095cbb280d6cd99191635393d3b7e044205a66c9f6c68a1f8ae14388760aec",
     "slides": 8,
     "times_new_roman_present": true
   },
@@ -19,7 +19,8 @@
     "research/codex/step2/full_pool/baseline_assessment_three_seeds.json": "a4797983c75ecc759eb2b94dc6014da65717b849936781481205d3c1fea437ae",
     "research/codex/step2/full_pool/baseline_assessment_seed2.json": "306bd06027b30bebb9158f4490f59f85dad47e943cd219f8c6542cb9a7d3a04f",
     "research/codex/step3/design_counts.json": "0d6677d709f3f0083a3383d71571ae91c2e6844da2f34f8b6b1a8b7959471b01",
-    "research/codex/step3/preflight.json": "855fd4322e15471bced68bb2514bb2973de538f74a8d1b491cbd07586dfa4e57"
+    "research/codex/step3/preflight.json": "855fd4322e15471bced68bb2514bb2973de538f74a8d1b491cbd07586dfa4e57",
+    "research/codex/step3/seed0_validation_summary.json": "2b78b6edeb463973672b623a213787ab578276062dbe0b5293a34ad9f8d80958"
   },
   "privacy": "No dataset images, patient identifiers, private manifests, or per-image predictions embedded."
 }

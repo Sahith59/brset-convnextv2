@@ -1,0 +1,13 @@
+{
+  "status": "running",
+  "submitted_utc": "2026-09-13T14:09:40Z",
+  "job_id": 4385146,
+  "dependent_finalize_job_id": 4385147,
+  "nodes": ["arctrdagn033", "arctrdagn034"],
+  "resources": "one NVIDIA A40, 8 CPUs and 64 GiB per task; two tasks on two nodes; nonexclusive",
+  "task_seed_map": {"0": 1, "1": 2},
+  "arm": "C1_equal_domain",
+  "updates_per_seed": 5775,
+  "assessment": "mBRSET validation only; no test assessment submitted",
+  "reason": "Seed-0 ME F1 difference +0.0147 crossed the predefined absolute 0.01 replication screen; DR difference was +0.0065."
+}

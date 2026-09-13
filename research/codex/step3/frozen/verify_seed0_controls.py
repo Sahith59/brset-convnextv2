@@ -6,7 +6,7 @@ import os
 import socket
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[4]
 WORK = ROOT / "research/codex/step3"
 RUNS = WORK / "runs"
 ARMS = ("C1_equal_domain", "C2_target_label", "C3_equal_domain_target_label")

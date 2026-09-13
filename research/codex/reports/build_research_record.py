@@ -24,7 +24,7 @@ DOCX = HERE / "BRSET_mBRSET_Research_Record.docx"
 PPTX = HERE / "BRSET_mBRSET_Research_Update.pptx"
 CHECKS = HERE / "record_checks.json"
 FONT = "Times New Roman"
-UPDATED = "12 September 2026"
+UPDATED = date.today().strftime("%d %B %Y").lstrip("0")
 
 RESULTS = ROOT / "research/codex/step2/full_pool/baseline_assessment_three_seeds.json"
 SEED2 = ROOT / "research/codex/step2/full_pool/baseline_assessment_seed2.json"
@@ -33,6 +33,8 @@ PREFLIGHT = ROOT / "research/codex/step3/preflight.json"
 STEP3_RUNS = ROOT / "research/codex/step3/runs"
 STEP2_RUNS = ROOT / "research/codex/step2/full_pool/runs"
 STEP3_LAUNCH = ROOT / "research/codex/step3/launch_seed0.json"
+STEP3_SEED0 = ROOT / "research/codex/step3/seed0_validation_summary.json"
+STEP3_C1_CROSS = ROOT / "research/codex/step3/c1_validation_three_seeds.json"
 
 
 def sha(path):
@@ -126,6 +128,15 @@ def add_page_number(section):
 
 
 def step3_validation_rows():
+    if STEP3_SEED0.exists():
+        verified = json.loads(STEP3_SEED0.read_text())
+        rows = []
+        for name, metrics in [("B1 existing", verified["reference"])] + [
+                (arm.split("_")[0], record["metrics"]) for arm, record in verified["controls"].items()]:
+            dr, me = metrics["diabetic_retinopathy"], metrics["macular_edema"]
+            rows.append([name, f"{dr['f1_positive']:.4f}", f"{dr['auroc']:.4f}",
+                         f"{me['f1_positive']:.4f}", f"{me['auroc']:.4f}"])
+        return rows
     locations = [("B1 existing", STEP2_RUNS / "B1_seed0/selection_summary.json")]
     locations.extend((name.split("_")[0], STEP3_RUNS / f"{name}_seed0/selection_summary.json") for name in (
         "C1_equal_domain", "C2_target_label", "C3_equal_domain_target_label"))
@@ -143,6 +154,8 @@ def step3_validation_rows():
 def step3_state(preflight):
     controls = step3_validation_rows()
     completed = {row[0] for row in controls}
+    if STEP3_C1_CROSS.exists():
+        return "C1 replication verified across three seeds; review Step-3 closure", controls
     if {"C1", "C2", "C3"}.issubset(completed):
         if (ROOT / "research/codex/step3/seed0_validation_summary.json").exists():
             return "seed-0 controls verified; review the replication screen", controls
@@ -254,6 +267,17 @@ def build_docx(summary, design, preflight):
     if len(control_rows) > 1:
         add_doc_table(document, [["Arm", "Validation DR F1", "DR AUROC", "ME F1", "ME AUROC"]] + control_rows)
         add_body(document, "These are validation-screening values. They must be verified and cannot be reported as test results.")
+    if STEP3_C1_CROSS.exists():
+        cross = json.loads(STEP3_C1_CROSS.read_text())
+        cross_rows = [["Seed", "B1 DR F1", "C1 DR F1", "Difference", "B1 ME F1", "C1 ME F1", "Difference"]]
+        for seed in cross["seeds"]:
+            r = cross["per_seed"][str(seed)]
+            cross_rows.append([seed, f"{r['B1']['diabetic_retinopathy']['f1_positive']:.4f}",
+                f"{r['C1']['diabetic_retinopathy']['f1_positive']:.4f}", f"{r['C1-B1']['diabetic_retinopathy']['f1_positive']:+.4f}",
+                f"{r['B1']['macular_edema']['f1_positive']:.4f}", f"{r['C1']['macular_edema']['f1_positive']:.4f}",
+                f"{r['C1-B1']['macular_edema']['f1_positive']:+.4f}"])
+        add_doc_table(document, cross_rows)
+        add_body(document, "C1 cross-seed values are validation-only evidence used to choose the Step-4 baseline. They are not an external test result.")
 
     add_heading(document, "VII.", "NOVELTY GATE AND PAPER DIRECTION")
     add_body(document, "Candidate method: a lightweight target-appearance augmentation fitted on training data, combined with an explicit diagnostic-damage or lesion-preservation constraint. Appearance matching alone is insufficient because transformations can improve global statistics while obscuring lesions.")
@@ -418,9 +442,17 @@ def build_pptx(summary, preflight):
         ppt_table(s, [["", "Natural label mix", "Target-matched DR/ME mix"], ["Natural domain ratio", "B1 existing", "C2"],
                       ["50% BRSET / 50% mBRSET", "C1", "C3"]], 1.15, 1.55, 11.0, 2.25, [3.4, 3.8, 3.8], 16)
     status = "PASSED" if preflight and preflight.get("pass") else "PENDING"
-    ppt_box(s, 1.0, 4.35, 3.45, 1.0, "Only the sampler changes", PALE, BLUE, 18, True)
-    ppt_box(s, 4.95, 4.35, 3.45, 1.0, "Validation-only screening", PALE, BLUE, 18, True)
-    ppt_box(s, 8.9, 4.35, 3.45, 1.0, f"Allocated preflight\n{status}", LIGHT_GREEN if status=="PASSED" else LIGHT_AMBER, GREEN if status=="PASSED" else AMBER, 18, True)
+    if STEP3_C1_CROSS.exists():
+        cross = json.loads(STEP3_C1_CROSS.read_text())
+        dr = cross["aggregate"]["diabetic_retinopathy"]["f1_positive"]
+        me = cross["aggregate"]["macular_edema"]["f1_positive"]
+        ppt_box(s, 1.0, 4.35, 3.45, 1.0, f"C1−B1 DR F1\n{dr['difference_mean']:+.4f} mean", PALE, BLUE, 18, True)
+        ppt_box(s, 4.95, 4.35, 3.45, 1.0, f"C1−B1 ME F1\n{me['difference_mean']:+.4f} mean", PALE, BLUE, 18, True)
+        ppt_box(s, 8.9, 4.35, 3.45, 1.0, "Three seeds\nvalidation only", LIGHT_GREEN, GREEN, 18, True)
+    else:
+        ppt_box(s, 1.0, 4.35, 3.45, 1.0, "Only the sampler changes", PALE, BLUE, 18, True)
+        ppt_box(s, 4.95, 4.35, 3.45, 1.0, "Validation-only screening", PALE, BLUE, 18, True)
+        ppt_box(s, 8.9, 4.35, 3.45, 1.0, f"Allocated preflight\n{status}", LIGHT_GREEN if status=="PASSED" else LIGHT_AMBER, GREEN if status=="PASSED" else AMBER, 18, True)
     textbox(s, .85, 5.80, 11.7, .75, run_state.capitalize() + ".", 16, True, INK, PP_ALIGN.CENTER)
 
     s = prs.slides.add_slide(blank); slide_title(s, "Decision gate for the paper contribution")
@@ -458,6 +490,8 @@ def main():
     build_docx(summary, design, preflight); build_pptx(summary, preflight)
     inputs = {str(path.relative_to(ROOT)): sha(path) for path in (RESULTS, SEED2, DESIGN) if path.exists()}
     if PREFLIGHT.exists(): inputs[str(PREFLIGHT.relative_to(ROOT))] = sha(PREFLIGHT)
+    if STEP3_SEED0.exists(): inputs[str(STEP3_SEED0.relative_to(ROOT))] = sha(STEP3_SEED0)
+    if STEP3_C1_CROSS.exists(): inputs[str(STEP3_C1_CROSS.relative_to(ROOT))] = sha(STEP3_C1_CROSS)
     print(json.dumps(verify(inputs), indent=2))
 
 
