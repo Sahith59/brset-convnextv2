@@ -1,0 +1,66 @@
+{
+  "date_utc": "2026-09-13",
+  "purpose": "Resolve the predeclared final-quarter curve review and conditional long-exposure decision after C1 replication.",
+  "validation_split": {
+    "dataset": "mBRSET",
+    "images": 725,
+    "test_assessment_performed": false
+  },
+  "completed_jobs": {
+    "replication_wave": {
+      "job_id": 4385146,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "07:24:41",
+      "nodes": ["arctrdagn033", "arctrdagn034"]
+    },
+    "verification_and_report_finalizer": {
+      "job_id": 4385147,
+      "state": "COMPLETED",
+      "exit_code": "0:0",
+      "elapsed": "00:00:12",
+      "node": "arctrdcn001"
+    },
+    "stderr_empty": true
+  },
+  "c1_minus_b1_validation": {
+    "diabetic_retinopathy": {
+      "f1_difference_mean": 0.003539024999139347,
+      "f1_positive_seeds": 2,
+      "auroc_difference_mean": -0.007068637191587901,
+      "average_precision_difference_mean": -0.003880304689553249
+    },
+    "macular_edema": {
+      "f1_difference_mean": 0.007855140089941703,
+      "f1_positive_seeds": 3,
+      "auroc_difference_mean": -0.0009102575581222035,
+      "average_precision_difference_mean": 0.0022041391958161163
+    }
+  },
+  "final_quarter_selection_curves": {
+    "selection_score": "mean of DR and ME validation AUROC",
+    "final_quarter_definition": "global update >= 0.75 * 5775",
+    "runs": {
+      "B1_seed0": {"global_best_update": 2772, "global_best_score": 0.9733443310464255, "final_quarter_first_score": 0.9709873124916354, "final_score": 0.9695681276443915, "final_quarter_change": -0.0014191848472439},
+      "C1_seed0": {"global_best_update": 2772, "global_best_score": 0.9692717271258176, "final_quarter_first_score": 0.9629209843911435, "final_score": 0.9588253174137111, "final_quarter_change": -0.0040956669774324},
+      "B1_seed1": {"global_best_update": 2541, "global_best_score": 0.9717648514910935, "final_quarter_first_score": 0.9704946362276681, "final_score": 0.966453705960945, "final_quarter_change": -0.0040409302667231},
+      "C1_seed1": {"global_best_update": 2541, "global_best_score": 0.9693307003336759, "final_quarter_first_score": 0.9646372786196733, "final_score": 0.9589929300868556, "final_quarter_change": -0.0056443485328177},
+      "B1_seed2": {"global_best_update": 3234, "global_best_score": 0.9761704499253375, "final_quarter_first_score": 0.970992512208117, "final_score": 0.9650370855288064, "final_quarter_change": -0.0059554266793106},
+      "C1_seed2": {"global_best_update": 2772, "global_best_score": 0.9707088628787979, "final_quarter_first_score": 0.9599762519316093, "final_score": 0.9537605308644495, "final_quarter_change": -0.0062157210671598}
+    },
+    "all_six_final_quarter_changes_negative": true,
+    "all_six_global_best_updates_before_final_quarter": true
+  },
+  "decision": {
+    "step3_complete": true,
+    "step4_reference": "B1 natural joint sampler",
+    "launch_conditional_long_exposure_control": false,
+    "reason": "C1 increased target exposure at fixed compute but produced a small mixed DR F1 change, a small consistent ME F1 change, lower mean AUROC for both labels, and no late-curve evidence of undertraining. The predeclared condition for the costly long-exposure comparison is therefore not met.",
+    "claim_limit": "This is a validation-based engineering decision, not a statistical-significance, clinical, external-generalization, or novelty claim."
+  },
+  "source_artifacts": [
+    "research/codex/step3/c1_validation_three_seeds.json",
+    "research/codex/step2/full_pool/runs/B1_seed{0,1,2}/events.jsonl",
+    "research/codex/step3/runs/C1_equal_domain_seed{0,1,2}/events.jsonl"
+  ]
+}

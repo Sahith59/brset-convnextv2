@@ -35,6 +35,7 @@ STEP2_RUNS = ROOT / "research/codex/step2/full_pool/runs"
 STEP3_LAUNCH = ROOT / "research/codex/step3/launch_seed0.json"
 STEP3_SEED0 = ROOT / "research/codex/step3/seed0_validation_summary.json"
 STEP3_C1_CROSS = ROOT / "research/codex/step3/c1_validation_three_seeds.json"
+STEP3_FINAL = ROOT / "research/codex/step3/final_curve_review.json"
 
 
 def sha(path):
@@ -154,6 +155,8 @@ def step3_validation_rows():
 def step3_state(preflight):
     controls = step3_validation_rows()
     completed = {row[0] for row in controls}
+    if STEP3_FINAL.exists() and json.loads(STEP3_FINAL.read_text())["decision"]["step3_complete"]:
+        return "Step 3 complete; natural joint B1 retained for Step 4", controls
     if STEP3_C1_CROSS.exists():
         return "C1 replication verified across three seeds; review Step-3 closure", controls
     if {"C1", "C2", "C3"}.issubset(completed):
@@ -184,16 +187,16 @@ def build_docx(summary, design, preflight):
     doc_text(p, "Living Research Record and Evidence Audit", 11, True)
     style_doc_paragraph(p, after=2)
     p = document.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    doc_text(p, f"Updated {UPDATED} | Current state: Step 2 complete; Step 3 controls prepared", 9, italic=True)
+    doc_text(p, f"Updated {UPDATED} | Current state: Step 3 complete; Step 4 is next", 9, italic=True)
     style_doc_paragraph(p, after=8)
 
     p = document.add_paragraph(); doc_text(p, "Abstract—", 10, True, True)
-    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The current evidence establishes a strong joint BRSET–mBRSET baseline across three training seeds. It does not yet establish a novel method. The next experiments isolate domain exposure and joint-label balance before testing fitted appearance degradation. Numerical claims are linked to audited aggregate artifacts, and known limitations are retained rather than removed from later updates.")
+    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The evidence establishes a strong joint BRSET–mBRSET baseline and closes the balance/exposure investigation. Natural joint sampling remains the reference after validation-only controls and replication. A novel method has not yet been established. Numerical claims are linked to audited aggregate artifacts, and known limitations are retained rather than removed from later updates.")
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY; style_doc_paragraph(p, after=7)
 
     add_heading(document, "I.", "RESEARCH QUESTION")
     add_body(document, "Can a model trained with tabletop-camera BRSET images and labeled handheld-camera mBRSET images improve DR and ME recognition on mBRSET, and can the improvement be attributed to a defensible cross-device mechanism rather than data quantity, class balance, threshold choice, or random seed?")
-    add_body(document, "Current contribution status: The study has a verified experimental foundation and a repeated joint-training advantage. A paper-level novelty claim remains conditional on the balance controls and the later preservation-constrained appearance experiment.", "Current contribution status:")
+    add_body(document, "Current contribution status: The study has a verified experimental foundation, a repeated joint-training advantage, and a closed balance/exposure analysis. A paper-level novelty claim remains conditional on the preservation-constrained appearance experiments and closest-method evidence.", "Current contribution status:")
 
     add_heading(document, "II.", "DATA AND EVALUATION BOUNDARY")
     add_doc_table(document, [
@@ -278,6 +281,11 @@ def build_docx(summary, design, preflight):
                 f"{r['C1-B1']['macular_edema']['f1_positive']:+.4f}"])
         add_doc_table(document, cross_rows)
         add_body(document, "C1 cross-seed values are validation-only evidence used to choose the Step-4 baseline. They are not an external test result.")
+    if STEP3_FINAL.exists():
+        final = json.loads(STEP3_FINAL.read_text())
+        dr = final["c1_minus_b1_validation"]["diabetic_retinopathy"]
+        me = final["c1_minus_b1_validation"]["macular_edema"]
+        add_body(document, f"Step-3 decision: retain natural B1. Mean C1−B1 validation differences were {dr['f1_difference_mean']:+.4f} DR F1 and {me['f1_difference_mean']:+.4f} ME F1. DR changed direction across seeds, while C1 mean AUROC was lower for both labels. All six B1/C1 runs peaked before the final quarter and declined thereafter, so the conditional longer-exposure run is not justified.", "Step-3 decision:")
 
     add_heading(document, "VII.", "NOVELTY GATE AND PAPER DIRECTION")
     add_body(document, "Candidate method: a lightweight target-appearance augmentation fitted on training data, combined with an explicit diagnostic-damage or lesion-preservation constraint. Appearance matching alone is insufficient because transformations can improve global statistics while obscuring lesions.")
@@ -286,11 +294,10 @@ def build_docx(summary, design, preflight):
 
     add_heading(document, "VIII.", "NEXT ACTIONS")
     for item in [
-        "Complete allocated Step-3 unit/preflight checks and GPU smoke validation.",
-        "Run C1–C3 seed 0 concurrently on three nonexclusive nodes and use validation only for screening.",
-        "Replicate only interpretation-critical controls at seeds 1 and 2.",
-        "Select the simplest strong fair baseline, then compare ordinary augmentation, a faithful published component and FIT-only fitted degradation.",
-        "Validate diagnostic preservation and complete the closest-method novelty comparison before writing a contribution claim.",
+        "Freeze Step-4 operators, probabilities, parameter ranges, FIT-only estimation data, compute budget and falsification rule.",
+        "Compare ordinary B1 augmentation, a faithful published fundus augmentation component and FIT-only fitted degradation on validation.",
+        "Measure diagnostic preservation; add the preservation constraint only if the fitted transform first shows a promising classifier effect.",
+        "Replicate only a promising Step-4 arm and complete the closest-method novelty comparison before writing a contribution claim.",
     ]:
         p = document.add_paragraph(style=None); p.style = document.styles["Normal"]
         p.paragraph_format.left_indent = Inches(0.20); p.paragraph_format.first_line_indent = Inches(-0.15)
@@ -303,7 +310,8 @@ def build_docx(summary, design, preflight):
         ["10 Sep 2026", "Comparison protocol frozen", "STEP_1_PROTOCOL.md; preflight_v1.json"],
         ["12 Sep 2026", "Nine Step-2 runs and three assessments complete", "baseline_assessment_three_seeds.json"],
         ["12 Sep 2026", "Independent seed checks and Step-2 closure", "seed*_independent_verification.json; STEP_2_FINAL_REVIEW.md"],
-        ["12 Sep 2026", "Step-3 sampler controls prepared", "SAMPLER_PROTOCOL.md; preflight.json when complete"],
+        ["12 Sep 2026", "Step-3 sampler controls prepared", "SAMPLER_PROTOCOL.md; preflight.json"],
+        ["13 Sep 2026", "Step-3 controls, C1 replication and curve decision complete", "c1_validation_three_seeds.json; final_curve_review.json"],
     ])
     document.save(DOCX)
 
@@ -377,8 +385,8 @@ def build_pptx(summary, preflight):
 
     s = prs.slides.add_slide(blank)
     textbox(s, .75, 1.25, 11.8, .8, "BRSET to mBRSET Cross-Device Classification", 30, True, BLUE, PP_ALIGN.CENTER)
-    textbox(s, 1.2, 2.25, 10.9, .6, "Evidence update: Step 2 complete; Step 3 controls prepared", 20, False, INK, PP_ALIGN.CENTER)
-    ppt_box(s, 2.15, 3.35, 9.0, 1.05, "Joint training improves DR and ME F1 in all three seeds.\nThe mechanism and novelty are not yet established.", LIGHT_GREEN, GREEN, 20, True)
+    textbox(s, 1.2, 2.25, 10.9, .6, "Evidence update: Step 3 complete; appearance experiments next", 20, False, INK, PP_ALIGN.CENTER)
+    ppt_box(s, 2.15, 3.35, 9.0, 1.05, "Natural joint training remains the strongest simple reference.\nA novel method has not yet been established.", LIGHT_GREEN, GREEN, 20, True)
     textbox(s, 1.0, 6.55, 11.3, .35, UPDATED, 12, False, MUTED, PP_ALIGN.CENTER)
 
     s = prs.slides.add_slide(blank); slide_title(s, "Research question and evidence chain")
@@ -448,7 +456,8 @@ def build_pptx(summary, preflight):
         me = cross["aggregate"]["macular_edema"]["f1_positive"]
         ppt_box(s, 1.0, 4.35, 3.45, 1.0, f"C1−B1 DR F1\n{dr['difference_mean']:+.4f} mean", PALE, BLUE, 18, True)
         ppt_box(s, 4.95, 4.35, 3.45, 1.0, f"C1−B1 ME F1\n{me['difference_mean']:+.4f} mean", PALE, BLUE, 18, True)
-        ppt_box(s, 8.9, 4.35, 3.45, 1.0, "Three seeds\nvalidation only", LIGHT_GREEN, GREEN, 18, True)
+        decision_text = "B1 retained\nStep 3 complete" if STEP3_FINAL.exists() else "Three seeds\nvalidation only"
+        ppt_box(s, 8.9, 4.35, 3.45, 1.0, decision_text, LIGHT_GREEN, GREEN, 18, True)
     else:
         ppt_box(s, 1.0, 4.35, 3.45, 1.0, "Only the sampler changes", PALE, BLUE, 18, True)
         ppt_box(s, 4.95, 4.35, 3.45, 1.0, "Validation-only screening", PALE, BLUE, 18, True)
@@ -456,8 +465,8 @@ def build_pptx(summary, preflight):
     textbox(s, .85, 5.80, 11.7, .75, run_state.capitalize() + ".", 16, True, INK, PP_ALIGN.CENTER)
 
     s = prs.slides.add_slide(blank); slide_title(s, "Decision gate for the paper contribution")
-    bullets(s, ["First: select the simplest strong sampling baseline using cross-seed validation evidence.",
-                "Then: test ordinary augmentation, a faithful published component, and FIT-only fitted degradation.",
+    bullets(s, ["Reference fixed: natural joint B1 after Step-3 cross-seed validation controls.",
+                "Next: test ordinary augmentation, a faithful published component, and FIT-only fitted degradation.",
                 "Require: consistent diagnostic gain plus evidence that lesions are not damaged.",
                 "Claim novelty only after a closest-method comparison and an isolating ablation."], y=1.55, size=19)
     ppt_box(s, 1.2, 5.65, 10.9, .8, "Current novelty status: candidate hypothesis, not demonstrated contribution", LIGHT_AMBER, AMBER, 19, True)
@@ -492,6 +501,7 @@ def main():
     if PREFLIGHT.exists(): inputs[str(PREFLIGHT.relative_to(ROOT))] = sha(PREFLIGHT)
     if STEP3_SEED0.exists(): inputs[str(STEP3_SEED0.relative_to(ROOT))] = sha(STEP3_SEED0)
     if STEP3_C1_CROSS.exists(): inputs[str(STEP3_C1_CROSS.relative_to(ROOT))] = sha(STEP3_C1_CROSS)
+    if STEP3_FINAL.exists(): inputs[str(STEP3_FINAL.relative_to(ROOT))] = sha(STEP3_FINAL)
     print(json.dumps(verify(inputs), indent=2))
 
 
