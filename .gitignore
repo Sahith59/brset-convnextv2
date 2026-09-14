@@ -83,3 +83,5 @@ results/mbrset_test_quality.csv
 research/codex/step4/private/
 research/codex/step4/runs
 research/codex/step4/smoke
+# Advisor-only reports embed licensed BRSET/mBRSET patient images.
+research/codex/reports/private/
