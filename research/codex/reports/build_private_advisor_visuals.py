@@ -38,6 +38,10 @@ CHECKS = PRIVATE / "advisor_visual_checks.json"
 FONT = "Times New Roman"
 LABELS = ["BRSET original", "FundusAug component", "Target-fitted full",
           "Target-fitted no overlays", "Real mBRSET (unpaired)"]
+# Gallery row 1 is authentic, but its raw BRSET file contains a prominent
+# horizontal acquisition seam. Keep it in the private audit and omit it from
+# the advisor-facing layout because it distracts from the transform comparison.
+DISPLAY_ROW_INDICES = (2, 3, 4)
 
 
 def sha(path: Path) -> str:
@@ -84,6 +88,8 @@ def row_crops() -> list[Path]:
         raise ValueError(f"Expected four gallery image rows, found {groups}")
     outputs = []
     for index, (top, bottom) in enumerate(groups, start=1):
+        if index not in DISPLAY_ROW_INDICES:
+            continue
         path = PRIVATE / f"step4_gallery_row_{index}.png"
         image.crop((0, max(0, top - 2), image.width, min(image.height, bottom + 2))).save(path)
         outputs.append(path)
@@ -179,12 +185,13 @@ def verify(rows: list[Path]) -> None:
     with zipfile.ZipFile(OUT_PPTX) as archive:
         ppt_media = [name for name in archive.namelist() if name.startswith("ppt/media/")]
     result = {
-        "pass": len(rows) == 4 and len(document.sections) >= 3 and len(presentation.slides) == 11 and bounds,
+        "pass": len(rows) == 3 and len(document.sections) >= 3 and len(presentation.slides) == 11 and bounds,
         "scope": "private advisor companion; contains licensed training images; do not commit or distribute publicly",
         "source_gallery_sha256": sha(GALLERY),
         "row_crop_sha256": {path.name: sha(path) for path in rows},
         "docx": {"path": str(OUT_DOCX), "sha256": sha(OUT_DOCX), "sections": len(document.sections), "media_files": len(doc_media)},
         "pptx": {"path": str(OUT_PPTX), "sha256": sha(OUT_PPTX), "slides": len(presentation.slides), "media_files": len(ppt_media), "all_shape_bounds_inside_slide": bounds},
+        "display_policy": "Three clean rows shown; authentic gallery row 1 omitted because the raw BRSET file contains a prominent horizontal acquisition seam.",
         "limitations": "Examples verify implementation and illustrate appearance changes; they do not establish paired realism or diagnostic preservation.",
     }
     CHECKS.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
