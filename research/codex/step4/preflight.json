@@ -1,0 +1,33 @@
+{
+  "pass": true,
+  "scope": "original training images only; gallery target references are unrelated to source rows",
+  "target_common_transform_bitwise_equal_to_B1": true,
+  "a1_repeat_deterministic": true,
+  "full_parameters_valid": true,
+  "overlay_free_parameters_valid": true,
+  "all_step4_arms_use_joint_B1_phase_in_smoke_and_full_runs": true,
+  "gallery_rows": 4,
+  "gallery_columns": [
+    "BRSET original",
+    "FundusAug component",
+    "Target-fitted full",
+    "Target-fitted no overlays",
+    "Real mBRSET (unpaired)"
+  ],
+  "gallery_sha256": "0a666fb4cb9da9cd806224865176644dc014cad3347b6a59253d04e2c3751554",
+  "gallery_a1_operator_counts_for_four_display_draws": {
+    "sharpness": 3,
+    "halo": 1,
+    "hole": 2,
+    "spot": 2,
+    "blur": 3
+  },
+  "input_sha256": {
+    "manifest": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc",
+    "refit": "dc73b80ee4b1c5ae18ee30050cda922901387c3fb15e9b53dabcec6953703192",
+    "transform": "38a9b43ad1963abb35e0d8e29067d1a7dc6bb1ce2169806e015c6949e8f88e38",
+    "trainer": "d481b12b24d9bf1f83c8b441c51e73d7b5ef2025dc04925a5376ad718ed9a064",
+    "preflight": "9e760aa96a9aa1617c55e5f4e90d3d71a4c5570087c552e8029ed4410823000d"
+  },
+  "limitations": "Visual examples and pixel-level determinism do not establish lesion preservation or clinical realism."
+}

@@ -1,0 +1,81 @@
+{
+  "pass": true,
+  "job": "4397264",
+  "scope": "six-update code/numerical gate; metrics are not research results",
+  "joint_pool_expected_images": 14774,
+  "records": {
+    "A1": {
+      "updates": 6,
+      "fit_images": 14774,
+      "exposure": [
+        [
+          292,
+          15,
+          7
+        ],
+        [
+          92,
+          18,
+          7
+        ]
+      ],
+      "median_update_seconds": 4.332477439194918,
+      "validation_images_per_label": 725,
+      "assessment_performed": false
+    },
+    "A2": {
+      "updates": 6,
+      "fit_images": 14774,
+      "exposure": [
+        [
+          292,
+          15,
+          7
+        ],
+        [
+          92,
+          18,
+          7
+        ]
+      ],
+      "median_update_seconds": 4.338404625654221,
+      "validation_images_per_label": 725,
+      "assessment_performed": false
+    },
+    "A3": {
+      "updates": 6,
+      "fit_images": 14774,
+      "exposure": [
+        [
+          292,
+          15,
+          7
+        ],
+        [
+          92,
+          18,
+          7
+        ]
+      ],
+      "median_update_seconds": 4.335427145473659,
+      "validation_images_per_label": 725,
+      "assessment_performed": false
+    }
+  },
+  "shared_contract": {
+    "protocol_sha256": "58ab3a2d6790eff50d6ada2d61fc0357c070436c09e90a26fefa0ee56fb05e2f",
+    "manifest_sha256": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc",
+    "trainer_sha256": "2dc043cd845346d491efe88c637008e25a744d1620cbf99a0cb91e691bd99c47",
+    "core_sha256": "bf6b95bbe57d4127b2b20854b7915a40d5d6c5cdda129e7026e5c1a7247632c0",
+    "initialization_sha256": "585d641a9703651328067f8d193e59eb2217e44764c5bd538363bce78ed647fd",
+    "seed": 0,
+    "step4_wrapper_sha256": "d481b12b24d9bf1f83c8b441c51e73d7b5ef2025dc04925a5376ad718ed9a064",
+    "step4_transform_sha256": "38a9b43ad1963abb35e0d8e29067d1a7dc6bb1ce2169806e015c6949e8f88e38",
+    "source_transform_order": "resize_560-random_crop_512-extra_source_transform-flip-rotation-colour_jitter"
+  },
+  "invalid_predecessor": {
+    "job": "4395006",
+    "state": "cancelled and excluded",
+    "reason": "target-only inherited smoke phase did not exercise source transforms"
+  }
+}

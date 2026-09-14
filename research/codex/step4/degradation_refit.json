@@ -1,0 +1,312 @@
+{
+  "status": "complete",
+  "scope": "original training split only; target statistics use all target fit images; source calibration and validation are patient-disjoint",
+  "preprocessing": "PIL bilinear 560x560 resize then 512x512 center crop; transformation follows crop",
+  "objective": "sum over five statistics of squared transformed-source minus target mean divided by target sample SD",
+  "statistics": [
+    "sharpness",
+    "brightness",
+    "contrast",
+    "falloff",
+    "saturation"
+  ],
+  "source_counts": {
+    "available": 11372,
+    "calibration": 96,
+    "validation": 96
+  },
+  "target_count": 3402,
+  "fit_draws_per_candidate_image": 2,
+  "validation_draws": 3,
+  "selection_seed": 20260914,
+  "selected_identity_sha256": "8e28936fd30f37474d861ba8513998f3489ccf7805394d36ddc1720fb071ebf1",
+  "target_means": {
+    "sharpness": 0.0005371269827045014,
+    "brightness": 0.35945011485041695,
+    "contrast": 0.13584191389359984,
+    "falloff": 0.09777048882370763,
+    "saturation": 0.7635681556383348
+  },
+  "target_scales": {
+    "sharpness": 0.0001927066087541025,
+    "brightness": 0.11361763812508109,
+    "contrast": 0.041640091136546986,
+    "falloff": 0.08319301312732351,
+    "saturation": 0.10689566346290134
+  },
+  "identity_validation": {
+    "per_draw": [
+      {
+        "draw": 0,
+        "distance": 6.066122978777245,
+        "means": {
+          "sharpness": 0.00014035678638416962,
+          "brightness": 0.4181642609958847,
+          "contrast": 0.0844471527185912,
+          "falloff": 0.08877015843366583,
+          "saturation": 0.7803875214109818
+        }
+      },
+      {
+        "draw": 1,
+        "distance": 6.066122978777245,
+        "means": {
+          "sharpness": 0.00014035678638416962,
+          "brightness": 0.4181642609958847,
+          "contrast": 0.0844471527185912,
+          "falloff": 0.08877015843366583,
+          "saturation": 0.7803875214109818
+        }
+      },
+      {
+        "draw": 2,
+        "distance": 6.066122978777245,
+        "means": {
+          "sharpness": 0.00014035678638416962,
+          "brightness": 0.4181642609958847,
+          "contrast": 0.0844471527185912,
+          "falloff": 0.08877015843366583,
+          "saturation": 0.7803875214109818
+        }
+      }
+    ],
+    "distance_mean": 6.066122978777245,
+    "distance_min": 6.066122978777245,
+    "distance_max": 6.066122978777245
+  },
+  "historical_frozen_validation": {
+    "per_draw": [
+      {
+        "draw": 0,
+        "distance": 4.202822211516429,
+        "means": {
+          "sharpness": 0.000862241357632835,
+          "brightness": 0.4623636129933099,
+          "contrast": 0.13045789142294476,
+          "falloff": 0.11588022283588846,
+          "saturation": 0.6901302834351858
+        }
+      },
+      {
+        "draw": 1,
+        "distance": 4.200258047449957,
+        "means": {
+          "sharpness": 0.0008620796694837433,
+          "brightness": 0.4624816686846316,
+          "contrast": 0.13013476556322226,
+          "falloff": 0.11589286507417758,
+          "saturation": 0.6904226342837015
+        }
+      },
+      {
+        "draw": 2,
+        "distance": 4.229174866091809,
+        "means": {
+          "sharpness": 0.0008636846735801859,
+          "brightness": 0.463032307724158,
+          "contrast": 0.1296763417388623,
+          "falloff": 0.11548093038921554,
+          "saturation": 0.6911338282128175
+        }
+      }
+    ],
+    "distance_mean": 4.210751708352731,
+    "distance_min": 4.200258047449957,
+    "distance_max": 4.229174866091809
+  },
+  "arms": {
+    "full": {
+      "candidate_count": 258,
+      "random_candidate_count": 256,
+      "selected_candidate_index": 203,
+      "calibration_distance": 0.9479336427487335,
+      "calibration_means": {
+        "sharpness": 0.000447468150620504,
+        "brightness": 0.42643527826294303,
+        "contrast": 0.11096475599333644,
+        "falloff": 0.08489991320918004,
+        "saturation": 0.7694395218665401
+      },
+      "params": {
+        "blur_sigma": 0.562752809532591,
+        "light_strength": 0.29362117383527503,
+        "n_spot": 1.0,
+        "n_hole": 0.0,
+        "halo": 0.12179125760963212,
+        "brightness_gain": 0.8623198012075666,
+        "contrast_gain": 1.8712021302382675,
+        "saturation_gain": 0.6659591262279045,
+        "noise_sigma": 0.004364339334821491
+      },
+      "runner_up_distances": [
+        0.9794932383687591,
+        1.5470372796226806,
+        1.6095830928671737,
+        1.6277753796870225,
+        1.788950144080386
+      ],
+      "validation": {
+        "per_draw": [
+          {
+            "draw": 0,
+            "distance": 0.9141227275950855,
+            "means": {
+              "sharpness": 0.000466950857116899,
+              "brightness": 0.44129601897050935,
+              "contrast": 0.11693992741250743,
+              "falloff": 0.08470347461601098,
+              "saturation": 0.7444885565588871
+            }
+          },
+          {
+            "draw": 1,
+            "distance": 0.897157856633035,
+            "means": {
+              "sharpness": 0.00046780676439084345,
+              "brightness": 0.44112199591472745,
+              "contrast": 0.11744858293483655,
+              "falloff": 0.08502673435335358,
+              "saturation": 0.744309409831961
+            }
+          },
+          {
+            "draw": 2,
+            "distance": 0.8941704608200981,
+            "means": {
+              "sharpness": 0.0004676040440851163,
+              "brightness": 0.4415976052793364,
+              "contrast": 0.11797844517665605,
+              "falloff": 0.08493558092353244,
+              "saturation": 0.7440261424829563
+            }
+          }
+        ],
+        "distance_mean": 0.9018170150160728,
+        "distance_min": 0.8941704608200981,
+        "distance_max": 0.9141227275950855
+      }
+    },
+    "overlay_free": {
+      "candidate_count": 258,
+      "random_candidate_count": 256,
+      "selected_candidate_index": 178,
+      "calibration_distance": 0.9977799280573103,
+      "calibration_means": {
+        "sharpness": 0.000472696219124676,
+        "brightness": 0.34807593647080165,
+        "contrast": 0.10323355147071804,
+        "falloff": 0.1265865134385725,
+        "saturation": 0.7231807373464108
+      },
+      "params": {
+        "blur_sigma": 0.4367146425742447,
+        "light_strength": 0.1194849321742613,
+        "n_spot": 0.0,
+        "n_hole": 0.0,
+        "halo": 0.0,
+        "brightness_gain": 0.7450569827235688,
+        "contrast_gain": 1.867911278452014,
+        "saturation_gain": 0.5686612191650775,
+        "noise_sigma": 0.004995863624153167
+      },
+      "runner_up_distances": [
+        1.4611683904003423,
+        1.4640318430566615,
+        1.61430077209682,
+        1.70580544332889,
+        1.8738566833127783
+      ],
+      "validation": {
+        "per_draw": [
+          {
+            "draw": 0,
+            "distance": 0.9364948308635426,
+            "means": {
+              "sharpness": 0.0004981420858409061,
+              "brightness": 0.3616181783533345,
+              "contrast": 0.10793368425220251,
+              "falloff": 0.12906727000760534,
+              "saturation": 0.7045833847175041
+            }
+          },
+          {
+            "draw": 1,
+            "distance": 0.9420855669730701,
+            "means": {
+              "sharpness": 0.0004983875799856227,
+              "brightness": 0.3616814773995429,
+              "contrast": 0.10775863732366513,
+              "falloff": 0.1291251954777787,
+              "saturation": 0.704592494914929
+            }
+          },
+          {
+            "draw": 2,
+            "distance": 0.9477750748598105,
+            "means": {
+              "sharpness": 0.0004973271055253766,
+              "brightness": 0.3613459821790457,
+              "contrast": 0.10769178105207781,
+              "falloff": 0.12941938110937676,
+              "saturation": 0.7047178242355585
+            }
+          }
+        ],
+        "distance_mean": 0.9421184908988077,
+        "distance_min": 0.9364948308635426,
+        "distance_max": 0.9477750748598105
+      }
+    }
+  },
+  "ranges": {
+    "blur_sigma": [
+      0.0,
+      1.2
+    ],
+    "light_strength": [
+      0.0,
+      0.6
+    ],
+    "n_spot": [
+      0,
+      4
+    ],
+    "n_hole": [
+      0,
+      3
+    ],
+    "halo": [
+      0.0,
+      0.2
+    ],
+    "brightness_gain": [
+      0.7,
+      1.15
+    ],
+    "contrast_gain": [
+      0.9,
+      2.0
+    ],
+    "saturation_gain": [
+      0.5,
+      1.2
+    ],
+    "noise_sigma": [
+      0.0,
+      0.03
+    ]
+  },
+  "input_sha256": {
+    "manifest": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc",
+    "appearance_audit": "b5a7f06b20208150850d292bbbdad9208c5692e65b6cdf5db877dcbd6eca9593",
+    "appearance_operators": "7740ce15549da0d16642cd1e1a022a5eff393e2033b0d092bfee6cd5930c1838",
+    "historical_parameters": "b3ba37eb309de31786a7fab80f54bd024a6fd582c10936012ab3823705513009",
+    "analysis": "1e1c3c2d574304b08e8ac1758ca466b1091aa65d4c2ca30f14616e78eb0107ea"
+  },
+  "limitations": [
+    "The objective matches five global appearance means and is not a physical camera model.",
+    "Source calibration and validation subsets are small compute-conscious samples.",
+    "Patient-disjoint validation checks transformation fitting but does not establish diagnostic preservation.",
+    "No mBRSET validation or test image is accessed."
+  ]
+}

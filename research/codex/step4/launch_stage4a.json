@@ -1,0 +1,23 @@
+{
+  "date_utc": "2026-09-14",
+  "state": "corrected_gates_complete_seed0_wave_submitted",
+  "refit_job": "4394917",
+  "preflight_job_initial": "4395005",
+  "smoke_job_invalid": "4395006",
+  "invalid_smoke_reason": "inherited smoke helper selected target-only rows for A-arm names; cancelled after first event showed fit_images=3402",
+  "corrected_preflight_job": "4397263",
+  "corrected_smoke_job": "4397264",
+  "corrected_smoke_verification": "passed",
+  "full_seed0_wave": "4397838",
+  "validation_summary_job": "4397839",
+  "test_assessment": "not_submitted",
+  "resource_policy": {
+    "refit": "one nonexclusive CPU node, 8 CPUs",
+    "preflight": "one nonexclusive CPU node, 4 CPUs",
+    "smoke": "one nonexclusive node, one A40 GPU",
+    "future_seed0_wave_max": "three nonexclusive nodes, one A40 GPU per arm"
+  },
+  "dependency_chain": "4394917 and initial 4395005 completed; invalid 4395006 cancelled; corrected 4397263 -> corrected smoke 4397264 completed; full seed0 wave 4397838 -> validation-only summary 4397839",
+  "screen_rule": "one label F1 delta >= +0.01, other label F1 delta >= -0.01, both label AUROC deltas >= -0.01 versus B1 on validation",
+  "scope": "training-only transform fit and validation-only classifier design; no Step-4 test use"
+}

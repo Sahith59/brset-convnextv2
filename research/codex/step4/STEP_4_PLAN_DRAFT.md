@@ -1,4 +1,4 @@
-# Step 4 draft: target-calibrated appearance augmentation
+# Step 4 protocol: target-calibrated appearance augmentation
 
 ## Purpose in simple words
 
@@ -8,7 +8,7 @@ Natural joint training B1 is the fixed reference. Step 3 showed that forcing a 5
 
 ## Scientific question
 
-Under the same B1 data, model, optimizer, number of image draws and validation boundary, does a target-informed fundus degradation policy improve image-level any-DR and ME classification beyond ordinary augmentation and a paper-faithful FundusAug component while preserving diagnostic evidence?
+Under the same B1 data, model, optimizer, number of image draws and validation boundary, does a target-informed fundus degradation policy improve image-level any-DR and ME classification beyond ordinary augmentation and a release-range-faithful FundusAug artifact component? Diagnostic preservation is a separate required gate before any final method claim.
 
 ## Why an audit comes before a new training run
 
@@ -29,9 +29,15 @@ This is descriptive sensitivity analysis. Matching known DR/ME labels does not i
 - Complete the joint-label appearance audit on allocated CPU compute.
 - Freeze the exact classifier geometry: bilinear resize to 560, then 512 crop.
 - Refit any target-informed transform using original training images only. Do not access mBRSET validation or test images during fitting.
-- Implement a paper-faithful FundusAug component independently from the paper description, with upstream source commit and adaptation choices recorded. The upstream repository inspected on September 14 has no visible license file, so do not copy or redistribute its source.
+- Implement a release-range-faithful FundusAug artifact component independently from the paper description and inspected release, with upstream commit and adaptation choices recorded. The upstream repository inspected on September 14 has no visible license file, so do not copy or redistribute its source.
 - Define deterministic random streams, application order, probabilities, exposure ledgers and interruption/resume behavior.
-- Validate representative transformed images and preservation measurements before classifier training.
+- Inspect representative transformed images for implementation errors and grossly destructive behavior before classifier training. This qualitative gate does not establish diagnostic preservation.
+
+The refit uses two deterministic, patient-disjoint BRSET training subsets: 96 calibration images and 96 validation images, with no patient appearing in both. Target means and scales come from all 3,402 mBRSET training images measured in the completed appearance audit. A fixed 256-candidate random search is run separately for the full and overlay-free operator spaces. Each candidate is evaluated with two stochastic transform draws per calibration image; the selected candidate is then checked with three unseen transform seeds on the held-out source subset. These counts are a compute-conscious parameter-fitting design, not a claim that 96 images characterize every source subgroup.
+
+The full fitted search varies blur, illumination, bright spots, dark holes, halo, sensor noise and color gains. The overlay-free search fixes spot, hole and halo terms to zero and refits the remaining terms rather than simply deleting overlays after fitting. Both use the same five-statistic standardized squared-mean objective as the advisor report, recalculated under 560-resize/512-center-crop geometry.
+
+The A1 comparator is specifically the **FundusAug artifact component adapted to 512 pixels**, not full GDRNet. It independently implements the paper/release ranges for sharpness, halo, hole, spot and blur, each with probability 0.5. The ordinary B1 crop, horizontal flip, rotation and color jitter remain common to every arm. The upstream release additionally uses vertical flip, a much broader color jitter and a 256-to-224 geometry; those differences are intentionally not imported because they would change several baseline variables at once.
 
 ### Stage 4B — seed-0 validation screen
 
@@ -40,19 +46,21 @@ The initial comparison reuses the existing B1 seed-0 validation result and train
 | Arm | Additional source-image transform | Role |
 |---|---|---|
 | B1 | None beyond the ordinary frozen pipeline | Existing reference |
-| A1 | Paper-faithful FundusAug component | Published augmentation comparator |
+| A1 | Independently implemented FundusAug artifact component using published/release ranges | Published augmentation comparator; not full GDRNet |
 | A2 | Training-only global target-fitted parametric degradation | Direct test of the degradation work sent to Dong |
 | A3 | Global fitted transform without synthetic spot/hole/halo overlays | Test whether visually risky overlays are necessary |
 
 Additional transformations apply to BRSET draws only; labeled mBRSET draws keep the ordinary B1 pipeline. All arms retain the same natural B1 sampler, 5,775 optimizer updates, effective batch 64, focal loss, Mixup, EMA selection and 725-image mBRSET validation cohort. No Step-4 test assessment is used for screening.
 
+The frozen training order is: bilinear resize to 560, random 512 crop, the arm-specific source operation for BRSET only, then the common horizontal flip, rotation and color jitter. Target images skip the source operation. This places the fitted operation at the same 512-pixel geometry used during parameter fitting while preserving the baseline random-operation order for the common pipeline.
+
 The completed Stage-4A audit found no direction changes and at most a 0.0438-target-SD change after joint-label standardization. Therefore use a global training-only target refit and do not add a label-standardized classifier arm. This is a post-audit practical decision, not a preregistered statistical threshold.
 
-Prioritize an arm for replication only if one label's validation F1 improves by at least 0.01, the other label is not worse by more than 0.01, and both-label ranking metrics do not show a material contradictory loss. This is an engineering screen, not a clinical or significance threshold.
+Prioritize an arm for replication only if one label's validation F1 improves by at least 0.01, the other label is not worse by more than 0.01, and neither label's AUROC is worse by more than 0.01. This is an engineering screen, not a clinical or significance threshold.
 
-### Stage 4C — preservation-constrained mechanism
+### Stage 4C — diagnostic-preservation validation and constrained mechanism
 
-Only after the preservation signal is validated, compare the selected fitted transform with:
+If Stage 4B identifies a promising fitted arm, first validate a preservation signal against lesion/vessel-sensitive checks and qualified review when feasible. Only then compare the selected fitted transform with:
 
 - a simple lower-severity version;
 - a preservation-constrained version that rejects or reduces transformations exceeding a frozen diagnostic-damage budget; and

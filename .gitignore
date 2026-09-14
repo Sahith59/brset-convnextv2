@@ -79,3 +79,7 @@ presentation/BRSET_mBRSET_Status.pptx
 # analysis. Aggregate conclusion is in report/RESEARCH_PLAN.md; the filename
 # column is a per-patient identifier list and does not belong in the repo.
 results/mbrset_test_quality.csv
+# Step-4 galleries contain source dataset images and remain local.
+research/codex/step4/private/
+research/codex/step4/runs
+research/codex/step4/smoke

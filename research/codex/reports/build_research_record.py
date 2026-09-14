@@ -37,6 +37,9 @@ STEP3_SEED0 = ROOT / "research/codex/step3/seed0_validation_summary.json"
 STEP3_C1_CROSS = ROOT / "research/codex/step3/c1_validation_three_seeds.json"
 STEP3_FINAL = ROOT / "research/codex/step3/final_curve_review.json"
 STEP4_AUDIT = ROOT / "research/codex/step4/appearance_label_audit.json"
+STEP4_REFIT = ROOT / "research/codex/step4/degradation_refit.json"
+STEP4_PREFLIGHT = ROOT / "research/codex/step4/preflight.json"
+STEP4_SEED0 = ROOT / "research/codex/step4/seed0_validation_summary.json"
 
 
 def sha(path):
@@ -188,11 +191,15 @@ def build_docx(summary, design, preflight):
     doc_text(p, "Living Research Record and Evidence Audit", 11, True)
     style_doc_paragraph(p, after=2)
     p = document.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    doc_text(p, f"Updated {UPDATED} | Current state: Step 4 design and training-only audit active", 9, italic=True)
+    if STEP4_SEED0.exists(): step4_state = "Step 4 seed-0 validation screen complete"
+    elif STEP4_PREFLIGHT.exists(): step4_state = "Step 4 transform refit and preflight complete"
+    elif STEP4_REFIT.exists(): step4_state = "Step 4 transform refit complete"
+    else: step4_state = "Step 4 transform refit active"
+    doc_text(p, f"Updated {UPDATED} | Current state: {step4_state}", 9, italic=True)
     style_doc_paragraph(p, after=8)
 
     p = document.add_paragraph(); doc_text(p, "Abstract—", 10, True, True)
-    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The evidence establishes a strong joint BRSET–mBRSET baseline and closes the balance/exposure investigation. Step 4 has begun with a training-only audit of whether DR/ME composition confounds the measured appearance gap. A novel method has not yet been established. Numerical claims are linked to audited aggregate artifacts, and known limitations are retained rather than removed from later updates.")
+    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The evidence establishes a strong joint BRSET–mBRSET baseline and closes the balance/exposure investigation. Step 4 tests target-calibrated source-image transformations after a training-only label-composition audit. A novel method has not yet been established. Numerical claims are linked to audited aggregate artifacts, and known limitations are retained rather than removed from later updates.")
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY; style_doc_paragraph(p, after=7)
 
     add_heading(document, "I.", "RESEARCH QUESTION")
@@ -304,17 +311,57 @@ def build_docx(summary, design, preflight):
     else:
         add_body(document, "The training-only appearance/label-composition audit is pending. No Step-4 classifier or test assessment has started.")
 
-    add_heading(document, "VIII.", "NOVELTY GATE AND PAPER DIRECTION")
+    if STEP4_REFIT.exists():
+        refit = json.loads(STEP4_REFIT.read_text())
+        add_heading(document, "VII-A.", "STEP-4 TRANSFORM REFIT", level=2)
+        rows = [["Validation transform", "Appearance distance mean", "Range across 3 draws"]]
+        for label, record in [
+            ("Unchanged source", refit["identity_validation"]),
+            ("Historical frozen", refit["historical_frozen_validation"]),
+            ("Refitted full", refit["arms"]["full"]["validation"]),
+            ("Refitted no overlays", refit["arms"]["overlay_free"]["validation"]),
+        ]:
+            rows.append([label, f"{record['distance_mean']:.3f}", f"{record['distance_min']:.3f}–{record['distance_max']:.3f}"])
+        add_doc_table(document, rows)
+        add_body(document, "The refit used target means/scales from all 3,402 target-training images and two patient-disjoint 96-image source subsets for fitting and validation. These distances measure five global statistics; they do not certify lesions or camera physics.")
+        full = refit["arms"]["full"]["params"]
+        clean = refit["arms"]["overlay_free"]["params"]
+        add_doc_table(document, [
+            ["Parameter", "Refitted full", "Refitted no overlays"],
+            ["Blur sigma", f"{full['blur_sigma']:.4f}", f"{clean['blur_sigma']:.4f}"],
+            ["Illumination strength", f"{full['light_strength']:.4f}", f"{clean['light_strength']:.4f}"],
+            ["Spot / hole count; halo", f"{int(full['n_spot'])} / {int(full['n_hole'])}; {full['halo']:.4f}", "0 / 0; 0"],
+            ["Brightness / contrast / saturation", f"{full['brightness_gain']:.4f} / {full['contrast_gain']:.4f} / {full['saturation_gain']:.4f}", f"{clean['brightness_gain']:.4f} / {clean['contrast_gain']:.4f} / {clean['saturation_gain']:.4f}"],
+            ["Sensor-noise sigma", f"{full['noise_sigma']:.5f}", f"{clean['noise_sigma']:.5f}"],
+        ])
+        if STEP4_PREFLIGHT.exists():
+            gate = json.loads(STEP4_PREFLIGHT.read_text())
+            add_body(document, f"Implementation gate: {'passed' if gate['pass'] else 'failed'}. The target-domain training transform is bitwise identical to B1, fitted parameters are valid, and a private four-row qualitative gallery was generated. The gallery is excluded from this report under the privacy policy.", "Implementation gate:")
+    if STEP4_SEED0.exists():
+        screen = json.loads(STEP4_SEED0.read_text())
+        rows = [["Arm", "DR F1", "Δ from B1", "DR AUROC", "ME F1", "Δ from B1", "ME AUROC", "Replicate?"]]
+        ref = screen["reference"]["metrics"]
+        rows.append(["B1", f"{ref['diabetic_retinopathy']['f1_positive']:.4f}", "—", f"{ref['diabetic_retinopathy']['auroc']:.4f}", f"{ref['macular_edema']['f1_positive']:.4f}", "—", f"{ref['macular_edema']['auroc']:.4f}", "Reference"])
+        for arm, record in screen["arms"].items():
+            metric, delta = record["metrics"], record["delta_from_B1"]
+            rows.append([arm, f"{metric['diabetic_retinopathy']['f1_positive']:.4f}", f"{delta['diabetic_retinopathy']['f1_positive']:+.4f}", f"{metric['diabetic_retinopathy']['auroc']:.4f}", f"{metric['macular_edema']['f1_positive']:.4f}", f"{delta['macular_edema']['f1_positive']:+.4f}", f"{metric['macular_edema']['auroc']:.4f}", "Yes" if record["replication_screen_pass"] else "No"])
+        add_doc_table(document, rows)
+        add_body(document, "These are validation-screening results. No Step-4 test assessment is included.")
+
+    add_heading(document, "VIII.", "NOVELTY GATE, WORLD MODEL AND PAPER DIRECTION")
     add_body(document, "Candidate method: a lightweight target-appearance augmentation fitted on training data, combined with an explicit diagnostic-damage or lesion-preservation constraint. Appearance matching alone is insufficient because transformations can improve global statistics while obscuring lesions.")
     add_body(document, "The novelty claim becomes supportable only if the method is distinct from the closest augmentation, consistency, synthesis and structural-preservation methods; improves over the strongest fair baseline across seeds; survives an ablation that isolates the preservation constraint; and passes a qualified preservation review or a validated lesion-sensitive proxy.")
     add_body(document, "Falsification rule: if balance controls explain the apparent gain, or fitted degradation fails to improve validation performance consistently, the mechanism will not be presented as an effective method. The paper direction must then shift to the strongest supported diagnostic finding rather than inventing a positive result.")
+    add_body(document, "World-model decision: CheXWorld (CVPR 2025) is the most plausible reference behind the meeting discussion. It predicts target latent features from transformed context features conditioned on known blur/color parameters. Its official example uses ViT-Base for 300 epochs on eight RTX 4090 GPUs. A smaller fundus latent-transition objective is a conditional Step-5 candidate; full CheXWorld or GenDeg training is not justified before Step 4 validates the acquisition-variation premise.", "World-model decision:")
+    add_body(document, "Advisor coverage: same-configuration comparisons, class prevalence, sampling controls and qualitative degradation examples are addressed. Diagnostic-preservation validation, the classifier effect of fitted degradation and a fair longer-budget routing revisit remain open. The transcript also contains a user-owned request to disclose this external collaboration to the new employer; completion has not been documented.", "Advisor coverage:")
 
     add_heading(document, "IX.", "NEXT ACTIONS")
     for item in [
         "Freeze Step-4 operators, probabilities, parameter ranges, FIT-only estimation data, compute budget and falsification rule.",
-        "Compare ordinary B1 augmentation, a faithful published fundus augmentation component and FIT-only fitted degradation on validation.",
+        "Compare ordinary B1 augmentation, an independently implemented release-range FundusAug artifact component and FIT-only fitted degradation on validation.",
         "Measure diagnostic preservation; add the preservation constraint only if the fitted transform first shows a promising classifier effect.",
         "Replicate only a promising Step-4 arm and complete the closest-method novelty comparison before writing a contribution claim.",
+        "Ask Dong to confirm the exact world-model paper title and venue when he responds; this does not block the controlled Step-4 experiment.",
     ]:
         p = document.add_paragraph(style=None); p.style = document.styles["Normal"]
         p.paragraph_format.left_indent = Inches(0.20); p.paragraph_format.first_line_indent = Inches(-0.15)
@@ -330,6 +377,7 @@ def build_docx(summary, design, preflight):
         ["12 Sep 2026", "Step-3 sampler controls prepared", "SAMPLER_PROTOCOL.md; preflight.json"],
         ["13 Sep 2026", "Step-3 controls, C1 replication and curve decision complete", "c1_validation_three_seeds.json; final_curve_review.json"],
         ["14 Sep 2026", "Step-4 training-only label-composition audit complete", "appearance_label_audit.json; APPEARANCE_LABEL_AUDIT_REVIEW.md"],
+        ["14 Sep 2026", "Meeting/world-model direction audited", "DONG_TRANSCRIPT_AUDIT_2026-09.md; STEP4_WORLD_MODEL_DIRECTION_REVIEW.md"],
     ])
     document.save(DOCX)
 
@@ -403,7 +451,8 @@ def build_pptx(summary, preflight):
 
     s = prs.slides.add_slide(blank)
     textbox(s, .75, 1.25, 11.8, .8, "BRSET to mBRSET Cross-Device Classification", 30, True, BLUE, PP_ALIGN.CENTER)
-    textbox(s, 1.2, 2.25, 10.9, .6, "Evidence update: Step 4 training-only appearance audit complete", 20, False, INK, PP_ALIGN.CENTER)
+    state = "Step 4 seed-0 screen complete" if STEP4_SEED0.exists() else "Step 4 transform refit/preflight active"
+    textbox(s, 1.2, 2.25, 10.9, .6, f"Evidence update: {state}", 20, False, INK, PP_ALIGN.CENTER)
     ppt_box(s, 2.15, 3.35, 9.0, 1.05, "Natural joint training remains the strongest simple reference.\nA novel method has not yet been established.", LIGHT_GREEN, GREEN, 20, True)
     textbox(s, 1.0, 6.55, 11.3, .35, UPDATED, 12, False, MUTED, PP_ALIGN.CENTER)
 
@@ -484,12 +533,28 @@ def build_pptx(summary, preflight):
 
     s = prs.slides.add_slide(blank); slide_title(s, "Decision gate for the paper contribution")
     audit_bullet = "Training-only audit: label standardization changed every appearance gap by <0.05 target SD."
+    if STEP4_REFIT.exists():
+        refit = json.loads(STEP4_REFIT.read_text())
+        fit_bullet = (f"Held-out appearance distance: unchanged {refit['identity_validation']['distance_mean']:.3f}; "
+                      f"full fit {refit['arms']['full']['validation']['distance_mean']:.3f}; "
+                      f"no overlays {refit['arms']['overlay_free']['validation']['distance_mean']:.3f}.")
+    else:
+        fit_bullet = "Training-only transform refit is pending."
     bullets(s, ["Reference fixed: natural joint B1 after Step-3 cross-seed validation controls.",
                 audit_bullet,
-                "Next: test paper-faithful FundusAug, full fitted degradation, and an overlay-free fitted control.",
-                "Require: consistent diagnostic gain plus evidence that lesions are not damaged.",
-                "Claim novelty only after a closest-method comparison and an isolating ablation."], y=1.45, size=17)
+                fit_bullet,
+                "Next: test an independent release-range FundusAug artifact component, full fitted degradation, and an overlay-free fitted control.",
+                "Require: consistent diagnostic gain, a closest-method comparison, an isolating ablation, and evidence that lesions are not damaged."], y=1.35, h=3.95, size=16)
     ppt_box(s, 1.2, 5.65, 10.9, .8, "Current novelty status: candidate hypothesis, not demonstrated contribution", LIGHT_AMBER, AMBER, 19, True)
+
+    s = prs.slides.add_slide(blank); slide_title(s, "Dong requests and world-model decision")
+    ppt_box(s, .65, 1.45, 3.8, .6, "Delivered", LIGHT_GREEN, GREEN, 19, True)
+    bullets(s, ["Matched baseline protocol", "DR/ME prevalence and sampling controls", "Source-verified degradation examples"], x=.75, y=2.25, w=3.55, h=3.1, size=16)
+    ppt_box(s, 4.78, 1.45, 3.8, .6, "Open", LIGHT_AMBER, AMBER, 19, True)
+    bullets(s, ["Classifier benefit of fitted degradation", "Diagnostic-preservation evidence", "Fair longer-budget routing revisit"], x=4.88, y=2.25, w=3.55, h=3.1, size=16)
+    ppt_box(s, 8.91, 1.45, 3.8, .6, "World-model gate", PALE, BLUE, 19, True)
+    bullets(s, ["CheXWorld, CVPR 2025: closest conceptual match", "GenDeg, CVPR 2025: separate diffusion option", "Run only after Step 4 supports the premise"], x=9.01, y=2.25, w=3.55, h=3.1, size=16)
+    textbox(s, .85, 6.15, 11.65, .45, "Internal paper targets: complete draft 15 October • hard freeze 19 October • official deadline 26 October", 16, True, BLUE, PP_ALIGN.CENTER)
 
     prs.save(PPTX)
 
@@ -500,13 +565,19 @@ def verify(summary_inputs):
     with zipfile.ZipFile(PPTX) as archive:
         ppt_xml = "".join(archive.read(name).decode("utf-8", "ignore") for name in archive.namelist() if name.startswith("ppt/slides/") and name.endswith(".xml"))
     doc = Document(DOCX); prs = Presentation(PPTX)
+    bounds_pass = all(
+        shape.left >= 0 and shape.top >= 0
+        and shape.left + shape.width <= prs.slide_width
+        and shape.top + shape.height <= prs.slide_height
+        for slide in prs.slides for shape in slide.shapes
+    )
     result = {"pass": True, "generated": UPDATED, "docx": {"path": str(DOCX), "sha256": sha(DOCX),
               "sections": len(doc.sections), "tables": len(doc.tables), "paragraphs": len(doc.paragraphs),
               "times_new_roman_present": FONT in doc_xml},
               "pptx": {"path": str(PPTX), "sha256": sha(PPTX), "slides": len(prs.slides),
-              "times_new_roman_present": FONT in ppt_xml}, "input_sha256": summary_inputs,
+              "times_new_roman_present": FONT in ppt_xml, "all_shape_bounds_inside_slide": bounds_pass}, "input_sha256": summary_inputs,
               "privacy": "No dataset images, patient identifiers, private manifests, or per-image predictions embedded."}
-    if len(prs.slides) != 8 or len(doc.tables) < 7 or FONT not in doc_xml or FONT not in ppt_xml:
+    if len(prs.slides) != 9 or len(doc.tables) < 7 or FONT not in doc_xml or FONT not in ppt_xml or not bounds_pass:
         result["pass"] = False
     CHECKS.write_text(json.dumps(result, indent=2) + "\n")
     if not result["pass"]: raise RuntimeError(result)
@@ -523,6 +594,9 @@ def main():
     if STEP3_C1_CROSS.exists(): inputs[str(STEP3_C1_CROSS.relative_to(ROOT))] = sha(STEP3_C1_CROSS)
     if STEP3_FINAL.exists(): inputs[str(STEP3_FINAL.relative_to(ROOT))] = sha(STEP3_FINAL)
     if STEP4_AUDIT.exists(): inputs[str(STEP4_AUDIT.relative_to(ROOT))] = sha(STEP4_AUDIT)
+    if STEP4_REFIT.exists(): inputs[str(STEP4_REFIT.relative_to(ROOT))] = sha(STEP4_REFIT)
+    if STEP4_PREFLIGHT.exists(): inputs[str(STEP4_PREFLIGHT.relative_to(ROOT))] = sha(STEP4_PREFLIGHT)
+    if STEP4_SEED0.exists(): inputs[str(STEP4_SEED0.relative_to(ROOT))] = sha(STEP4_SEED0)
     print(json.dumps(verify(inputs), indent=2))
 
 
