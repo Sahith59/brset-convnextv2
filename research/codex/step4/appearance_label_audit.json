@@ -1,0 +1,373 @@
+{
+  "status": "complete",
+  "date_utc": "2026-09-14",
+  "scope": "original training split only; no validation or test images",
+  "preprocessing": "bilinear 560x560 resize then center 512x512 crop",
+  "manifest_sha256": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc",
+  "analysis_sha256": "9a37793663ede98bdcebd7236b6694e547f43504c0b3d7c35465f6da1964680d",
+  "appearance_ops_sha256": "7740ce15549da0d16642cd1e1a022a5eff393e2033b0d092bfee6cd5930c1838",
+  "image_counts": {
+    "BRSET": 11372,
+    "mBRSET": 3402
+  },
+  "joint_label_codes": {
+    "00": "DR0/ME0",
+    "01": "DR0/ME1",
+    "10": "DR1/ME0",
+    "11": "DR1/ME1"
+  },
+  "common_composition_weights": {
+    "00": 0.892987681061324,
+    "01": 0.0024367131447136864,
+    "10": 0.06876945986191958,
+    "11": 0.03580614593204278
+  },
+  "by_domain": {
+    "BRSET": {
+      "n": 11372,
+      "sharpness": {
+        "mean": 0.0001335345813176686,
+        "sample_sd": 9.375076485925746e-05,
+        "median": 0.00010932867007795721
+      },
+      "brightness": {
+        "mean": 0.4044629599698572,
+        "sample_sd": 0.08792104631166331,
+        "median": 0.3987746834754944
+      },
+      "contrast": {
+        "mean": 0.08140588028066849,
+        "sample_sd": 0.02620863114836819,
+        "median": 0.07655298709869385
+      },
+      "falloff": {
+        "mean": 0.08380680201385816,
+        "sample_sd": 0.05243527066394341,
+        "median": 0.07716278731822968
+      },
+      "saturation": {
+        "mean": 0.8079233204148581,
+        "sample_sd": 0.10616344207951359,
+        "median": 0.8217825293540955
+      }
+    },
+    "mBRSET": {
+      "n": 3402,
+      "sharpness": {
+        "mean": 0.0005371269827045014,
+        "sample_sd": 0.0001927066087541025,
+        "median": 0.0005006834107916802
+      },
+      "brightness": {
+        "mean": 0.35945011485041695,
+        "sample_sd": 0.11361763812508109,
+        "median": 0.3494366705417633
+      },
+      "contrast": {
+        "mean": 0.13584191389359984,
+        "sample_sd": 0.041640091136546986,
+        "median": 0.12787724286317825
+      },
+      "falloff": {
+        "mean": 0.09777048882370763,
+        "sample_sd": 0.08319301312732351,
+        "median": 0.0928390622138977
+      },
+      "saturation": {
+        "mean": 0.7635681556383348,
+        "sample_sd": 0.10689566346290134,
+        "median": 0.7755263447761536
+      }
+    }
+  },
+  "by_domain_and_joint_label": {
+    "BRSET": {
+      "00": {
+        "n": 10602,
+        "sharpness": {
+          "mean": 0.0001327303986285065,
+          "sample_sd": 9.124515857470695e-05,
+          "median": 0.00010981392188114114
+        },
+        "brightness": {
+          "mean": 0.40583637132580114,
+          "sample_sd": 0.08800069815655824,
+          "median": 0.39983755350112915
+        },
+        "contrast": {
+          "mean": 0.08174942882594169,
+          "sample_sd": 0.026472383487605472,
+          "median": 0.07672345638275146
+        },
+        "falloff": {
+          "mean": 0.0840818624338425,
+          "sample_sd": 0.05267809061709795,
+          "median": 0.07722996175289154
+        },
+        "saturation": {
+          "mean": 0.8054714417641983,
+          "sample_sd": 0.10633196396271179,
+          "median": 0.8194607794284821
+        }
+      },
+      "01": {
+        "n": 22,
+        "sharpness": {
+          "mean": 0.00023995551766182126,
+          "sample_sd": 0.00018377174572144615,
+          "median": 0.00018155750876758248
+        },
+        "brightness": {
+          "mean": 0.35936384173956787,
+          "sample_sd": 0.07787142215669285,
+          "median": 0.3777168393135071
+        },
+        "contrast": {
+          "mean": 0.07189556160433726,
+          "sample_sd": 0.01581234135721564,
+          "median": 0.07388735562562943
+        },
+        "falloff": {
+          "mean": 0.08452401513403113,
+          "sample_sd": 0.050117033464786194,
+          "median": 0.08448544144630432
+        },
+        "saturation": {
+          "mean": 0.821236331354488,
+          "sample_sd": 0.10413119461591738,
+          "median": 0.8283812701702118
+        }
+      },
+      "10": {
+        "n": 496,
+        "sharpness": {
+          "mean": 0.0001488904557434932,
+          "sample_sd": 0.00013104764937096953,
+          "median": 0.00010267631660099141
+        },
+        "brightness": {
+          "mean": 0.39016380596665606,
+          "sample_sd": 0.08611423697390076,
+          "median": 0.3848489075899124
+        },
+        "contrast": {
+          "mean": 0.07835914110464434,
+          "sample_sd": 0.02152924754627126,
+          "median": 0.07677501067519188
+        },
+        "falloff": {
+          "mean": 0.08271417607583346,
+          "sample_sd": 0.051692184167859895,
+          "median": 0.07867957651615143
+        },
+        "saturation": {
+          "mean": 0.8344257681840851,
+          "sample_sd": 0.09622644021648655,
+          "median": 0.8413762152194977
+        }
+      },
+      "11": {
+        "n": 252,
+        "sharpness": {
+          "mean": 0.00012785271844352662,
+          "sample_sd": 9.12581288553046e-05,
+          "median": 9.748183219926432e-05
+        },
+        "brightness": {
+          "mean": 0.3787631734259545,
+          "sample_sd": 0.08164012253957528,
+          "median": 0.3684537559747696
+        },
+        "contrast": {
+          "mean": 0.0737793245870206,
+          "sample_sd": 0.022264160176389883,
+          "median": 0.0689789317548275
+        },
+        "falloff": {
+          "mean": 0.07432256869616963,
+          "sample_sd": 0.04220074820483243,
+          "median": 0.07173670828342438
+        },
+        "saturation": {
+          "mean": 0.8577515629548875,
+          "sample_sd": 0.09871539835420097,
+          "median": 0.8729863166809082
+        }
+      }
+    },
+    "mBRSET": {
+      "00": {
+        "n": 2591,
+        "sharpness": {
+          "mean": 0.0005470466440442797,
+          "sample_sd": 0.00019444996121244454,
+          "median": 0.0005101748392917216
+        },
+        "brightness": {
+          "mean": 0.3635157600867615,
+          "sample_sd": 0.11429172462284451,
+          "median": 0.3547549843788147
+        },
+        "contrast": {
+          "mean": 0.13820605472719424,
+          "sample_sd": 0.042107556265761716,
+          "median": 0.12990371882915497
+        },
+        "falloff": {
+          "mean": 0.09780092646099342,
+          "sample_sd": 0.08387839765813924,
+          "median": 0.09272496402263641
+        },
+        "saturation": {
+          "mean": 0.7577652549338774,
+          "sample_sd": 0.10734011474418989,
+          "median": 0.7703281044960022
+        }
+      },
+      "01": {
+        "n": 14,
+        "sharpness": {
+          "mean": 0.0005880199938214251,
+          "sample_sd": 0.00019400095725003943,
+          "median": 0.0005161977896932513
+        },
+        "brightness": {
+          "mean": 0.4014349324362619,
+          "sample_sd": 0.11707159962303493,
+          "median": 0.39269304275512695
+        },
+        "contrast": {
+          "mean": 0.14066576744828904,
+          "sample_sd": 0.03833130350709172,
+          "median": 0.13885146379470825
+        },
+        "falloff": {
+          "mean": 0.1036907508969307,
+          "sample_sd": 0.07658255429577954,
+          "median": 0.09998391568660736
+        },
+        "saturation": {
+          "mean": 0.7385752115930829,
+          "sample_sd": 0.09380440211886479,
+          "median": 0.7086359560489655
+        }
+      },
+      "10": {
+        "n": 520,
+        "sharpness": {
+          "mean": 0.0005028183243456834,
+          "sample_sd": 0.00018184785619295525,
+          "median": 0.00046309591562021524
+        },
+        "brightness": {
+          "mean": 0.3447837364215117,
+          "sample_sd": 0.11223941349923394,
+          "median": 0.3334904611110687
+        },
+        "contrast": {
+          "mean": 0.12936146851772298,
+          "sample_sd": 0.0385943501960968,
+          "median": 0.1234394796192646
+        },
+        "falloff": {
+          "mean": 0.09607112801705416,
+          "sample_sd": 0.08343797586789756,
+          "median": 0.0926566794514656
+        },
+        "saturation": {
+          "mean": 0.7795295350826703,
+          "sample_sd": 0.10648760104901411,
+          "median": 0.7947404980659485
+        }
+      },
+      "11": {
+        "n": 277,
+        "sharpness": {
+          "mean": 0.0005061744832806121,
+          "sample_sd": 0.0001859996832616415,
+          "median": 0.0004766021447721869
+        },
+        "brightness": {
+          "mean": 0.3468314958231974,
+          "sample_sd": 0.10651647541449415,
+          "median": 0.33583006262779236
+        },
+        "contrast": {
+          "mean": 0.12564988770532265,
+          "sample_sd": 0.04025333979472981,
+          "median": 0.11651317030191422
+        },
+        "falloff": {
+          "mean": 0.1003766983263329,
+          "sample_sd": 0.07668574013202006,
+          "median": 0.09373036026954651
+        },
+        "saturation": {
+          "mean": 0.7891468546665963,
+          "sample_sd": 0.09726467002810277,
+          "median": 0.7970965504646301
+        }
+      }
+    }
+  },
+  "label_standardized_means": {
+    "BRSET": {
+      "sharpness": 0.00013392834295612062,
+      "brightness": 0.40367595037284226,
+      "contrast": 0.08120689080731402,
+      "falloff": 0.08363944208527344,
+      "saturation": 0.809372979315148
+    },
+    "mBRSET": {
+      "sharpness": 0.0005426414521351302,
+      "brightness": 0.3617225678818924,
+      "contrast": 0.13715422297645422,
+      "falloff": 0.09778854943225483,
+      "saturation": 0.7603388662327479
+    }
+  },
+  "gap_sensitivity": {
+    "sharpness": {
+      "raw_target_minus_source": 0.00040359240138683277,
+      "label_standardized_target_minus_source": 0.0004087131091790096,
+      "change_after_standardization": 5.120707792176816e-06,
+      "raw_gap_in_target_sd": 2.094336068680575,
+      "standardized_gap_in_target_sd": 2.120908627999031,
+      "direction_changed": false
+    },
+    "brightness": {
+      "raw_target_minus_source": -0.04501284511944026,
+      "label_standardized_target_minus_source": -0.041953382490949875,
+      "change_after_standardization": 0.0030594626284903836,
+      "raw_gap_in_target_sd": -0.3961783210973444,
+      "standardized_gap_in_target_sd": -0.3692506126976835,
+      "direction_changed": false
+    },
+    "contrast": {
+      "raw_target_minus_source": 0.05443603361293135,
+      "label_standardized_target_minus_source": 0.05594733216914019,
+      "change_after_standardization": 0.0015112985562088371,
+      "raw_gap_in_target_sd": 1.3072986184017625,
+      "standardized_gap_in_target_sd": 1.3435929327262186,
+      "direction_changed": false
+    },
+    "falloff": {
+      "raw_target_minus_source": 0.013963686809849468,
+      "label_standardized_target_minus_source": 0.014149107346981396,
+      "change_after_standardization": 0.00018542053713192785,
+      "raw_gap_in_target_sd": 0.16784686940571097,
+      "standardized_gap_in_target_sd": 0.1700756687983733,
+      "direction_changed": false
+    },
+    "saturation": {
+      "raw_target_minus_source": -0.04435516477652335,
+      "label_standardized_target_minus_source": -0.04903411308240002,
+      "change_after_standardization": -0.004678948305876673,
+      "raw_gap_in_target_sd": -0.41493886037684796,
+      "standardized_gap_in_target_sd": -0.4587100308275606,
+      "direction_changed": false
+    }
+  },
+  "interpretation_limit": "Descriptive label-composition sensitivity. Standardization does not isolate camera effects from population, site, quality, other disease, or unmeasured differences.",
+  "privacy": "Aggregate statistics only; no file paths or patient identifiers in output."
+}

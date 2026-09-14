@@ -36,6 +36,7 @@ STEP3_LAUNCH = ROOT / "research/codex/step3/launch_seed0.json"
 STEP3_SEED0 = ROOT / "research/codex/step3/seed0_validation_summary.json"
 STEP3_C1_CROSS = ROOT / "research/codex/step3/c1_validation_three_seeds.json"
 STEP3_FINAL = ROOT / "research/codex/step3/final_curve_review.json"
+STEP4_AUDIT = ROOT / "research/codex/step4/appearance_label_audit.json"
 
 
 def sha(path):
@@ -187,11 +188,11 @@ def build_docx(summary, design, preflight):
     doc_text(p, "Living Research Record and Evidence Audit", 11, True)
     style_doc_paragraph(p, after=2)
     p = document.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    doc_text(p, f"Updated {UPDATED} | Current state: Step 3 complete; Step 4 is next", 9, italic=True)
+    doc_text(p, f"Updated {UPDATED} | Current state: Step 4 design and training-only audit active", 9, italic=True)
     style_doc_paragraph(p, after=8)
 
     p = document.add_paragraph(); doc_text(p, "Abstract—", 10, True, True)
-    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The evidence establishes a strong joint BRSET–mBRSET baseline and closes the balance/exposure investigation. Natural joint sampling remains the reference after validation-only controls and replication. A novel method has not yet been established. Numerical claims are linked to audited aggregate artifacts, and known limitations are retained rather than removed from later updates.")
+    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The evidence establishes a strong joint BRSET–mBRSET baseline and closes the balance/exposure investigation. Step 4 has begun with a training-only audit of whether DR/ME composition confounds the measured appearance gap. A novel method has not yet been established. Numerical claims are linked to audited aggregate artifacts, and known limitations are retained rather than removed from later updates.")
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY; style_doc_paragraph(p, after=7)
 
     add_heading(document, "I.", "RESEARCH QUESTION")
@@ -287,12 +288,28 @@ def build_docx(summary, design, preflight):
         me = final["c1_minus_b1_validation"]["macular_edema"]
         add_body(document, f"Step-3 decision: retain natural B1. Mean C1−B1 validation differences were {dr['f1_difference_mean']:+.4f} DR F1 and {me['f1_difference_mean']:+.4f} ME F1. DR changed direction across seeds, while C1 mean AUROC was lower for both labels. All six B1/C1 runs peaked before the final quarter and declined thereafter, so the conditional longer-exposure run is not justified.", "Step-3 decision:")
 
-    add_heading(document, "VII.", "NOVELTY GATE AND PAPER DIRECTION")
+    add_heading(document, "VII.", "STEP-4 TRAINING-ONLY APPEARANCE AUDIT")
+    if STEP4_AUDIT.exists():
+        audit = json.loads(STEP4_AUDIT.read_text())
+        audit_rows = [["Statistic", "Raw gap / target SD", "Common-composition gap / target SD", "Change"]]
+        for name in ("sharpness", "brightness", "contrast", "falloff", "saturation"):
+            entry = audit["gap_sensitivity"][name]
+            raw = entry["raw_gap_in_target_sd"]
+            standardized = entry["standardized_gap_in_target_sd"]
+            audit_rows.append([name.capitalize(), f"{raw:+.4f}", f"{standardized:+.4f}", f"{standardized-raw:+.4f}"])
+        add_body(document, "Purpose: check whether unequal DR/ME prevalence materially changes the five measured BRSET–mBRSET appearance gaps before refitting the degradation transform.")
+        add_doc_table(document, audit_rows)
+        add_body(document, "Verified finding: all 14,774 original-training images were measured. Standardizing both domains to the same pooled joint-label composition reversed no direction and changed each gap by less than 0.05 mBRSET standard deviations. Proceed with a global training-only refit; a label-standardized classifier arm is not justified.", "Verified finding:")
+        add_body(document, "Interpretation limit: this is descriptive sensitivity analysis. Recorded DR/ME labels do not separate camera effects from population, site, image quality, other disease or unmeasured differences, and global appearance summaries do not establish lesion preservation.", "Interpretation limit:")
+    else:
+        add_body(document, "The training-only appearance/label-composition audit is pending. No Step-4 classifier or test assessment has started.")
+
+    add_heading(document, "VIII.", "NOVELTY GATE AND PAPER DIRECTION")
     add_body(document, "Candidate method: a lightweight target-appearance augmentation fitted on training data, combined with an explicit diagnostic-damage or lesion-preservation constraint. Appearance matching alone is insufficient because transformations can improve global statistics while obscuring lesions.")
     add_body(document, "The novelty claim becomes supportable only if the method is distinct from the closest augmentation, consistency, synthesis and structural-preservation methods; improves over the strongest fair baseline across seeds; survives an ablation that isolates the preservation constraint; and passes a qualified preservation review or a validated lesion-sensitive proxy.")
     add_body(document, "Falsification rule: if balance controls explain the apparent gain, or fitted degradation fails to improve validation performance consistently, the mechanism will not be presented as an effective method. The paper direction must then shift to the strongest supported diagnostic finding rather than inventing a positive result.")
 
-    add_heading(document, "VIII.", "NEXT ACTIONS")
+    add_heading(document, "IX.", "NEXT ACTIONS")
     for item in [
         "Freeze Step-4 operators, probabilities, parameter ranges, FIT-only estimation data, compute budget and falsification rule.",
         "Compare ordinary B1 augmentation, a faithful published fundus augmentation component and FIT-only fitted degradation on validation.",
@@ -303,7 +320,7 @@ def build_docx(summary, design, preflight):
         p.paragraph_format.left_indent = Inches(0.20); p.paragraph_format.first_line_indent = Inches(-0.15)
         doc_text(p, "•  " + item); style_doc_paragraph(p, after=2)
 
-    add_heading(document, "IX.", "AUDIT TRAIL")
+    add_heading(document, "X.", "AUDIT TRAIL")
     add_doc_table(document, [
         ["Date", "Milestone", "Evidence"],
         ["10 Sep 2026", "Degradation update completed and user sent it to Dong", "validation_summary.json; deliverable_checks.json"],
@@ -312,6 +329,7 @@ def build_docx(summary, design, preflight):
         ["12 Sep 2026", "Independent seed checks and Step-2 closure", "seed*_independent_verification.json; STEP_2_FINAL_REVIEW.md"],
         ["12 Sep 2026", "Step-3 sampler controls prepared", "SAMPLER_PROTOCOL.md; preflight.json"],
         ["13 Sep 2026", "Step-3 controls, C1 replication and curve decision complete", "c1_validation_three_seeds.json; final_curve_review.json"],
+        ["14 Sep 2026", "Step-4 training-only label-composition audit complete", "appearance_label_audit.json; APPEARANCE_LABEL_AUDIT_REVIEW.md"],
     ])
     document.save(DOCX)
 
@@ -385,7 +403,7 @@ def build_pptx(summary, preflight):
 
     s = prs.slides.add_slide(blank)
     textbox(s, .75, 1.25, 11.8, .8, "BRSET to mBRSET Cross-Device Classification", 30, True, BLUE, PP_ALIGN.CENTER)
-    textbox(s, 1.2, 2.25, 10.9, .6, "Evidence update: Step 3 complete; appearance experiments next", 20, False, INK, PP_ALIGN.CENTER)
+    textbox(s, 1.2, 2.25, 10.9, .6, "Evidence update: Step 4 training-only appearance audit complete", 20, False, INK, PP_ALIGN.CENTER)
     ppt_box(s, 2.15, 3.35, 9.0, 1.05, "Natural joint training remains the strongest simple reference.\nA novel method has not yet been established.", LIGHT_GREEN, GREEN, 20, True)
     textbox(s, 1.0, 6.55, 11.3, .35, UPDATED, 12, False, MUTED, PP_ALIGN.CENTER)
 
@@ -465,10 +483,12 @@ def build_pptx(summary, preflight):
     textbox(s, .85, 5.80, 11.7, .75, run_state.capitalize() + ".", 16, True, INK, PP_ALIGN.CENTER)
 
     s = prs.slides.add_slide(blank); slide_title(s, "Decision gate for the paper contribution")
+    audit_bullet = "Training-only audit: label standardization changed every appearance gap by <0.05 target SD."
     bullets(s, ["Reference fixed: natural joint B1 after Step-3 cross-seed validation controls.",
-                "Next: test ordinary augmentation, a faithful published component, and FIT-only fitted degradation.",
+                audit_bullet,
+                "Next: test paper-faithful FundusAug, full fitted degradation, and an overlay-free fitted control.",
                 "Require: consistent diagnostic gain plus evidence that lesions are not damaged.",
-                "Claim novelty only after a closest-method comparison and an isolating ablation."], y=1.55, size=19)
+                "Claim novelty only after a closest-method comparison and an isolating ablation."], y=1.45, size=17)
     ppt_box(s, 1.2, 5.65, 10.9, .8, "Current novelty status: candidate hypothesis, not demonstrated contribution", LIGHT_AMBER, AMBER, 19, True)
 
     prs.save(PPTX)
@@ -502,6 +522,7 @@ def main():
     if STEP3_SEED0.exists(): inputs[str(STEP3_SEED0.relative_to(ROOT))] = sha(STEP3_SEED0)
     if STEP3_C1_CROSS.exists(): inputs[str(STEP3_C1_CROSS.relative_to(ROOT))] = sha(STEP3_C1_CROSS)
     if STEP3_FINAL.exists(): inputs[str(STEP3_FINAL.relative_to(ROOT))] = sha(STEP3_FINAL)
+    if STEP4_AUDIT.exists(): inputs[str(STEP4_AUDIT.relative_to(ROOT))] = sha(STEP4_AUDIT)
     print(json.dumps(verify(inputs), indent=2))
 
 

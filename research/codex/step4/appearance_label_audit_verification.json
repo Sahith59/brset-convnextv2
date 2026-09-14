@@ -1,0 +1,30 @@
+{
+  "status": "pass",
+  "date_utc": "2026-09-14",
+  "job": {
+    "job_id": 4393429,
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed": "00:05:04",
+    "node": "arctrdcn001",
+    "stderr_bytes": 0
+  },
+  "checks": {
+    "aggregate_output_sha256": "b5a7f06b20208150850d292bbbdad9208c5692e65b6cdf5db877dcbd6eca9593",
+    "analysis_source_sha256_matches_output": true,
+    "appearance_ops_sha256_matches_output": true,
+    "manifest_sha256_matches_protocol": true,
+    "brset_strata_sum_to_11372": true,
+    "mbrset_strata_sum_to_3402": true,
+    "all_statistics_finite": true,
+    "no_direction_changes": true,
+    "maximum_absolute_standardized_change_in_target_sd": 0.04377117045071265,
+    "no_paths_or_patient_identifiers_in_output": true
+  },
+  "source_hashes": {
+    "analysis": "9a37793663ede98bdcebd7236b6694e547f43504c0b3d7c35465f6da1964680d",
+    "appearance_ops": "7740ce15549da0d16642cd1e1a022a5eff393e2033b0d092bfee6cd5930c1838",
+    "manifest": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc"
+  },
+  "claim_limit": "Integrity and arithmetic checks only; this does not convert the descriptive analysis into causal evidence."
+}

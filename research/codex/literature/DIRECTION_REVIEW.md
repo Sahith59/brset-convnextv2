@@ -2,7 +2,7 @@
 
 The recommended direction is controlled, target-informed augmentation with explicit validation of diagnostic preservation. Existing research provides the starting operators, baselines and evaluation methods. A new contribution must establish an incremental mechanism or resource advantage beyond those methods. Novelty is unresolved; neither assembling published components nor improving an appearance-distance objective establishes it.
 
-The review is an expanded first decision review, current to September 10, 2026. Access levels are recorded below. It is not a completed systematic review, and methods examined only through abstracts are not ready for implementation-level conclusions. The immediate advisor update concerns degradation validation; final method selection follows the deeper closest-work review.
+The review is an expanded decision review, updated through September 14, 2026. Access levels are recorded below. It is not a completed systematic review, and methods examined only through abstracts are not ready for implementation-level conclusions. The immediate advisor update concerned degradation validation; Step 4 now requires a deeper closest-work and implementation audit before a method claim.
 
 **The question and information setting**
 
@@ -58,6 +58,24 @@ A WACV 2026 workshop benchmark explicitly concerns retinal enhancement and downs
 Retain the earlier review's useful operator and distillation references, patient-aware evaluation, and emphasis on a strong simple baseline. Correct blanket exclusions of domain adaptation, unsupported physical claims about blur, and assumptions that synthetic correspondence guarantees fidelity. Extend the review to current published work and clearly labeled preprints. Report access limitations rather than substituting an abstract for a methods audit.
 
 Proceed first with a modest augmentation comparison after the protocol and balance controls are fixed. The new training-only appearance check is useful because it tests the existing frozen fit on other patients. It remains a descriptive first check: it does not measure classifier benefit, semantic preservation or novelty. Its role is to justify the next validation question, not to establish the paper's conclusion.
+
+## Step-4 novelty update — September 14, 2026
+
+The current search makes a broad preservation-aware augmentation claim untenable. Several close ideas are already occupied:
+
+| Work | Primary evidence checked | Constraint on this project |
+|---|---|---|
+| DG-ADR, WACV 2025 | Open-access paper and official repository | Grade-conditioned, image-conditioned Stable Diffusion augmentation for DR is already published; synthetic diagnostic relevance alone is not new |
+| Context-aware OT retinal enhancement, WACV 2025 | Full primary article | Unpaired target distribution matching with deep-context preservation of retinal structures already exists in enhancement |
+| EyeBench-V2, WACV Workshops 2026 | Open-access paper | Lesion, vessel, DR-grading and expert downstream evaluation of retinal transformation is an evaluation precedent, not a novel mechanism here |
+| MedDiffuseMix, arXiv 2026 | Full preprint; not treated as peer-reviewed evidence | Saliency-guided medical augmentation with an adaptive preservation constraint is already proposed outside fundus imaging |
+| CausalFund, medRxiv 2026 | Full preprint; not treated as peer-reviewed evidence | Hospital-to-portable fundus robustness through causal/spurious feature separation is a close problem setting |
+
+The GDRNet repository was inspected at commit `10f339748de69bd2f4b1bec49858eef95082679c`. It uses brightness/contrast/saturation/hue preprocessing and sharpness/halo/hole/spot/blur operations, with the artifact operations applied at probability 0.5 in the released configuration. No license file was visible in the inspected repository root or first two levels. Record the commit and independently implement the paper-described behavior; do not copy or redistribute unlicensed source. The repository's current `GDRNET_GENERIC` dictionary is not this published implementation.
+
+A potentially distinguishable hypothesis is a low-compute, joint-label-composition-aware target-device calibration of a parametric acquisition transform, learned from training data without paired camera images or a generative model and bounded by a validated diagnostic-preservation measure. Its components overlap prior work; novelty would depend on the exact joint formulation, resource setting, ablation and empirical behavior. The first Step-4 audit therefore asks whether global appearance fitting is materially confounded by the different DR/ME mixtures before committing to this direction.
+
+New primary links: [DG-ADR paper](https://openaccess.thecvf.com/content/WACV2025/papers/Chokuwa_Divergent_Domains_Convergent_Grading_Enhancing_Generalization_in_Diabetic_Retinopathy_Grading_WACV_2025_paper.pdf), [DG-ADR code](https://github.com/sharonchokuwa/dg-adr), [context-aware OT](https://pmc.ncbi.nlm.nih.gov/articles/PMC12337797/), [EyeBench-V2](https://openaccess.thecvf.com/content/WACV2026W/P2P/html/Dong_Bridging_Restoration_and_Diagnosis_A_Comprehensive_Benchmark_for_Retinal_Fundus_WACVW_2026_paper.html), [MedDiffuseMix preprint](https://arxiv.org/abs/2606.28419), and [CausalFund preprint](https://www.medrxiv.org/content/10.64898/2026.03.02.26347127v1.full).
 
 Defer large diffusion and world-model development until the closest methods, available paired resources and expected advantage are understood. Defer an architecture stack that mixes fitting, domain separation, routing and distillation before individual contributions can be measured. Keep a bounded longer-budget routing study as an explicit response to Dong, with the train/inference mismatch addressed and a matched baseline.
 
