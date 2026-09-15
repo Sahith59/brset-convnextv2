@@ -1,0 +1,81 @@
+{
+  "status": "pass",
+  "job_id": "4404962",
+  "seed": 0,
+  "cohorts": {
+    "fit_images": 11372,
+    "selection_images": 2451,
+    "assessment_images": 732,
+    "assessment_positive_images": {
+      "diabetic_retinopathy": 159,
+      "macular_edema": 63
+    }
+  },
+  "target_training_exposure": [
+    0,
+    0,
+    0
+  ],
+  "checkpoint_update": 2310,
+  "thresholds_selected_on_brset": [
+    0.399,
+    0.451
+  ],
+  "assessment_metrics": {
+    "diabetic_retinopathy": {
+      "threshold": 0.399,
+      "f1_positive": 0.7218045112781954,
+      "f1_class_macro": 0.8300174476257421,
+      "auroc": 0.9099630105260847,
+      "average_precision": 0.8353368356819773,
+      "precision": 0.897196261682243,
+      "sensitivity": 0.6037735849056604,
+      "specificity": 0.9808027923211169,
+      "confusion_matrix": [
+        [
+          562,
+          11
+        ],
+        [
+          63,
+          96
+        ]
+      ],
+      "n_images": 732
+    },
+    "macular_edema": {
+      "threshold": 0.451,
+      "f1_positive": 0.6972477064220184,
+      "f1_class_macro": 0.8364467314397914,
+      "auroc": 0.9734026146582201,
+      "average_precision": 0.7987818778497224,
+      "precision": 0.8260869565217391,
+      "sensitivity": 0.6031746031746031,
+      "specificity": 0.9880418535127056,
+      "confusion_matrix": [
+        [
+          661,
+          8
+        ],
+        [
+          25,
+          38
+        ]
+      ],
+      "n_images": 732
+    }
+  },
+  "sha256": {
+    "checkpoint": "fedf808cc28944d42f10b8d3219baefd1495e79fcd76bd13022624af2b4ea086",
+    "selection_predictions": "1252a020b2b64234a638440c9fb8bc805d74d481c25bbe6aa497bed87e8de999",
+    "assessment_predictions": "74d5be82924b3e7221a89a822e19779cc0b7e7cc9cf7d4a47efed89967b5361f"
+  },
+  "checks": [
+    "training completion and update count",
+    "zero target-domain training exposure",
+    "checkpoint and metadata chain",
+    "ordered cohort identity and labels",
+    "independent metric recomputation"
+  ],
+  "interpretation": "Strict source-only seed-0 evidence on historically reused mBRSET assessment; one seed does not measure training variability."
+}

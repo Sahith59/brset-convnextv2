@@ -48,6 +48,7 @@ STEP5_DESIGN = ROOT / "research/codex/step5/design_preflight.json"
 STEP5_INTEGRITY = ROOT / "research/codex/step5/source_integrity_summary.json"
 STEP5_SMOKE = ROOT / "research/codex/step5/source_smoke_checks.json"
 STEP5_LAUNCH = ROOT / "research/codex/step5/launch_source_only_seed0.json"
+STEP5_SOURCE = ROOT / "research/codex/step5/source_only_seed0_verification.json"
 
 
 def sha(path):
@@ -384,7 +385,17 @@ def build_docx(summary, design, preflight):
         source_selection = design["cohorts"]["BRSET"]["selection"]
         target_assessment = design["cohorts"]["mBRSET"]["assessment"]
         add_body(document, f"Strict source-only gates: fitting uses {source_fit['images']:,} BRSET images from {source_fit['patients']:,} patients; selection uses {source_selection['images']:,} BRSET images; assessment is locked to {target_assessment['images']:,} mBRSET images. All {integrity['images']:,} images decoded, no exact duplicate group was found, and the A40 interruption/resume smoke had {len(smoke['state_mismatches'])} state mismatches. These are protocol checks, not performance results.", "Strict source-only gates:")
-    if STEP5_LAUNCH.exists():
+    if STEP5_SOURCE.exists():
+        source = json.loads(STEP5_SOURCE.read_text())
+        dr = source["assessment_metrics"]["diabetic_retinopathy"]
+        me = source["assessment_metrics"]["macular_edema"]
+        add_doc_table(document, [
+            ["Strict source-only seed 0", "F1", "AUROC", "Average precision", "Sensitivity"],
+            ["DR", f"{dr['f1_positive']:.4f}", f"{dr['auroc']:.4f}", f"{dr['average_precision']:.4f}", f"{dr['sensitivity']:.4f}"],
+            ["ME", f"{me['f1_positive']:.4f}", f"{me['auroc']:.4f}", f"{me['average_precision']:.4f}", f"{me['sensitivity']:.4f}"],
+        ])
+        add_body(document, f"Source-only result: seed-0 BRSET fitting and selection completed, followed by the locked mBRSET assessment. Independent job {source['job_id']} reproduced the metrics, cohort order, labels and hash chain. The result exposes a source-to-target positive-case detection gap, but one seed does not measure training variability and the historical assessment split is not pristine external validation.", "Source-only result:")
+    elif STEP5_LAUNCH.exists():
         launch = json.loads(STEP5_LAUNCH.read_text())
         add_body(document, f"Execution status: source-only seed-0 training job {launch['training_job']['job_id']} is recorded as {launch['training_job']['state_at_record'].lower()} on one nonexclusive A40; assessment job {launch['assessment_job']['job_id']} is dependency-locked after successful training. Measured training estimate: {launch['training_job']['measured_estimate_hours']:.2f} hours. No source-only performance result existed when this record was generated.", "Execution status:")
 
@@ -416,6 +427,7 @@ def build_docx(summary, design, preflight):
         ["15 Sep 2026", "Step-5 deep review and controlled mechanism direction selected", "STEP5_MECHANISM_DEEP_RESEARCH.md; STEP_5_PLAN_DRAFT.md"],
         ["15 Sep 2026", "Appearance-error premise failed; degradation-conditioned Step 5 suspended", "appearance_error_gate.json; APPEARANCE_ERROR_GATE_REVIEW.md"],
         ["15 Sep 2026", "Strict source-only design, integrity, provenance and resume gates passed; seed 0 launched", "design_preflight.json; source_integrity_summary.json; source_smoke_checks.json"],
+        ["15 Sep 2026", "Strict source-only seed 0 completed and independently verified", "source_only_seed0_verification.json"],
     ])
     document.save(DOCX)
 
@@ -489,7 +501,7 @@ def build_pptx(summary, preflight):
 
     s = prs.slides.add_slide(blank)
     textbox(s, .75, 1.25, 11.8, .8, "BRSET to mBRSET Cross-Device Classification", 30, True, BLUE, PP_ALIGN.CENTER)
-    state = "Step 5 strict source-only baseline running; spatial diagnostics next" if STEP5_LAUNCH.exists() else "Step 5 appearance premise rejected; spatial diagnostics next" if STEP5_GATE.exists() else "Step 5 mechanism direction selected" if STEP5_PLAN.exists() else "Step 4 seed-0 screen complete" if STEP4_SEED0.exists() else "Step 4 transform refit/preflight active"
+    state = "Step 5 source-only baseline complete; spatial diagnostics next" if STEP5_SOURCE.exists() else "Step 5 strict source-only baseline running; spatial diagnostics next" if STEP5_LAUNCH.exists() else "Step 5 appearance premise rejected; spatial diagnostics next" if STEP5_GATE.exists() else "Step 5 mechanism direction selected" if STEP5_PLAN.exists() else "Step 4 seed-0 screen complete" if STEP4_SEED0.exists() else "Step 4 transform refit/preflight active"
     textbox(s, 1.2, 2.25, 10.9, .6, f"Evidence update: {state}", 20, False, INK, PP_ALIGN.CENTER)
     ppt_box(s, 2.15, 3.35, 9.0, 1.05, "Natural joint training remains the strongest simple reference.\nA novel method has not yet been established.", LIGHT_GREEN, GREEN, 20, True)
     textbox(s, 1.0, 6.55, 11.3, .35, UPDATED, 12, False, MUTED, PP_ALIGN.CENTER)
@@ -600,7 +612,14 @@ def build_pptx(summary, preflight):
     ppt_box(s, 4.78, 1.45, 3.8, .6, "Evidence gate", LIGHT_AMBER, AMBER, 19, True)
     bullets(s, ["Appearance-error intervals cross zero", "Positive-FN AUC: DR .555; ME .406", "Suspend degradation-conditioned training"], x=4.88, y=2.25, w=3.55, h=3.1, size=16)
     ppt_box(s, 8.91, 1.45, 3.8, .6, "Next evidence", PALE, BLUE, 19, True)
-    next_items = ["Strict BRSET-only seed 0 running" if STEP5_LAUNCH.exists() else "Strict BRSET-only baseline", "GFP pooled-feature comparator", "Global vs label-specific spatial features"]
+    if STEP5_SOURCE.exists():
+        source = json.loads(STEP5_SOURCE.read_text())
+        dr = source["assessment_metrics"]["diabetic_retinopathy"]["f1_positive"]
+        me = source["assessment_metrics"]["macular_edema"]["f1_positive"]
+        source_text = f"Source-only complete: DR/ME F1 {dr:.3f}/{me:.3f}"
+    else:
+        source_text = "Strict BRSET-only seed 0 running" if STEP5_LAUNCH.exists() else "Strict BRSET-only baseline"
+    next_items = [source_text, "GFP pooled-feature comparator", "Global vs label-specific spatial features"]
     bullets(s, next_items, x=9.01, y=2.25, w=3.55, h=3.1, size=16)
     textbox(s, .85, 6.15, 11.65, .45, "Internal paper targets: complete draft 15 October • hard freeze 19 October • official deadline 26 October", 16, True, BLUE, PP_ALIGN.CENTER)
 
@@ -649,7 +668,7 @@ def main():
     if STEP5_PLAN.exists(): inputs[str(STEP5_PLAN.relative_to(ROOT))] = sha(STEP5_PLAN)
     if STEP5_GATE.exists(): inputs[str(STEP5_GATE.relative_to(ROOT))] = sha(STEP5_GATE)
     if STEP5_REVISION.exists(): inputs[str(STEP5_REVISION.relative_to(ROOT))] = sha(STEP5_REVISION)
-    for path in (STEP5_DESIGN, STEP5_INTEGRITY, STEP5_SMOKE, STEP5_LAUNCH):
+    for path in (STEP5_DESIGN, STEP5_INTEGRITY, STEP5_SMOKE, STEP5_LAUNCH, STEP5_SOURCE):
         if path.exists(): inputs[str(path.relative_to(ROOT))] = sha(path)
     print(json.dumps(verify(inputs), indent=2))
 
