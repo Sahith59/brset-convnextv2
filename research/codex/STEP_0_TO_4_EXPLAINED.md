@@ -78,10 +78,10 @@ All arms use the same 14,774-image B1 pool, 5,775 updates, seed-0 initialization
 
 **Why it matters:** This is the first direct test of whether the degradation work helps diagnosis rather than merely making global image summaries look closer.
 
-**Result so far:** Positive for held-out appearance matching; diagnostic result still in progress. Early checkpoints are training-health evidence and are not the final result.
+**Result:** Positive for held-out appearance matching, but negative as a diagnostic-improvement screen. Compared with B1 on mBRSET validation, A1/A2/A3 changed DR F1 by +0.0069/+0.0036/+0.0062 and ME F1 by -0.0028/-0.0004/-0.0004. None reached the frozen +0.01 F1 replication trigger. A3 increased DR AUROC by +0.0038, but that single-seed signal is too small to claim an improvement.
 
-**Conclusion so far:** Continue the seed-0 screen. Replicate only an arm that passes the frozen F1/AUROC gate. A paper contribution still requires repeated diagnostic benefit and credible lesion-preservation evidence.
+**Conclusion:** Do not automatically replicate or test-assess these arms. Matching five global appearance statistics did not produce a large diagnostic gain. Preserve the negative evidence and move to a separately frozen content-preserving mechanism.
 
 ## Overall position
 
-We have not lost the research progress. Steps 0–3 established and audited the appearance premise, experimental contract, strongest baseline and sampling explanation. Step 4 is testing the first mechanism that could improve the selected baseline. The work has produced useful positive and negative evidence, but a novel contribution has not yet been demonstrated.
+We have not lost the research progress. Steps 0–3 established and audited the appearance premise, experimental contract, strongest baseline and sampling explanation. Step 4 showed that strong global appearance matching alone is insufficient for a large diagnostic improvement. The work has produced useful positive and negative evidence, but a novel contribution has not yet been demonstrated.

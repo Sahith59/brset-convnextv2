@@ -1,0 +1,258 @@
+{
+  "status": "complete",
+  "scope": "mBRSET validation only; no assessment/test access",
+  "seed": 0,
+  "reference": {
+    "arm": "B1",
+    "metrics": {
+      "diabetic_retinopathy": {
+        "threshold": 0.468,
+        "f1_positive": 0.8703170028818443,
+        "f1_class_macro": 0.9147595893828986,
+        "auroc": 0.9563358999834409,
+        "average_precision": 0.9359147343899302,
+        "precision": 0.8830409356725146,
+        "sensitivity": 0.8579545454545454,
+        "specificity": 0.9635701275045537,
+        "confusion_matrix": [
+          [
+            529,
+            20
+          ],
+          [
+            25,
+            151
+          ]
+        ],
+        "n_images": 725
+      },
+      "macular_edema": {
+        "threshold": 0.428,
+        "f1_positive": 0.8489208633093526,
+        "f1_class_macro": 0.9164512783365986,
+        "auroc": 0.99035276210941,
+        "average_precision": 0.9251616070259433,
+        "precision": 0.8309859154929577,
+        "sensitivity": 0.8676470588235294,
+        "specificity": 0.9817351598173516,
+        "confusion_matrix": [
+          [
+            645,
+            12
+          ],
+          [
+            9,
+            59
+          ]
+        ],
+        "n_images": 725
+      }
+    }
+  },
+  "arms": {
+    "A1": {
+      "metrics": {
+        "diabetic_retinopathy": {
+          "threshold": 0.494,
+          "f1_positive": 0.8771929824561403,
+          "f1_class_macro": 0.9196434226360124,
+          "auroc": 0.9530447921841365,
+          "average_precision": 0.9344929430218272,
+          "precision": 0.9036144578313253,
+          "sensitivity": 0.8522727272727273,
+          "specificity": 0.970856102003643,
+          "confusion_matrix": [
+            [
+              533,
+              16
+            ],
+            [
+              26,
+              150
+            ]
+          ],
+          "n_images": 725
+        },
+        "macular_edema": {
+          "threshold": 0.602,
+          "f1_positive": 0.8461538461538461,
+          "f1_class_macro": 0.9155011655011656,
+          "auroc": 0.9904199122571402,
+          "average_precision": 0.9223328110089506,
+          "precision": 0.8870967741935484,
+          "sensitivity": 0.8088235294117647,
+          "specificity": 0.989345509893455,
+          "confusion_matrix": [
+            [
+              650,
+              7
+            ],
+            [
+              13,
+              55
+            ]
+          ],
+          "n_images": 725
+        }
+      },
+      "delta_from_B1": {
+        "diabetic_retinopathy": {
+          "f1_positive": 0.006875979574295976,
+          "auroc": -0.0032911077993044158,
+          "average_precision": -0.0014217913681030536,
+          "precision": 0.020573522158810698,
+          "sensitivity": -0.005681818181818121,
+          "specificity": 0.007285974499089298
+        },
+        "macular_edema": {
+          "f1_positive": -0.002767017155506424,
+          "auroc": 6.715014773017725e-05,
+          "average_precision": -0.0028287960169927073,
+          "precision": 0.05611085870059063,
+          "sensitivity": -0.05882352941176472,
+          "specificity": 0.007610350076103445
+        }
+      },
+      "replication_screen_pass": false
+    },
+    "A2": {
+      "metrics": {
+        "diabetic_retinopathy": {
+          "threshold": 0.5,
+          "f1_positive": 0.873900293255132,
+          "f1_class_macro": 0.9175633116410917,
+          "auroc": 0.9557977314124857,
+          "average_precision": 0.9344068313982227,
+          "precision": 0.9030303030303031,
+          "sensitivity": 0.8465909090909091,
+          "specificity": 0.970856102003643,
+          "confusion_matrix": [
+            [
+              533,
+              16
+            ],
+            [
+              27,
+              149
+            ]
+          ],
+          "n_images": 725
+        },
+        "macular_edema": {
+          "threshold": 0.532,
+          "f1_positive": 0.8484848484848485,
+          "f1_class_macro": 0.9166551708281603,
+          "auroc": 0.9905989793177545,
+          "average_precision": 0.9229914426838958,
+          "precision": 0.875,
+          "sensitivity": 0.8235294117647058,
+          "specificity": 0.9878234398782344,
+          "confusion_matrix": [
+            [
+              649,
+              8
+            ],
+            [
+              12,
+              56
+            ]
+          ],
+          "n_images": 725
+        }
+      },
+      "delta_from_B1": {
+        "diabetic_retinopathy": {
+          "f1_positive": 0.0035832903732876398,
+          "auroc": -0.0005381685709552331,
+          "average_precision": -0.0015079029917075548,
+          "precision": 0.019989367357788446,
+          "sensitivity": -0.011363636363636354,
+          "specificity": 0.007285974499089298
+        },
+        "macular_edema": {
+          "f1_positive": -0.0004360148245040607,
+          "auroc": 0.00024621720834450134,
+          "average_precision": -0.0021701643420475314,
+          "precision": 0.04401408450704225,
+          "sensitivity": -0.044117647058823595,
+          "specificity": 0.0060882800608828
+        }
+      },
+      "replication_screen_pass": false
+    },
+    "A3": {
+      "metrics": {
+        "diabetic_retinopathy": {
+          "threshold": 0.485,
+          "f1_positive": 0.8764705882352941,
+          "f1_class_macro": 0.9193163751987281,
+          "auroc": 0.960149652260308,
+          "average_precision": 0.9379823584272182,
+          "precision": 0.9085365853658537,
+          "sensitivity": 0.8465909090909091,
+          "specificity": 0.9726775956284153,
+          "confusion_matrix": [
+            [
+              534,
+              15
+            ],
+            [
+              27,
+              149
+            ]
+          ],
+          "n_images": 725
+        },
+        "macular_edema": {
+          "threshold": 0.52,
+          "f1_positive": 0.8484848484848485,
+          "f1_class_macro": 0.9166551708281603,
+          "auroc": 0.9902856119616796,
+          "average_precision": 0.9206638664535254,
+          "precision": 0.875,
+          "sensitivity": 0.8235294117647058,
+          "specificity": 0.9878234398782344,
+          "confusion_matrix": [
+            [
+              649,
+              8
+            ],
+            [
+              12,
+              56
+            ]
+          ],
+          "n_images": 725
+        }
+      },
+      "delta_from_B1": {
+        "diabetic_retinopathy": {
+          "f1_positive": 0.006153585353449786,
+          "auroc": 0.0038137522768670884,
+          "average_precision": 0.002067624037287996,
+          "precision": 0.025495649693339062,
+          "sensitivity": -0.011363636363636354,
+          "specificity": 0.00910746812386154
+        },
+        "macular_edema": {
+          "f1_positive": -0.0004360148245040607,
+          "auroc": -6.715014773039929e-05,
+          "average_precision": -0.004497740572417919,
+          "precision": 0.04401408450704225,
+          "sensitivity": -0.044117647058823595,
+          "specificity": 0.0060882800608828
+        }
+      },
+      "replication_screen_pass": false
+    }
+  },
+  "screen_rule": "at least one label F1 delta >= +0.01; other label F1 delta >= -0.01; both AUROC deltas >= -0.01",
+  "screen_interpretation": "engineering replication gate, not significance or clinical margin",
+  "input_sha256": {
+    "B1_selection": "7064bf671bcd0303570cbb18ded223991a483d5ab85b25b4e0cd80fba98814ec",
+    "A1_selection": "0739d9996cbb9ef1d8bed38e8eb84983efe858a3820051be88f980bb99a7f2ce",
+    "A2_selection": "61a75adc901acfc449f642c8bab597cb0ab7062fa5c131c42e8f46259513c56c",
+    "A3_selection": "52d03b9050518d74dbd97b9b791690723d9be267460eb298f28630b38e8912c5",
+    "analysis": "c0106e39f9bb8d2b722010249fc9c12e0962e8073005115caba4dc8f0e6cdc5d"
+  }
+}

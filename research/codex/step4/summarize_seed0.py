@@ -18,7 +18,7 @@ def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def read_run(path: Path, expected_arm: str) -> dict:
+def read_run(path: Path, expected_arm: str, *, forbid_assessment: bool) -> dict:
     complete = json.loads((path / "complete.json").read_text())
     summary = json.loads((path / "selection_summary.json").read_text())
     if not complete["training_complete"] or complete["smoke"]:
@@ -27,15 +27,18 @@ def read_run(path: Path, expected_arm: str) -> dict:
         raise ValueError(f"Run contract mismatch: {expected_arm}")
     if summary["metadata"]["arm"] != expected_arm or summary["metadata"]["checkpoint_sha256"] != sha(path / "best.pth"):
         raise ValueError(f"Selection provenance mismatch: {expected_arm}")
-    if any((path / name).exists() for name in ("assessment_summary.json", "assessment_predictions.npz")):
+    if forbid_assessment and any((path / name).exists() for name in ("assessment_summary.json", "assessment_predictions.npz")):
         raise ValueError(f"Step-4 test assessment exists unexpectedly: {expected_arm}")
     return summary
 
 
 def main() -> None:
-    summaries = {"B1": read_run(BASE, "B1")}
+    # B1 is the completed Step-2 reference and legitimately has its historical
+    # Step-2 assessment artifacts. This comparison reads only its validation
+    # selection summary. The Step-4 arms themselves must remain test-free.
+    summaries = {"B1": read_run(BASE, "B1", forbid_assessment=False)}
     for arm in ("A1", "A2", "A3"):
-        summaries[arm] = read_run(RUNS / f"{arm}_seed0", arm)
+        summaries[arm] = read_run(RUNS / f"{arm}_seed0", arm, forbid_assessment=True)
     reference = summaries["B1"]["metrics"]
     arms = {}
     for arm in ("A1", "A2", "A3"):

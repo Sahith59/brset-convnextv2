@@ -199,7 +199,7 @@ def build_docx(summary, design, preflight):
     style_doc_paragraph(p, after=8)
 
     p = document.add_paragraph(); doc_text(p, "Abstract—", 10, True, True)
-    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The evidence establishes a strong joint BRSET–mBRSET baseline and closes the balance/exposure investigation. Step 4 tests target-calibrated source-image transformations after a training-only label-composition audit. A novel method has not yet been established. Numerical claims are linked to audited aggregate artifacts, and known limitations are retained rather than removed from later updates.")
+    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The evidence establishes a strong joint BRSET–mBRSET baseline and closes the balance/exposure investigation. The Step-4 seed-0 screen found that target-calibrated source transformations did not pass the frozen replication gate. A novel method has not yet been established. Numerical claims are linked to audited aggregate artifacts, and known limitations are retained rather than removed from later updates.")
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY; style_doc_paragraph(p, after=7)
 
     add_heading(document, "I.", "RESEARCH QUESTION")
@@ -346,22 +346,22 @@ def build_docx(summary, design, preflight):
             metric, delta = record["metrics"], record["delta_from_B1"]
             rows.append([arm, f"{metric['diabetic_retinopathy']['f1_positive']:.4f}", f"{delta['diabetic_retinopathy']['f1_positive']:+.4f}", f"{metric['diabetic_retinopathy']['auroc']:.4f}", f"{metric['macular_edema']['f1_positive']:.4f}", f"{delta['macular_edema']['f1_positive']:+.4f}", f"{metric['macular_edema']['auroc']:.4f}", "Yes" if record["replication_screen_pass"] else "No"])
         add_doc_table(document, rows)
-        add_body(document, "These are validation-screening results. No Step-4 test assessment is included.")
+        add_body(document, "Step-4 seed-0 decision: no arm passed the frozen replication gate. Each DR F1 change was positive but below +0.01, while ME was essentially flat or slightly lower. A3 improved DR AUROC by +0.0038, but this single-seed signal is insufficient for a gain claim. No Step-4 test assessment is included.", "Step-4 seed-0 decision:")
 
     add_heading(document, "VIII.", "NOVELTY GATE, WORLD MODEL AND PAPER DIRECTION")
     add_body(document, "Candidate method: a lightweight target-appearance augmentation fitted on training data, combined with an explicit diagnostic-damage or lesion-preservation constraint. Appearance matching alone is insufficient because transformations can improve global statistics while obscuring lesions.")
     add_body(document, "The novelty claim becomes supportable only if the method is distinct from the closest augmentation, consistency, synthesis and structural-preservation methods; improves over the strongest fair baseline across seeds; survives an ablation that isolates the preservation constraint; and passes a qualified preservation review or a validated lesion-sensitive proxy.")
     add_body(document, "Falsification rule: if balance controls explain the apparent gain, or fitted degradation fails to improve validation performance consistently, the mechanism will not be presented as an effective method. The paper direction must then shift to the strongest supported diagnostic finding rather than inventing a positive result.")
     add_body(document, "World-model decision: CheXWorld (CVPR 2025) is the most plausible reference behind the meeting discussion. It predicts target latent features from transformed context features conditioned on known blur/color parameters. Its official example uses ViT-Base for 300 epochs on eight RTX 4090 GPUs. A smaller fundus latent-transition objective is a conditional Step-5 candidate; full CheXWorld or GenDeg training is not justified before Step 4 validates the acquisition-variation premise.", "World-model decision:")
-    add_body(document, "Advisor coverage: same-configuration comparisons, class prevalence, sampling controls and qualitative degradation examples are addressed. Diagnostic-preservation validation, the classifier effect of fitted degradation and a fair longer-budget routing revisit remain open. The transcript also contains a user-owned request to disclose this external collaboration to the new employer; completion has not been documented.", "Advisor coverage:")
+    add_body(document, "Advisor coverage: same-configuration comparisons, class prevalence, sampling controls, qualitative degradation examples and the seed-0 classifier screen are addressed. The fitted transform did not pass the replication gate. Diagnostic-preservation validation and a fair longer-budget routing or latent-transition study remain open. The transcript also contains a user-owned request to disclose this external collaboration to the new employer; completion has not been documented.", "Advisor coverage:")
 
     add_heading(document, "IX.", "NEXT ACTIONS")
     for item in [
-        "Freeze Step-4 operators, probabilities, parameter ranges, FIT-only estimation data, compute budget and falsification rule.",
-        "Compare ordinary B1 augmentation, an independently implemented release-range FundusAug artifact component and FIT-only fitted degradation on validation.",
-        "Measure diagnostic preservation; add the preservation constraint only if the fitted transform first shows a promising classifier effect.",
-        "Replicate only a promising Step-4 arm and complete the closest-method novelty comparison before writing a contribution claim.",
-        "Ask Dong to confirm the exact world-model paper title and venue when he responds; this does not block the controlled Step-4 experiment.",
+        "Preserve A1/A2/A3 as a completed negative validation screen; do not assess them on test or replicate them automatically.",
+        "Freeze one new content-preserving mechanism and a matched control before further GPU work.",
+        "Choose between a bounded CheXWorld-style latent-transition objective and an explicitly lesion-aware preservation constraint using feasibility and closest-work evidence.",
+        "Require repeated diagnostic benefit and an isolating ablation before writing a contribution claim.",
+        "Ask Dong to confirm the exact world-model paper title and venue when he responds.",
     ]:
         p = document.add_paragraph(style=None); p.style = document.styles["Normal"]
         p.paragraph_format.left_indent = Inches(0.20); p.paragraph_format.first_line_indent = Inches(-0.15)
@@ -378,6 +378,7 @@ def build_docx(summary, design, preflight):
         ["13 Sep 2026", "Step-3 controls, C1 replication and curve decision complete", "c1_validation_three_seeds.json; final_curve_review.json"],
         ["14 Sep 2026", "Step-4 training-only label-composition audit complete", "appearance_label_audit.json; APPEARANCE_LABEL_AUDIT_REVIEW.md"],
         ["14 Sep 2026", "Meeting/world-model direction audited", "DONG_TRANSCRIPT_AUDIT_2026-09.md; STEP4_WORLD_MODEL_DIRECTION_REVIEW.md"],
+        ["15 Sep 2026", "Step-4 seed-0 augmentation screen complete; no arm passed replication gate", "seed0_validation_summary.json; SEED0_RESULTS_REVIEW.md"],
     ])
     document.save(DOCX)
 
@@ -531,7 +532,7 @@ def build_pptx(summary, preflight):
         ppt_box(s, 8.9, 4.35, 3.45, 1.0, f"Allocated preflight\n{status}", LIGHT_GREEN if status=="PASSED" else LIGHT_AMBER, GREEN if status=="PASSED" else AMBER, 18, True)
     textbox(s, .85, 5.80, 11.7, .75, run_state.capitalize() + ".", 16, True, INK, PP_ALIGN.CENTER)
 
-    s = prs.slides.add_slide(blank); slide_title(s, "Decision gate for the paper contribution")
+    s = prs.slides.add_slide(blank); slide_title(s, "Step 4: target-calibrated augmentation screen")
     audit_bullet = "Training-only audit: label standardization changed every appearance gap by <0.05 target SD."
     if STEP4_REFIT.exists():
         refit = json.loads(STEP4_REFIT.read_text())
@@ -540,20 +541,29 @@ def build_pptx(summary, preflight):
                       f"no overlays {refit['arms']['overlay_free']['validation']['distance_mean']:.3f}.")
     else:
         fit_bullet = "Training-only transform refit is pending."
-    bullets(s, ["Reference fixed: natural joint B1 after Step-3 cross-seed validation controls.",
-                audit_bullet,
-                fit_bullet,
-                "Next: test an independent release-range FundusAug artifact component, full fitted degradation, and an overlay-free fitted control.",
-                "Require: consistent diagnostic gain, a closest-method comparison, an isolating ablation, and evidence that lesions are not damaged."], y=1.35, h=3.95, size=16)
-    ppt_box(s, 1.2, 5.65, 10.9, .8, "Current novelty status: candidate hypothesis, not demonstrated contribution", LIGHT_AMBER, AMBER, 19, True)
+    if STEP4_SEED0.exists():
+        screen = json.loads(STEP4_SEED0.read_text())
+        ref = screen["reference"]["metrics"]
+        result_rows = [["Arm", "DR F1", "Δ", "DR AUC", "ME F1", "Δ", "ME AUC", "Gate"]]
+        result_rows.append(["B1", f"{ref['diabetic_retinopathy']['f1_positive']:.4f}", "—", f"{ref['diabetic_retinopathy']['auroc']:.4f}", f"{ref['macular_edema']['f1_positive']:.4f}", "—", f"{ref['macular_edema']['auroc']:.4f}", "Ref"])
+        for arm, record in screen["arms"].items():
+            metric, delta = record["metrics"], record["delta_from_B1"]
+            result_rows.append([arm, f"{metric['diabetic_retinopathy']['f1_positive']:.4f}", f"{delta['diabetic_retinopathy']['f1_positive']:+.4f}", f"{metric['diabetic_retinopathy']['auroc']:.4f}", f"{metric['macular_edema']['f1_positive']:.4f}", f"{delta['macular_edema']['f1_positive']:+.4f}", f"{metric['macular_edema']['auroc']:.4f}", "PASS" if record["replication_screen_pass"] else "FAIL"])
+        ppt_table(s, result_rows, .45, 1.35, 12.45, 2.55, [1.05, 1.25, .85, 1.3, 1.25, .85, 1.3, 1.15], 11)
+        bullets(s, [audit_bullet, fit_bullet, "All three DR F1 changes were positive but below +0.01; ME was flat or slightly lower.", "No arm passed the frozen replication gate; no Step-4 test assessment was performed."], y=4.15, h=1.45, size=14)
+        ppt_box(s, 1.2, 5.85, 10.9, .72, "Conclusion: global appearance matching did not produce a large diagnostic gain", LIGHT_AMBER, AMBER, 18, True)
+    else:
+        bullets(s, ["Reference fixed: natural joint B1 after Step-3 cross-seed validation controls.", audit_bullet, fit_bullet,
+                    "Next: test the three frozen augmentation arms.", "Require consistent diagnostic gain and preservation evidence."], y=1.35, h=3.95, size=16)
+        ppt_box(s, 1.2, 5.65, 10.9, .8, "Current novelty status: candidate hypothesis, not demonstrated contribution", LIGHT_AMBER, AMBER, 19, True)
 
     s = prs.slides.add_slide(blank); slide_title(s, "Dong requests and world-model decision")
     ppt_box(s, .65, 1.45, 3.8, .6, "Delivered", LIGHT_GREEN, GREEN, 19, True)
     bullets(s, ["Matched baseline protocol", "DR/ME prevalence and sampling controls", "Source-verified degradation examples"], x=.75, y=2.25, w=3.55, h=3.1, size=16)
     ppt_box(s, 4.78, 1.45, 3.8, .6, "Open", LIGHT_AMBER, AMBER, 19, True)
-    bullets(s, ["Classifier benefit of fitted degradation", "Diagnostic-preservation evidence", "Fair longer-budget routing revisit"], x=4.88, y=2.25, w=3.55, h=3.1, size=16)
+    bullets(s, ["A mechanism that beats B1 repeatedly", "Diagnostic-preservation evidence", "Fair latent-transition or routing study"], x=4.88, y=2.25, w=3.55, h=3.1, size=16)
     ppt_box(s, 8.91, 1.45, 3.8, .6, "World-model gate", PALE, BLUE, 19, True)
-    bullets(s, ["CheXWorld, CVPR 2025: closest conceptual match", "GenDeg, CVPR 2025: separate diffusion option", "Run only after Step 4 supports the premise"], x=9.01, y=2.25, w=3.55, h=3.1, size=16)
+    bullets(s, ["CheXWorld, CVPR 2025: closest conceptual match", "GenDeg, CVPR 2025: separate diffusion option", "Freeze a bounded content-aware test before training"], x=9.01, y=2.25, w=3.55, h=3.1, size=16)
     textbox(s, .85, 6.15, 11.65, .45, "Internal paper targets: complete draft 15 October • hard freeze 19 October • official deadline 26 October", 16, True, BLUE, PP_ALIGN.CENTER)
 
     prs.save(PPTX)
