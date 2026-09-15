@@ -40,6 +40,8 @@ STEP4_AUDIT = ROOT / "research/codex/step4/appearance_label_audit.json"
 STEP4_REFIT = ROOT / "research/codex/step4/degradation_refit.json"
 STEP4_PREFLIGHT = ROOT / "research/codex/step4/preflight.json"
 STEP4_SEED0 = ROOT / "research/codex/step4/seed0_validation_summary.json"
+STEP5_REVIEW = ROOT / "research/codex/literature/STEP5_MECHANISM_DEEP_RESEARCH.md"
+STEP5_PLAN = ROOT / "research/codex/step5/STEP_5_PLAN_DRAFT.md"
 
 
 def sha(path):
@@ -191,7 +193,8 @@ def build_docx(summary, design, preflight):
     doc_text(p, "Living Research Record and Evidence Audit", 11, True)
     style_doc_paragraph(p, after=2)
     p = document.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    if STEP4_SEED0.exists(): step4_state = "Step 4 seed-0 validation screen complete"
+    if STEP5_PLAN.exists(): step4_state = "Step 5 mechanism direction selected; implementation gates pending"
+    elif STEP4_SEED0.exists(): step4_state = "Step 4 seed-0 validation screen complete"
     elif STEP4_PREFLIGHT.exists(): step4_state = "Step 4 transform refit and preflight complete"
     elif STEP4_REFIT.exists(): step4_state = "Step 4 transform refit complete"
     else: step4_state = "Step 4 transform refit active"
@@ -199,12 +202,12 @@ def build_docx(summary, design, preflight):
     style_doc_paragraph(p, after=8)
 
     p = document.add_paragraph(); doc_text(p, "Abstract—", 10, True, True)
-    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The evidence establishes a strong joint BRSET–mBRSET baseline and closes the balance/exposure investigation. The Step-4 seed-0 screen found that target-calibrated source transformations did not pass the frozen replication gate. A novel method has not yet been established. Numerical claims are linked to audited aggregate artifacts, and known limitations are retained rather than removed from later updates.")
+    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The evidence establishes a strong joint BRSET–mBRSET baseline, closes the balance/exposure investigation, and rejects direct target-calibrated appearance augmentation under the frozen Step-4 screen. Step 5 will repair the missing strict source-only baseline, reproduce a published feature-pruning diagnostic, and test an action-conditioned latent-transition hypothesis. A novel method has not yet been established.")
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY; style_doc_paragraph(p, after=7)
 
     add_heading(document, "I.", "RESEARCH QUESTION")
     add_body(document, "Can a model trained with tabletop-camera BRSET images and labeled handheld-camera mBRSET images improve DR and ME recognition on mBRSET, and can the improvement be attributed to a defensible cross-device mechanism rather than data quantity, class balance, threshold choice, or random seed?")
-    add_body(document, "Current contribution status: The study has a verified experimental foundation, a repeated joint-training advantage, and a closed balance/exposure analysis. A paper-level novelty claim remains conditional on the preservation-constrained appearance experiments and closest-method evidence.", "Current contribution status:")
+    add_body(document, "Current contribution status: The study has a verified experimental foundation, a repeated joint-training advantage, and two informative negative mechanism analyses. A paper-level contribution remains conditional on Step-5 controlled validation, replication, and closest-method evidence.", "Current contribution status:")
 
     add_heading(document, "II.", "DATA AND EVALUATION BOUNDARY")
     add_doc_table(document, [
@@ -349,18 +352,19 @@ def build_docx(summary, design, preflight):
         add_body(document, "Step-4 seed-0 decision: no arm passed the frozen replication gate. Each DR F1 change was positive but below +0.01, while ME was essentially flat or slightly lower. A3 improved DR AUROC by +0.0038, but this single-seed signal is insufficient for a gain claim. No Step-4 test assessment is included.", "Step-4 seed-0 decision:")
 
     add_heading(document, "VIII.", "NOVELTY GATE, WORLD MODEL AND PAPER DIRECTION")
-    add_body(document, "Candidate method: a lightweight target-appearance augmentation fitted on training data, combined with an explicit diagnostic-damage or lesion-preservation constraint. Appearance matching alone is insufficient because transformations can improve global statistics while obscuring lesions.")
-    add_body(document, "The novelty claim becomes supportable only if the method is distinct from the closest augmentation, consistency, synthesis and structural-preservation methods; improves over the strongest fair baseline across seeds; survives an ablation that isolates the preservation constraint; and passes a qualified preservation review or a validated lesion-sensitive proxy.")
-    add_body(document, "Falsification rule: if balance controls explain the apparent gain, or fitted degradation fails to improve validation performance consistently, the mechanism will not be presented as an effective method. The paper direction must then shift to the strongest supported diagnostic finding rather than inventing a positive result.")
-    add_body(document, "World-model decision: CheXWorld (CVPR 2025) is the most plausible reference behind the meeting discussion. It predicts target latent features from transformed context features conditioned on known blur/color parameters. Its official example uses ViT-Base for 300 epochs on eight RTX 4090 GPUs. A smaller fundus latent-transition objective is a conditional Step-5 candidate; full CheXWorld or GenDeg training is not justified before Step 4 validates the acquisition-variation premise.", "World-model decision:")
-    add_body(document, "Advisor coverage: same-configuration comparisons, class prevalence, sampling controls, qualitative degradation examples and the seed-0 classifier screen are addressed. The fitted transform did not pass the replication gate. Diagnostic-preservation validation and a fair longer-budget routing or latent-transition study remain open. The transcript also contains a user-owned request to disclose this external collaboration to the new employer; completion has not been documented.", "Advisor coverage:")
+    add_body(document, "Selected hypothesis: use the Step-4 overlay-free transform as a measured action rather than as an extra labeled image. Given an original BRSET view, a transformed view, and the sampled blur/color/noise strengths, a small predictor learns to recover the original ConvNeXt feature. A separate loss keeps DR and ME predictions stable. The predictor is discarded at inference.", "Selected hypothesis:")
+    add_body(document, "Controls: W1 uses paired feature consistency without the action; W2 adds the action-conditioned transition; W3 adds separate DR/ME prediction preservation. W3 must beat both the natural joint B1 reference and W1, pass the fixed validation gate, and then repeat at seeds 1 and 2 before any test assessment or contribution claim.", "Controls:")
+    add_body(document, "World-model decision: CheXWorld (CVPR 2025) supports parameter-conditioned latent prediction, while I-JEPA (CVPR 2023) establishes non-generative feature prediction. A full diffusion/pixel generator is deferred because Step 4 shows that target-like appearance does not imply better diagnosis and generated lesions would require substantially stronger preservation evidence.", "World-model decision:")
+    add_body(document, "Closest-work audit: generic consistency, grade-conditioned augmentation, retinal semantic/domain disentanglement, standardized-color masked modeling and feature pruning are already occupied. CVPR 2026 GFP will be reproduced as a low-cost comparator, not claimed as ours. CheXWorld code has no root license; the method will be independently implemented. The current Samba-linked repository contains an account-takeover warning and will not be executed.", "Closest-work audit:")
+    add_body(document, "Terminology boundary: B1 trains on BRSET and labeled mBRSET training images, so it is supervised joint transfer. A new strict source-only run must train and select on BRSET before assessing mBRSET; only that run quantifies the pure BRSET-to-mBRSET gap.", "Terminology boundary:")
 
     add_heading(document, "IX.", "NEXT ACTIONS")
     for item in [
         "Preserve A1/A2/A3 as a completed negative validation screen; do not assess them on test or replicate them automatically.",
-        "Freeze one new content-preserving mechanism and a matched control before further GPU work.",
-        "Choose between a bounded CheXWorld-style latent-transition objective and an explicitly lesion-aware preservation constraint using feasibility and closest-work evidence.",
-        "Require repeated diagnostic benefit and an isolating ablation before writing a contribution claim.",
+        "Freeze and run the strict BRSET-only baseline using BRSET validation for checkpoint and threshold selection.",
+        "Extract frozen B1 features and reproduce CVPR 2026 GFP on fitting/validation data as a published comparator and diagnostic.",
+        "Freeze W1/W2/W3 action, feature, loss, exposure, resume and no-test contracts; then pass an allocated A40 smoke test.",
+        "Run the three seed-0 arms concurrently on at most three nonexclusive single-GPU nodes; replicate only a qualifying arm.",
         "Ask Dong to confirm the exact world-model paper title and venue when he responds.",
     ]:
         p = document.add_paragraph(style=None); p.style = document.styles["Normal"]
@@ -379,6 +383,7 @@ def build_docx(summary, design, preflight):
         ["14 Sep 2026", "Step-4 training-only label-composition audit complete", "appearance_label_audit.json; APPEARANCE_LABEL_AUDIT_REVIEW.md"],
         ["14 Sep 2026", "Meeting/world-model direction audited", "DONG_TRANSCRIPT_AUDIT_2026-09.md; STEP4_WORLD_MODEL_DIRECTION_REVIEW.md"],
         ["15 Sep 2026", "Step-4 seed-0 augmentation screen complete; no arm passed replication gate", "seed0_validation_summary.json; SEED0_RESULTS_REVIEW.md"],
+        ["15 Sep 2026", "Step-5 deep review and controlled mechanism direction selected", "STEP5_MECHANISM_DEEP_RESEARCH.md; STEP_5_PLAN_DRAFT.md"],
     ])
     document.save(DOCX)
 
@@ -452,7 +457,7 @@ def build_pptx(summary, preflight):
 
     s = prs.slides.add_slide(blank)
     textbox(s, .75, 1.25, 11.8, .8, "BRSET to mBRSET Cross-Device Classification", 30, True, BLUE, PP_ALIGN.CENTER)
-    state = "Step 4 seed-0 screen complete" if STEP4_SEED0.exists() else "Step 4 transform refit/preflight active"
+    state = "Step 5 mechanism direction selected" if STEP5_PLAN.exists() else "Step 4 seed-0 screen complete" if STEP4_SEED0.exists() else "Step 4 transform refit/preflight active"
     textbox(s, 1.2, 2.25, 10.9, .6, f"Evidence update: {state}", 20, False, INK, PP_ALIGN.CENTER)
     ppt_box(s, 2.15, 3.35, 9.0, 1.05, "Natural joint training remains the strongest simple reference.\nA novel method has not yet been established.", LIGHT_GREEN, GREEN, 20, True)
     textbox(s, 1.0, 6.55, 11.3, .35, UPDATED, 12, False, MUTED, PP_ALIGN.CENTER)
@@ -557,13 +562,13 @@ def build_pptx(summary, preflight):
                     "Next: test the three frozen augmentation arms.", "Require consistent diagnostic gain and preservation evidence."], y=1.35, h=3.95, size=16)
         ppt_box(s, 1.2, 5.65, 10.9, .8, "Current novelty status: candidate hypothesis, not demonstrated contribution", LIGHT_AMBER, AMBER, 19, True)
 
-    s = prs.slides.add_slide(blank); slide_title(s, "Dong requests and world-model decision")
+    s = prs.slides.add_slide(blank); slide_title(s, "Step 5: evidence-led mechanism decision")
     ppt_box(s, .65, 1.45, 3.8, .6, "Delivered", LIGHT_GREEN, GREEN, 19, True)
-    bullets(s, ["Matched baseline protocol", "DR/ME prevalence and sampling controls", "Source-verified degradation examples"], x=.75, y=2.25, w=3.55, h=3.1, size=16)
-    ppt_box(s, 4.78, 1.45, 3.8, .6, "Open", LIGHT_AMBER, AMBER, 19, True)
-    bullets(s, ["A mechanism that beats B1 repeatedly", "Diagnostic-preservation evidence", "Fair latent-transition or routing study"], x=4.88, y=2.25, w=3.55, h=3.1, size=16)
-    ppt_box(s, 8.91, 1.45, 3.8, .6, "World-model gate", PALE, BLUE, 19, True)
-    bullets(s, ["CheXWorld, CVPR 2025: closest conceptual match", "GenDeg, CVPR 2025: separate diffusion option", "Freeze a bounded content-aware test before training"], x=9.01, y=2.25, w=3.55, h=3.1, size=16)
+    bullets(s, ["Joint B1 baseline across three seeds", "Balance/exposure controls", "Negative appearance-augmentation screen"], x=.75, y=2.25, w=3.55, h=3.1, size=16)
+    ppt_box(s, 4.78, 1.45, 3.8, .6, "Prerequisites", LIGHT_AMBER, AMBER, 19, True)
+    bullets(s, ["Strict BRSET-only transfer baseline", "CVPR 2026 GFP frozen-feature comparator", "Freeze action, losses, resume and no-test gates"], x=4.88, y=2.25, w=3.55, h=3.1, size=16)
+    ppt_box(s, 8.91, 1.45, 3.8, .6, "Proposed test", PALE, BLUE, 19, True)
+    bullets(s, ["W1: blind paired consistency", "W2: action-conditioned latent transition", "W3: W2 plus DR/ME preservation"], x=9.01, y=2.25, w=3.55, h=3.1, size=16)
     textbox(s, .85, 6.15, 11.65, .45, "Internal paper targets: complete draft 15 October • hard freeze 19 October • official deadline 26 October", 16, True, BLUE, PP_ALIGN.CENTER)
 
     prs.save(PPTX)
@@ -607,6 +612,8 @@ def main():
     if STEP4_REFIT.exists(): inputs[str(STEP4_REFIT.relative_to(ROOT))] = sha(STEP4_REFIT)
     if STEP4_PREFLIGHT.exists(): inputs[str(STEP4_PREFLIGHT.relative_to(ROOT))] = sha(STEP4_PREFLIGHT)
     if STEP4_SEED0.exists(): inputs[str(STEP4_SEED0.relative_to(ROOT))] = sha(STEP4_SEED0)
+    if STEP5_REVIEW.exists(): inputs[str(STEP5_REVIEW.relative_to(ROOT))] = sha(STEP5_REVIEW)
+    if STEP5_PLAN.exists(): inputs[str(STEP5_PLAN.relative_to(ROOT))] = sha(STEP5_PLAN)
     print(json.dumps(verify(inputs), indent=2))
 
 
