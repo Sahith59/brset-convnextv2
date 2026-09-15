@@ -1,0 +1,333 @@
+{
+  "status": "complete",
+  "date_utc": "2026-09-15",
+  "scope": "mBRSET validation only; no test access and no model fitting",
+  "cohort": {
+    "images": 725,
+    "patients": 193,
+    "prediction_seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "preprocessing": "bilinear 560x560 resize then center 512x512 crop",
+  "inputs": {
+    "manifest_sha256": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc",
+    "prediction_sha256": {
+      "seed0": "652c730a9cd1db5dbc5500c45a9b853cbc7791b6e879a0af78ee4b0020c39a43",
+      "seed1": "f533b0ca4d83d05e418080f9c6fb3b0ea917596a442bea17abacee17435fd491",
+      "seed2": "ec4edafad8d225fdb1b8666b70d384bdaa754ef624ce0dbe0c3f82a2d30586e7"
+    },
+    "appearance_ops_sha256": "7740ce15549da0d16642cd1e1a022a5eff393e2033b0d092bfee6cd5930c1838",
+    "protocol_sha256": "783578bf7a2abafd733db3d5e1f79b372000c7f0711ff1d486af57a1c43b1617",
+    "analysis_sha256": "f4053ce9f1a04729c271fedaa660957ba3d91b82d752d0dc195fe123aeb571d2"
+  },
+  "labels": {
+    "diabetic_retinopathy": {
+      "images": 725,
+      "patients": 193,
+      "seed_observations": 2175,
+      "errors": 133,
+      "error_rate": 0.06114942528735632,
+      "appearance_nll_correlations": [
+        {
+          "statistic": "sharpness",
+          "spearman_rho": -0.2044231959176797,
+          "p_value_unadjusted": 2.799827677148772e-08,
+          "p_value_bh_within_label": 4.66637946191462e-08
+        },
+        {
+          "statistic": "brightness",
+          "spearman_rho": -0.26578537588426915,
+          "p_value_unadjusted": 3.454055215980205e-13,
+          "p_value_bh_within_label": 1.7270276079901024e-12
+        },
+        {
+          "statistic": "contrast",
+          "spearman_rho": -0.18936253894878047,
+          "p_value_unadjusted": 2.799214673852972e-07,
+          "p_value_bh_within_label": 3.499018342316215e-07
+        },
+        {
+          "statistic": "falloff",
+          "spearman_rho": -0.07367212015196913,
+          "p_value_unadjusted": 0.0473724641266953,
+          "p_value_bh_within_label": 0.0473724641266953
+        },
+        {
+          "statistic": "saturation",
+          "spearman_rho": 0.2113917015283509,
+          "p_value_unadjusted": 9.07633396003297e-09,
+          "p_value_bh_within_label": 2.2690834900082427e-08
+        }
+      ],
+      "overall_error_model": {
+        "draws": 2000,
+        "patients": 193,
+        "base_auc_point": 0.6951720633611453,
+        "appearance_auc_point": 0.7059973636343552,
+        "difference_point": 0.010825300273209826,
+        "base_auc_95pct": [
+          0.6067496074059127,
+          0.7749007732574187
+        ],
+        "appearance_auc_95pct": [
+          0.6136200517055491,
+          0.7863854533766667
+        ],
+        "difference_95pct": [
+          -0.03865895387323463,
+          0.06051196385820438
+        ]
+      },
+      "folds": [
+        {
+          "fold": 0,
+          "train_observations": 1737,
+          "validation_observations": 438,
+          "validation_patients": 39
+        },
+        {
+          "fold": 1,
+          "train_observations": 1737,
+          "validation_observations": 438,
+          "validation_patients": 39
+        },
+        {
+          "fold": 2,
+          "train_observations": 1740,
+          "validation_observations": 435,
+          "validation_patients": 39
+        },
+        {
+          "fold": 3,
+          "train_observations": 1743,
+          "validation_observations": 432,
+          "validation_patients": 38
+        },
+        {
+          "fold": 4,
+          "train_observations": 1743,
+          "validation_observations": 432,
+          "validation_patients": 38
+        }
+      ],
+      "positive_false_negative_model": {
+        "computable": true,
+        "positive_observations": 528,
+        "positive_patients": 60,
+        "false_negatives": 82,
+        "folds": [
+          {
+            "fold": 0,
+            "train_observations": 420,
+            "validation_observations": 108,
+            "validation_patients": 12
+          },
+          {
+            "fold": 1,
+            "train_observations": 423,
+            "validation_observations": 105,
+            "validation_patients": 12
+          },
+          {
+            "fold": 2,
+            "train_observations": 423,
+            "validation_observations": 105,
+            "validation_patients": 12
+          },
+          {
+            "fold": 3,
+            "train_observations": 423,
+            "validation_observations": 105,
+            "validation_patients": 12
+          },
+          {
+            "fold": 4,
+            "train_observations": 423,
+            "validation_observations": 105,
+            "validation_patients": 12
+          }
+        ],
+        "bootstrap": {
+          "draws": 2000,
+          "patients": 60,
+          "base_auc_point": 0.5233375259761566,
+          "appearance_auc_point": 0.5547139888439243,
+          "difference_point": 0.03137646286776774,
+          "base_auc_95pct": [
+            0.4892305716161058,
+            0.5623594454401395
+          ],
+          "appearance_auc_95pct": [
+            0.4202235606967349,
+            0.6840926137808286
+          ],
+          "difference_95pct": [
+            -0.10259509569963729,
+            0.1693150952630471
+          ]
+        }
+      }
+    },
+    "macular_edema": {
+      "images": 725,
+      "patients": 193,
+      "seed_observations": 2175,
+      "errors": 62,
+      "error_rate": 0.028505747126436783,
+      "appearance_nll_correlations": [
+        {
+          "statistic": "sharpness",
+          "spearman_rho": 0.02106132769878245,
+          "p_value_unadjusted": 0.57127286462561,
+          "p_value_bh_within_label": 0.57127286462561
+        },
+        {
+          "statistic": "brightness",
+          "spearman_rho": 0.024093562095259386,
+          "p_value_unadjusted": 0.5171701832721821,
+          "p_value_bh_within_label": 0.57127286462561
+        },
+        {
+          "statistic": "contrast",
+          "spearman_rho": 0.0890346055683176,
+          "p_value_unadjusted": 0.016486785042147678,
+          "p_value_bh_within_label": 0.08243392521073839
+        },
+        {
+          "statistic": "falloff",
+          "spearman_rho": 0.06316631739378928,
+          "p_value_unadjusted": 0.0892122362920132,
+          "p_value_bh_within_label": 0.223030590730033
+        },
+        {
+          "statistic": "saturation",
+          "spearman_rho": -0.031037978111533245,
+          "p_value_unadjusted": 0.40400934402477484,
+          "p_value_bh_within_label": 0.57127286462561
+        }
+      ],
+      "overall_error_model": {
+        "draws": 2000,
+        "patients": 193,
+        "base_auc_point": 0.7087919637268522,
+        "appearance_auc_point": 0.7559653756316503,
+        "difference_point": 0.04717341190479818,
+        "base_auc_95pct": [
+          0.5268472389792731,
+          0.8508397709662064
+        ],
+        "appearance_auc_95pct": [
+          0.6086014743735153,
+          0.8693176692863235
+        ],
+        "difference_95pct": [
+          -0.02873550284726151,
+          0.12843346408607192
+        ]
+      },
+      "folds": [
+        {
+          "fold": 0,
+          "train_observations": 1737,
+          "validation_observations": 438,
+          "validation_patients": 39
+        },
+        {
+          "fold": 1,
+          "train_observations": 1737,
+          "validation_observations": 438,
+          "validation_patients": 39
+        },
+        {
+          "fold": 2,
+          "train_observations": 1740,
+          "validation_observations": 435,
+          "validation_patients": 39
+        },
+        {
+          "fold": 3,
+          "train_observations": 1743,
+          "validation_observations": 432,
+          "validation_patients": 38
+        },
+        {
+          "fold": 4,
+          "train_observations": 1743,
+          "validation_observations": 432,
+          "validation_patients": 38
+        }
+      ],
+      "positive_false_negative_model": {
+        "computable": true,
+        "positive_observations": 204,
+        "positive_patients": 22,
+        "false_negatives": 34,
+        "folds": [
+          {
+            "fold": 0,
+            "train_observations": 162,
+            "validation_observations": 42,
+            "validation_patients": 4
+          },
+          {
+            "fold": 1,
+            "train_observations": 162,
+            "validation_observations": 42,
+            "validation_patients": 5
+          },
+          {
+            "fold": 2,
+            "train_observations": 165,
+            "validation_observations": 39,
+            "validation_patients": 4
+          },
+          {
+            "fold": 3,
+            "train_observations": 165,
+            "validation_observations": 39,
+            "validation_patients": 4
+          },
+          {
+            "fold": 4,
+            "train_observations": 162,
+            "validation_observations": 42,
+            "validation_patients": 5
+          }
+        ],
+        "bootstrap": {
+          "draws": 2000,
+          "patients": 22,
+          "base_auc_point": 0.5596885813148789,
+          "appearance_auc_point": 0.4055363321799308,
+          "difference_point": -0.15415224913494807,
+          "base_auc_95pct": [
+            0.5268772901481236,
+            0.6006215368912217
+          ],
+          "appearance_auc_95pct": [
+            0.21370661015007447,
+            0.6134093915343916
+          ],
+          "difference_95pct": [
+            -0.35193224418231567,
+            0.04938012048192735
+          ]
+        }
+      }
+    }
+  },
+  "decision": {
+    "retain_appearance_conditioned_transition": false,
+    "positive_false_negative_signal": false,
+    "next": "pivot to label-specific patch/shared-private mechanism"
+  },
+  "limits": [
+    "Observational association does not establish a camera-effect cause.",
+    "Validation data have already served model selection and remain development evidence.",
+    "Bootstrap conditions on fixed out-of-fold predictions and does not cover all design or model-training uncertainty."
+  ],
+  "privacy": "Aggregate output only; no image, file or patient identifier is stored."
+}
