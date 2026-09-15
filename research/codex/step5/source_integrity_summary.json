@@ -1,0 +1,11 @@
+{
+  "status": "pass",
+  "manifest_sha256": "635d3f47f07ae6c6dc656f8e32036e9622d32ab0ab09afbda535d010389ca457",
+  "images": 14555,
+  "decode_errors": 0,
+  "duplicate_groups": [],
+  "cross_role_groups": 0,
+  "cross_domain_groups": 0,
+  "scope": "Exact native RGB and EXIF-normalized RGB; near duplicates, recompressions and registered-eye identity are not excluded.",
+  "privacy": "Aggregate duplicate metadata only; identities retained in ignored private CSV."
+}

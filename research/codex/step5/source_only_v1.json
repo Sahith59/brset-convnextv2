@@ -1,0 +1,34 @@
+{
+  "version": "1.0-strict-source-only",
+  "status": "frozen before training",
+  "task": "image-level any-DR and ME strict BRSET-to-mBRSET transfer",
+  "private_manifest_sha256": "635d3f47f07ae6c6dc656f8e32036e9622d32ab0ab09afbda535d010389ca457",
+  "roles": {
+    "fit": "BRSET original train: 11372 images, 5966 patients",
+    "selection": "BRSET original validation: 2451 images, 1279 patients",
+    "assessment": "mBRSET original test: 732 images, 193 patients"
+  },
+  "target_access_before_assessment": 0,
+  "initialization": "Step-2 seed-0 ConvNeXtV2-Large initialization",
+  "recipe": {
+    "updates": 5775,
+    "microbatch": 16,
+    "accumulation": 4,
+    "effective_batch": 64,
+    "precision": "bf16",
+    "optimizer": "AdamW",
+    "learning_rate": 0.00003,
+    "weight_decay": 0.1,
+    "warmup_updates": 693,
+    "gradient_norm_cap": 1.0,
+    "mixup_alpha": 0.2,
+    "focal_gamma": 2,
+    "ema_decay": 0.999,
+    "evaluation_interval_updates": 231,
+    "checkpoint_score": "mean BRSET-validation DR/ME AUROC",
+    "threshold_selection": "per-label BRSET-validation F1, grid 0..1 by .001",
+    "evaluation_tta": "mean probabilities of original/hflip/vflip/both"
+  },
+  "assessment_limit": "historically reused target test; development benchmark, not pristine external confirmation",
+  "replication": "conditional on final paper framing"
+}

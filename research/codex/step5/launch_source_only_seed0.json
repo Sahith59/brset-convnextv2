@@ -1,0 +1,26 @@
+{
+  "submitted_utc": "2026-09-15T04:33:12Z",
+  "smoke_job": {
+    "job_id": 4402154,
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "elapsed": "00:19:44",
+    "result": "source_smoke_checks.json"
+  },
+  "training_job": {
+    "job_id": 4402198,
+    "state_at_record": "RUNNING",
+    "node_at_record": "arctrdagn031",
+    "resources": "1 nonexclusive A40, 8 CPUs, 64 GiB",
+    "wall_time": "18:00:00",
+    "measured_estimate_hours": 8.254596814404035
+  },
+  "assessment_job": {
+    "job_id": 4402199,
+    "state_at_record": "PENDING",
+    "dependency": "afterok:4402198",
+    "role": "one locked assessment on the 732-image mBRSET historical test split after successful training"
+  },
+  "concurrency": "One GPU occupied by this baseline; remaining nodes are left available.",
+  "claim_boundary": "No model-quality result exists at launch. Smoke metrics are excluded from scientific comparisons."
+}

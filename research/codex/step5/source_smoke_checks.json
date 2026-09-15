@@ -1,0 +1,16 @@
+{
+  "status": "pass",
+  "state_mismatches": [],
+  "updates": 6,
+  "interruption_after_update": 3,
+  "target_assessment_accessed": false,
+  "median_update_seconds": 4.335418647155166,
+  "median_selection_seconds": 174.0747139584273,
+  "estimated_full_hours": 8.254596814404035,
+  "gpu_peak_allocated_gib": 31.388509273529053,
+  "checkpoint_sha256": {
+    "source_smoke_full": "ef614f5b38a10f5ce3321131a3ce9efb28a3ec7373e7af6695bf42e653639f9a",
+    "source_smoke_resume": "ed445f8a4ebb8739593ad251f5c29e561348121d4c6f4590a30efd369dd381fb"
+  },
+  "scope": "Six-update deterministic smoke with full BRSET validation inference; not performance or convergence evidence."
+}

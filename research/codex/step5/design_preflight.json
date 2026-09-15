@@ -1,0 +1,149 @@
+{
+  "status": "pass",
+  "date_utc": "2026-09-15",
+  "cohorts": {
+    "BRSET": {
+      "fit": {
+        "images": 11372,
+        "patients": 5966,
+        "diabetic_retinopathy": {
+          "positive_images": 748,
+          "positive_image_fraction": 0.06577558916637355,
+          "positive_patients": 437,
+          "positive_patient_fraction": 0.0732484076433121
+        },
+        "macular_edema": {
+          "positive_images": 274,
+          "positive_image_fraction": 0.02409426661976785,
+          "positive_patients": 193,
+          "positive_patient_fraction": 0.03234998323835065
+        }
+      },
+      "selection": {
+        "images": 2451,
+        "patients": 1279,
+        "diabetic_retinopathy": {
+          "positive_images": 159,
+          "positive_image_fraction": 0.06487148102815178,
+          "positive_patients": 94,
+          "positive_patient_fraction": 0.07349491790461297
+        },
+        "macular_edema": {
+          "positive_images": 65,
+          "positive_image_fraction": 0.026519787841697267,
+          "positive_patients": 42,
+          "positive_patient_fraction": 0.0328381548084441
+        }
+      },
+      "assessment": {
+        "images": 2435,
+        "patients": 1279,
+        "diabetic_retinopathy": {
+          "positive_images": 162,
+          "positive_image_fraction": 0.06652977412731007,
+          "positive_patients": 94,
+          "positive_patient_fraction": 0.07349491790461297
+        },
+        "macular_edema": {
+          "positive_images": 61,
+          "positive_image_fraction": 0.02505133470225873,
+          "positive_patients": 41,
+          "positive_patient_fraction": 0.03205629397967162
+        }
+      }
+    },
+    "mBRSET": {
+      "fit": {
+        "images": 3402,
+        "patients": 899,
+        "diabetic_retinopathy": {
+          "positive_images": 797,
+          "positive_image_fraction": 0.23427395649617871,
+          "positive_patients": 276,
+          "positive_patient_fraction": 0.30700778642936594
+        },
+        "macular_edema": {
+          "positive_images": 291,
+          "positive_image_fraction": 0.0855379188712522,
+          "positive_patients": 111,
+          "positive_patient_fraction": 0.12347052280311457
+        }
+      },
+      "selection": {
+        "images": 725,
+        "patients": 193,
+        "diabetic_retinopathy": {
+          "positive_images": 176,
+          "positive_image_fraction": 0.24275862068965517,
+          "positive_patients": 60,
+          "positive_patient_fraction": 0.31088082901554404
+        },
+        "macular_edema": {
+          "positive_images": 68,
+          "positive_image_fraction": 0.09379310344827586,
+          "positive_patients": 22,
+          "positive_patient_fraction": 0.11398963730569948
+        }
+      },
+      "assessment": {
+        "images": 732,
+        "patients": 193,
+        "diabetic_retinopathy": {
+          "positive_images": 159,
+          "positive_image_fraction": 0.21721311475409835,
+          "positive_patients": 59,
+          "positive_patient_fraction": 0.30569948186528495
+        },
+        "macular_edema": {
+          "positive_images": 63,
+          "positive_image_fraction": 0.0860655737704918,
+          "positive_patients": 22,
+          "positive_patient_fraction": 0.11398963730569948
+        }
+      }
+    }
+  },
+  "strict_source_contract": {
+    "fit": "BRSET original train only",
+    "selection": "BRSET original validation only",
+    "assessment": "mBRSET original test only after model and thresholds freeze",
+    "fit_images": 11372,
+    "fit_patients": 5966,
+    "selection_images": 2451,
+    "selection_patients": 1279,
+    "assessment_images": 732,
+    "assessment_patients": 193,
+    "target_images_used_before_assessment": 0,
+    "manifest_sha256": "635d3f47f07ae6c6dc656f8e32036e9622d32ab0ab09afbda535d010389ca457",
+    "new_decoded_duplicate_gate_required": true
+  },
+  "b1_frozen_artifacts": {
+    "prediction_sha256": {
+      "seed0": "652c730a9cd1db5dbc5500c45a9b853cbc7791b6e879a0af78ee4b0020c39a43",
+      "seed1": "f533b0ca4d83d05e418080f9c6fb3b0ea917596a442bea17abacee17435fd491",
+      "seed2": "ec4edafad8d225fdb1b8666b70d384bdaa754ef624ce0dbe0c3f82a2d30586e7"
+    },
+    "checkpoint_sha256": {
+      "seed0": "ca5ab1479257ac3f38257fa19d65fe4ed024dbf8f4a7182f27918b15cdf25a47",
+      "seed1": "a4d7cddaeb5f99d3602b20d2a44de17c9b164b09e3796be0a34a19d199e6234a",
+      "seed2": "4b4e06207710bdb6e5246348583070619078475ff8f0b1481d29655fec7fb335"
+    }
+  },
+  "inputs": {
+    "manifest_sha256": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc",
+    "source_split_sha256": "189d1eae20f23999701525e93a82caaf57b8e657a4e7d23adbace8d2b97517a7",
+    "source_only_manifest_sha256": "635d3f47f07ae6c6dc656f8e32036e9622d32ab0ab09afbda535d010389ca457",
+    "protocol_sha256": "58ab3a2d6790eff50d6ada2d61fc0357c070436c09e90a26fefa0ee56fb05e2f",
+    "integrity_sha256": "36d825be10b264b64e6f46e5b9055829f436ff2f4167ad38a26d42b454e06865",
+    "script_sha256": "ec8f30a68601e0f03f24d6989742dfc1a4ced68a58caafef9a4a8a43e1d1de60"
+  },
+  "checks": [
+    "original split roles",
+    "within-domain patient separation",
+    "binary labels",
+    "existing decoded-image integrity gate",
+    "original BRSET image paths",
+    "three B1 checkpoint/prediction provenance chains"
+  ],
+  "privacy": "Aggregate counts and hashes only; no file or patient identifiers."
+}

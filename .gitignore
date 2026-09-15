@@ -83,5 +83,7 @@ results/mbrset_test_quality.csv
 research/codex/step4/private/
 research/codex/step4/runs
 research/codex/step4/smoke
+# Step-5 manifests contain per-image paths, patient identifiers and labels.
+research/codex/step5/private/
 # Advisor-only reports embed licensed BRSET/mBRSET patient images.
 research/codex/reports/private/

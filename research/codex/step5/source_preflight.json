@@ -1,0 +1,24 @@
+{
+  "status": "pass",
+  "counts": {
+    "BRSET_fit": 11372,
+    "BRSET_selection": 2451,
+    "mBRSET_assessment": 732
+  },
+  "target_preassessment_images": 0,
+  "integrity_sha256": "ae128e8f30745502507c832540b5cf2262c9b44a11524d4ce3e7050df1f96821",
+  "input_sha256": {
+    "research/codex/step5/train_source_only.py": "eb6b5b54fd5acbc7a15e5696f2db65347d6069388d907186918ed685e91bf4c1",
+    "research/codex/step5/source_only_v1.json": "1c45327b08cd76bffd7aca86bc5e14b90e1e0360351ad9d3404b5c12ddf6f767",
+    "research/codex/step5/SOURCE_ONLY_PROTOCOL.md": "6fc8720e395c153ee2366551d84f5c267e7f3936fd3fb1829ca8dcc49bee71ae",
+    "research/codex/step5/private/source_only_manifest.csv": "635d3f47f07ae6c6dc656f8e32036e9622d32ab0ab09afbda535d010389ca457"
+  },
+  "checks": [
+    "Python syntax",
+    "manifest hash",
+    "role counts",
+    "patient separation",
+    "zero target pre-assessment access",
+    "decoded-image integrity"
+  ]
+}

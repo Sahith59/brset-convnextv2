@@ -44,6 +44,10 @@ STEP5_REVIEW = ROOT / "research/codex/literature/STEP5_MECHANISM_DEEP_RESEARCH.m
 STEP5_PLAN = ROOT / "research/codex/step5/STEP_5_PLAN_DRAFT.md"
 STEP5_GATE = ROOT / "research/codex/step5/appearance_error_gate.json"
 STEP5_REVISION = ROOT / "research/codex/literature/STEP5_DIRECTION_REVISION.md"
+STEP5_DESIGN = ROOT / "research/codex/step5/design_preflight.json"
+STEP5_INTEGRITY = ROOT / "research/codex/step5/source_integrity_summary.json"
+STEP5_SMOKE = ROOT / "research/codex/step5/source_smoke_checks.json"
+STEP5_LAUNCH = ROOT / "research/codex/step5/launch_source_only_seed0.json"
 
 
 def sha(path):
@@ -372,11 +376,22 @@ def build_docx(summary, design, preflight):
     add_body(document, "World-model decision: CheXWorld (CVPR 2025) supports parameter-conditioned latent prediction, but our evidence gate does not support spending the first Step-5 GPU batch on the measured degradation action. Full diffusion/pixel generation remains deferred because target-like appearance did not imply better diagnosis and generated lesions require stronger preservation evidence.", "World-model decision:")
     add_body(document, "Closest-work audit: generic consistency, grade-conditioned augmentation, retinal semantic/domain disentanglement, standardized-color masked modeling and feature pruning are already occupied. CVPR 2026 GFP will be reproduced as a low-cost comparator, not claimed as ours. CheXWorld code has no root license; the method will be independently implemented. The current Samba-linked repository contains an account-takeover warning and will not be executed.", "Closest-work audit:")
     add_body(document, "Terminology boundary: B1 trains on BRSET and labeled mBRSET training images, so it is supervised joint transfer. A new strict source-only run must train and select on BRSET before assessing mBRSET; only that run quantifies the pure BRSET-to-mBRSET gap.", "Terminology boundary:")
+    if STEP5_DESIGN.exists() and STEP5_INTEGRITY.exists() and STEP5_SMOKE.exists():
+        design = json.loads(STEP5_DESIGN.read_text())
+        integrity = json.loads(STEP5_INTEGRITY.read_text())
+        smoke = json.loads(STEP5_SMOKE.read_text())
+        source_fit = design["cohorts"]["BRSET"]["fit"]
+        source_selection = design["cohorts"]["BRSET"]["selection"]
+        target_assessment = design["cohorts"]["mBRSET"]["assessment"]
+        add_body(document, f"Strict source-only gates: fitting uses {source_fit['images']:,} BRSET images from {source_fit['patients']:,} patients; selection uses {source_selection['images']:,} BRSET images; assessment is locked to {target_assessment['images']:,} mBRSET images. All {integrity['images']:,} images decoded, no exact duplicate group was found, and the A40 interruption/resume smoke had {len(smoke['state_mismatches'])} state mismatches. These are protocol checks, not performance results.", "Strict source-only gates:")
+    if STEP5_LAUNCH.exists():
+        launch = json.loads(STEP5_LAUNCH.read_text())
+        add_body(document, f"Execution status: source-only seed-0 training job {launch['training_job']['job_id']} is recorded as {launch['training_job']['state_at_record'].lower()} on one nonexclusive A40; assessment job {launch['assessment_job']['job_id']} is dependency-locked after successful training. Measured training estimate: {launch['training_job']['measured_estimate_hours']:.2f} hours. No source-only performance result existed when this record was generated.", "Execution status:")
 
     add_heading(document, "IX.", "NEXT ACTIONS")
     for item in [
         "Preserve A1/A2/A3 as a completed negative validation screen; do not assess them on test or replicate them automatically.",
-        "Freeze and run the strict BRSET-only baseline using BRSET validation for checkpoint and threshold selection.",
+        "Complete and independently verify the active strict BRSET-only baseline; use BRSET validation for checkpoint and threshold selection.",
         "Extract frozen B1 pooled/spatial features; reproduce CVPR 2026 GFP and compare global with label-specific spatial evidence without test access.",
         "Launch P1/P2/P3 only if the frozen spatial diagnostic passes; otherwise move to a stronger published retinal backbone/comparator.",
         "Require P3 to beat B1, P1 and P2, then replicate a qualifying arm before any test assessment.",
@@ -400,6 +415,7 @@ def build_docx(summary, design, preflight):
         ["15 Sep 2026", "Step-4 seed-0 augmentation screen complete; no arm passed replication gate", "seed0_validation_summary.json; SEED0_RESULTS_REVIEW.md"],
         ["15 Sep 2026", "Step-5 deep review and controlled mechanism direction selected", "STEP5_MECHANISM_DEEP_RESEARCH.md; STEP_5_PLAN_DRAFT.md"],
         ["15 Sep 2026", "Appearance-error premise failed; degradation-conditioned Step 5 suspended", "appearance_error_gate.json; APPEARANCE_ERROR_GATE_REVIEW.md"],
+        ["15 Sep 2026", "Strict source-only design, integrity, provenance and resume gates passed; seed 0 launched", "design_preflight.json; source_integrity_summary.json; source_smoke_checks.json"],
     ])
     document.save(DOCX)
 
@@ -473,7 +489,7 @@ def build_pptx(summary, preflight):
 
     s = prs.slides.add_slide(blank)
     textbox(s, .75, 1.25, 11.8, .8, "BRSET to mBRSET Cross-Device Classification", 30, True, BLUE, PP_ALIGN.CENTER)
-    state = "Step 5 appearance premise rejected; spatial diagnostics next" if STEP5_GATE.exists() else "Step 5 mechanism direction selected" if STEP5_PLAN.exists() else "Step 4 seed-0 screen complete" if STEP4_SEED0.exists() else "Step 4 transform refit/preflight active"
+    state = "Step 5 strict source-only baseline running; spatial diagnostics next" if STEP5_LAUNCH.exists() else "Step 5 appearance premise rejected; spatial diagnostics next" if STEP5_GATE.exists() else "Step 5 mechanism direction selected" if STEP5_PLAN.exists() else "Step 4 seed-0 screen complete" if STEP4_SEED0.exists() else "Step 4 transform refit/preflight active"
     textbox(s, 1.2, 2.25, 10.9, .6, f"Evidence update: {state}", 20, False, INK, PP_ALIGN.CENTER)
     ppt_box(s, 2.15, 3.35, 9.0, 1.05, "Natural joint training remains the strongest simple reference.\nA novel method has not yet been established.", LIGHT_GREEN, GREEN, 20, True)
     textbox(s, 1.0, 6.55, 11.3, .35, UPDATED, 12, False, MUTED, PP_ALIGN.CENTER)
@@ -584,7 +600,8 @@ def build_pptx(summary, preflight):
     ppt_box(s, 4.78, 1.45, 3.8, .6, "Evidence gate", LIGHT_AMBER, AMBER, 19, True)
     bullets(s, ["Appearance-error intervals cross zero", "Positive-FN AUC: DR .555; ME .406", "Suspend degradation-conditioned training"], x=4.88, y=2.25, w=3.55, h=3.1, size=16)
     ppt_box(s, 8.91, 1.45, 3.8, .6, "Next evidence", PALE, BLUE, 19, True)
-    bullets(s, ["Strict BRSET-only baseline", "GFP pooled-feature comparator", "Global vs label-specific spatial features"], x=9.01, y=2.25, w=3.55, h=3.1, size=16)
+    next_items = ["Strict BRSET-only seed 0 running" if STEP5_LAUNCH.exists() else "Strict BRSET-only baseline", "GFP pooled-feature comparator", "Global vs label-specific spatial features"]
+    bullets(s, next_items, x=9.01, y=2.25, w=3.55, h=3.1, size=16)
     textbox(s, .85, 6.15, 11.65, .45, "Internal paper targets: complete draft 15 October • hard freeze 19 October • official deadline 26 October", 16, True, BLUE, PP_ALIGN.CENTER)
 
     prs.save(PPTX)
@@ -632,6 +649,8 @@ def main():
     if STEP5_PLAN.exists(): inputs[str(STEP5_PLAN.relative_to(ROOT))] = sha(STEP5_PLAN)
     if STEP5_GATE.exists(): inputs[str(STEP5_GATE.relative_to(ROOT))] = sha(STEP5_GATE)
     if STEP5_REVISION.exists(): inputs[str(STEP5_REVISION.relative_to(ROOT))] = sha(STEP5_REVISION)
+    for path in (STEP5_DESIGN, STEP5_INTEGRITY, STEP5_SMOKE, STEP5_LAUNCH):
+        if path.exists(): inputs[str(path.relative_to(ROOT))] = sha(path)
     print(json.dumps(verify(inputs), indent=2))
 
 

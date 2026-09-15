@@ -3,15 +3,15 @@
   "generated": "15 September 2026",
   "docx": {
     "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Record.docx",
-    "sha256": "96e9facc34f75acfa21d5c77b3e124b2e7fce11ca224ee03101ec0cd10d91fcc",
+    "sha256": "258901de86bc34cfca354951f15b81eefd77c150921f7eeafe16edf1cb63168b",
     "sections": 1,
     "tables": 14,
-    "paragraphs": 64,
+    "paragraphs": 66,
     "times_new_roman_present": true
   },
   "pptx": {
     "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Update.pptx",
-    "sha256": "d7f78af22782a61028f6a680102caf8864867a61d6ab4180dd9fc3bd066fc0d5",
+    "sha256": "86512225de3448644556f5b838fb02effc707566baf7058fe260d9d2e22d4f5b",
     "slides": 9,
     "times_new_roman_present": true,
     "all_shape_bounds_inside_slide": true
@@ -31,7 +31,11 @@
     "research/codex/literature/STEP5_MECHANISM_DEEP_RESEARCH.md": "20a128acccdb769ef6226b5f043f15df93dd51b2961f6586d6ffaaf807f033c7",
     "research/codex/step5/STEP_5_PLAN_DRAFT.md": "b795a0dcabc9cc1c9059f324cc077286bb5daf4f7cb86f7c82ecec35785131db",
     "research/codex/step5/appearance_error_gate.json": "bb3feb043a54415a6d89fb498951ba2477d05283e23f9dddfaec8ab20fd31d32",
-    "research/codex/literature/STEP5_DIRECTION_REVISION.md": "a12dbeea638ee041ef880016ded1ec6a1573f3ce9601ed47d5ef3ae269c08082"
+    "research/codex/literature/STEP5_DIRECTION_REVISION.md": "a12dbeea638ee041ef880016ded1ec6a1573f3ce9601ed47d5ef3ae269c08082",
+    "research/codex/step5/design_preflight.json": "7c2e93cb1ad55dab9f78b5af2a29dbdad4c233f184ddea891c12e6a09132b35e",
+    "research/codex/step5/source_integrity_summary.json": "ae128e8f30745502507c832540b5cf2262c9b44a11524d4ce3e7050df1f96821",
+    "research/codex/step5/source_smoke_checks.json": "8a37fb5932d50631e5dd66790a4b5853f6bf56de765963d04d4c684b66d72b64",
+    "research/codex/step5/launch_source_only_seed0.json": "099beabae022013b1209ec5005e614162c1a7a0015b61085fc1c63dc1a2fcd15"
   },
   "privacy": "No dataset images, patient identifiers, private manifests, or per-image predictions embedded."
 }
