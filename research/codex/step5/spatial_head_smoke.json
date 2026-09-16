@@ -1,0 +1,12 @@
+{
+  "status": "pass",
+  "job_id": "4409983",
+  "updates": 2,
+  "validation_images": 128,
+  "finite_metrics": true,
+  "peak_gpu_gib": 0.29715776443481445,
+  "seconds": 2.425965579226613,
+  "script_sha256": "dc328fd88e8ec85c27ffef2e506abb4baf051b4ce6761379d090ab0426a7da24",
+  "feature_summary_sha256": "63c307b3b63619699ccc73aac22db4f16057cbf853ae0d2308a1d92cd1cf1045",
+  "assessment_accessed": false
+}

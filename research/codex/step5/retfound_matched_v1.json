@@ -1,0 +1,55 @@
+{
+  "version": "1.0-feasibility",
+  "status": "frozen before allocated GPU smoke",
+  "role": "published retinal-backbone comparator; not proposed novelty",
+  "backbone": "RETFound DINOv2 ViT-Large/14",
+  "official_code_commit": "ae9a9ecf37857cf47b8aa9f87cd6f710d75db287",
+  "weight_path": "/home/users/sthummala2/mbrset-retfound/checkpoints/RETFound_dinov2_shanghai/RETFound_dinov2_shanghai.pth",
+  "weight_sha256": "17f735ec62c34fc4a103b7e85a88ae98c3cc3cbf0e7a82295480a0434bba345e",
+  "weight_license": "CC BY-NC 4.0",
+  "manifest": "../step2/full_pool/protocol/full_pool_manifest.csv",
+  "manifest_sha256": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc",
+  "fit": {
+    "BRSET_images": 11372,
+    "mBRSET_images": 3402,
+    "total_images": 14774
+  },
+  "selection": {
+    "domain": "mBRSET",
+    "images": 725,
+    "patients": 193
+  },
+  "assessment_access": false,
+  "labels": ["diabetic_retinopathy", "macular_edema"],
+  "input": {
+    "resize": 560,
+    "crop": 512,
+    "patch_size": 14,
+    "position_embedding": "interpolate official 224-pixel embedding",
+    "gradient_checkpointing": true
+  },
+  "recipe": {
+    "updates": 5775,
+    "microbatch": 16,
+    "accumulation": 4,
+    "effective_batch": 64,
+    "peak_learning_rate": 0.00003,
+    "warmup_updates": 693,
+    "optimizer": "AdamW",
+    "weight_decay": 0.1,
+    "gradient_norm_cap": 1.0,
+    "ema_decay": 0.999,
+    "precision": "bf16",
+    "focal_gamma": 2,
+    "mixup_alpha": 0.2,
+    "label_smoothing": 0.1
+  },
+  "evaluation": "EMA; four flips; checkpoint by mean DR/ME AUROC; label-wise validation F1 thresholds",
+  "smoke": {
+    "real_fit_microsteps": 4,
+    "real_validation_images": 2,
+    "max_peak_allocated_gib": 38.0,
+    "max_extrapolated_seed_hours": 60.0
+  },
+  "fallback": "A native 224-pixel comparator requires a separate frozen contract and a resolution-confound disclosure."
+}

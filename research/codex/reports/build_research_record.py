@@ -49,6 +49,16 @@ STEP5_INTEGRITY = ROOT / "research/codex/step5/source_integrity_summary.json"
 STEP5_SMOKE = ROOT / "research/codex/step5/source_smoke_checks.json"
 STEP5_LAUNCH = ROOT / "research/codex/step5/launch_source_only_seed0.json"
 STEP5_SOURCE = ROOT / "research/codex/step5/source_only_seed0_verification.json"
+STEP5_FEATURES = ROOT / "research/codex/step5/feature_extraction_summary.json"
+STEP5_GFP = ROOT / "research/codex/step5/gfp_summary.json"
+STEP5_SPATIAL = ROOT / "research/codex/step5/spatial_diagnostic_summary.json"
+STEP5_ERRORS = ROOT / "research/codex/step5/diagnostic_error_analysis.json"
+STEP5_DIAGNOSTIC_REVIEW = ROOT / "research/codex/step5/STEP5_DIAGNOSTIC_REVIEW.md"
+STEP5_RETFOUND = ROOT / "research/codex/step5/retfound_compatibility_audit.json"
+STEP5_RETFOUND_PREFLIGHT = ROOT / "research/codex/step5/retfound_preflight.json"
+STEP5_RETFOUND_SMOKE = ROOT / "research/codex/step5/retfound_smoke.json"
+STEP5_RETFOUND_RESUME = ROOT / "research/codex/step5/retfound_resume_checks.json"
+STEP5_RETFOUND_LAUNCH = ROOT / "research/codex/step5/launch_retfound_seed0.json"
 
 
 def sha(path):
@@ -200,7 +210,8 @@ def build_docx(summary, design, preflight):
     doc_text(p, "Living Research Record and Evidence Audit", 11, True)
     style_doc_paragraph(p, after=2)
     p = document.add_paragraph(); p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    if STEP5_GATE.exists(): step4_state = "Step 5 appearance premise rejected; spatial diagnostics next"
+    if STEP5_SPATIAL.exists(): step4_state = "Step 5 feature screens closed negative; retinal-backbone audit next"
+    elif STEP5_GATE.exists(): step4_state = "Step 5 appearance premise rejected; spatial diagnostics next"
     elif STEP5_PLAN.exists(): step4_state = "Step 5 mechanism direction selected; implementation gates pending"
     elif STEP4_SEED0.exists(): step4_state = "Step 4 seed-0 validation screen complete"
     elif STEP4_PREFLIGHT.exists(): step4_state = "Step 4 transform refit and preflight complete"
@@ -210,7 +221,7 @@ def build_docx(summary, design, preflight):
     style_doc_paragraph(p, after=8)
 
     p = document.add_paragraph(); doc_text(p, "Abstract—", 10, True, True)
-    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The evidence establishes a strong joint BRSET–mBRSET baseline and rejects direct appearance augmentation. A Step-5 error audit also found insufficient evidence that five global appearance variables explain B1 errors, so degradation-conditioned training is suspended. Strict source-only, feature-pruning and spatial-evidence diagnostics are next. A novel method has not yet been established.")
+    doc_text(p, "This record tracks a supervised cross-device study for image-level diabetic retinopathy (DR) and macular edema (ME) classification. The evidence establishes a strong joint BRSET–mBRSET baseline and rejects direct appearance augmentation. Step 5 quantified the strict source-only gap and closed both final-channel pruning and simple top-k spatial pooling as negative mechanism screens. A protocol-matched retinal-backbone audit is next. A novel method has not yet been established.")
     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY; style_doc_paragraph(p, after=7)
 
     add_heading(document, "I.", "RESEARCH QUESTION")
@@ -399,13 +410,45 @@ def build_docx(summary, design, preflight):
         launch = json.loads(STEP5_LAUNCH.read_text())
         add_body(document, f"Execution status: source-only seed-0 training job {launch['training_job']['job_id']} is recorded as {launch['training_job']['state_at_record'].lower()} on one nonexclusive A40; assessment job {launch['assessment_job']['job_id']} is dependency-locked after successful training. Measured training estimate: {launch['training_job']['measured_estimate_hours']:.2f} hours. No source-only performance result existed when this record was generated.", "Execution status:")
 
+    if STEP5_FEATURES.exists() and STEP5_GFP.exists() and STEP5_SPATIAL.exists() and STEP5_ERRORS.exists():
+        features = json.loads(STEP5_FEATURES.read_text())
+        gfp = json.loads(STEP5_GFP.read_text())
+        spatial = json.loads(STEP5_SPATIAL.read_text())
+        errors = json.loads(STEP5_ERRORS.read_text())
+        add_heading(document, "VIII-A.", "STEP-5 FROZEN-FEATURE DIAGNOSTICS", level=2)
+        add_body(document, f"Feature integrity: the frozen B1 seed-0 encoder produced 1,536-channel 16×16 feature maps for {features['fit_images']:,} fitting and {features['selection_images']:,} validation images. Saved logits and probabilities were reproduced with maximum absolute error {features['reproduction']['probability_max_abs_error']:.1f}; no assessment feature was created.", "Feature integrity:")
+        gfp_dr = gfp["delta_from_unmasked_b1"]["diabetic_retinopathy"]
+        gfp_me = gfp["delta_from_unmasked_b1"]["macular_edema"]
+        add_doc_table(document, [
+            ["Diagnostic", "DR ΔF1", "DR ΔAUROC", "ME ΔF1", "ME ΔAUROC", "Frozen gate"],
+            [f"GFP; retained {gfp['selected']['retained_features'][0]}/{1536} DR, {gfp['selected']['retained_features'][1]}/{1536} ME channels",
+             f"{gfp_dr['f1_positive']:+.4f}", f"{gfp_dr['auroc']:+.4f}", f"{gfp_me['f1_positive']:+.4f}", f"{gfp_me['auroc']:+.4f}", "FAIL"],
+            [f"Top-{spatial['chosen_k']} spatial vs matched global head",
+             f"{spatial['aggregate']['diabetic_retinopathy']['f1_positive']['difference_mean']:+.4f}",
+             f"{spatial['aggregate']['diabetic_retinopathy']['auroc']['difference_mean']:+.4f}",
+             f"{spatial['aggregate']['macular_edema']['f1_positive']['difference_mean']:+.4f}",
+             f"{spatial['aggregate']['macular_edema']['auroc']['difference_mean']:+.4f}", "FAIL"],
+        ])
+        boot = errors["spatial_failure"]["patient_bootstrap"]
+        add_body(document, f"Spatial evidence: DR AUROC improved by +0.0101 across all three head seeds; its patient-bootstrap interval was [{boot['diabetic_retinopathy']['auroc']['patient_bootstrap_95pct'][0]:+.4f}, {boot['diabetic_retinopathy']['auroc']['patient_bootstrap_95pct'][1]:+.4f}]. However, DR F1 changed by −0.0012 and ME AUROC by −0.0036. The patch score is therefore a secondary ranking observation, not lesion localization or a usable two-label decision gain.", "Spatial evidence:")
+        add_body(document, "Frozen decision: both diagnostics failed. Do not launch P1, P2 or P3 under this interaction plan, and do not use the test split to rescue a failed validation screen. Audit a protocol-matched published retinal foundation-model/backbone comparator next. A stronger backbone would improve the baseline; it would not by itself establish novelty.", "Frozen decision:")
+    if STEP5_RETFOUND.exists():
+        audit = json.loads(STEP5_RETFOUND.read_text())
+        add_body(document, f"RETFound compatibility audit: the old companion results are not a fair B1 comparator. All {audit['cohorts']['common_files']:,} mBRSET files are shared, but {audit['cohorts']['different_split_common_files']:,} have different split assignments and {audit['label_alignment']['different_dr_label_common_files']:,} have different DR labels; the companion predicts referable DR and has no ME output. Its 224-pixel, 50-epoch, single-dataset runs cannot be cited as protocol-matched evidence. The official checkout and pretrained weight can support a new matched implementation.", "RETFound compatibility audit:")
+    if all(path.exists() for path in (STEP5_RETFOUND_PREFLIGHT, STEP5_RETFOUND_SMOKE, STEP5_RETFOUND_RESUME, STEP5_RETFOUND_LAUNCH)):
+        rf_preflight = json.loads(STEP5_RETFOUND_PREFLIGHT.read_text())
+        rf_smoke = json.loads(STEP5_RETFOUND_SMOKE.read_text())
+        rf_resume = json.loads(STEP5_RETFOUND_RESUME.read_text())
+        rf_launch = json.loads(STEP5_RETFOUND_LAUNCH.read_text())
+        add_body(document, f"Matched RETFound status: preflight job {rf_preflight['job_id']} verified {rf_preflight['counts']['fit_images']:,} fit and {rf_preflight['counts']['selection_images']} validation images with no assessment access. Feasibility job {rf_smoke['job_id']} proved full-backbone gradients, {rf_smoke['peak_allocated_gib']:.2f} GiB peak allocation and an estimated {rf_smoke['estimated_seed_hours']:.2f}-hour seed. Exact-resume job {rf_resume['job_id']} had zero state mismatch. Full seed-0 job {rf_launch['job_id']} is running; its first update was finite. This is execution health, not a performance result or novelty claim.", "Matched RETFound status:")
+
     add_heading(document, "IX.", "NEXT ACTIONS")
     for item in [
         "Preserve A1/A2/A3 as a completed negative validation screen; do not assess them on test or replicate them automatically.",
-        "Complete and independently verify the active strict BRSET-only baseline; use BRSET validation for checkpoint and threshold selection.",
-        "Extract frozen B1 pooled/spatial features; reproduce CVPR 2026 GFP and compare global with label-specific spatial evidence without test access.",
-        "Launch P1/P2/P3 only if the frozen spatial diagnostic passes; otherwise move to a stronger published retinal backbone/comparator.",
-        "Require P3 to beat B1, P1 and P2, then replicate a qualifying arm before any test assessment.",
+        "Preserve the verified strict source-only baseline as transfer-gap evidence; do not interpret one seed as training uncertainty.",
+        "Close GFP and simple top-k spatial pooling as failed validation screens; do not launch conditional P1/P2/P3.",
+        "Wait for matched RETFound seed 0, independently verify validation, and replicate only a material gain under the frozen rule.",
+        "Treat the retinal-backbone comparator as a stronger baseline rather than automatic novelty; do not use assessment to rescue validation.",
         "Ask Dong to confirm the exact world-model paper title and venue when he responds.",
     ]:
         p = document.add_paragraph(style=None); p.style = document.styles["Normal"]
@@ -428,6 +471,11 @@ def build_docx(summary, design, preflight):
         ["15 Sep 2026", "Appearance-error premise failed; degradation-conditioned Step 5 suspended", "appearance_error_gate.json; APPEARANCE_ERROR_GATE_REVIEW.md"],
         ["15 Sep 2026", "Strict source-only design, integrity, provenance and resume gates passed; seed 0 launched", "design_preflight.json; source_integrity_summary.json; source_smoke_checks.json"],
         ["15 Sep 2026", "Strict source-only seed 0 completed and independently verified", "source_only_seed0_verification.json"],
+        ["15 Sep 2026", "Frozen B1 pooled/spatial features extracted and exactly reproduced", "feature_extraction_summary.json"],
+        ["15 Sep 2026", "GFP and top-k spatial diagnostics failed frozen validation gates", "gfp_summary.json; spatial_diagnostic_summary.json"],
+        ["15 Sep 2026", "Patient-bootstrap and error-transition audit completed", "diagnostic_error_analysis.json; STEP5_DIAGNOSTIC_REVIEW.md"],
+        ["15 Sep 2026", "Existing RETFound companion found incompatible with B1 protocol", "retfound_compatibility_audit.json"],
+        ["16 Sep 2026", "Matched RETFound gates passed and validation-only seed 0 launched", "retfound_preflight.json; retfound_smoke.json; retfound_resume_checks.json; launch_retfound_seed0.json"],
     ])
     document.save(DOCX)
 
@@ -501,7 +549,7 @@ def build_pptx(summary, preflight):
 
     s = prs.slides.add_slide(blank)
     textbox(s, .75, 1.25, 11.8, .8, "BRSET to mBRSET Cross-Device Classification", 30, True, BLUE, PP_ALIGN.CENTER)
-    state = "Step 5 source-only baseline complete; spatial diagnostics next" if STEP5_SOURCE.exists() else "Step 5 strict source-only baseline running; spatial diagnostics next" if STEP5_LAUNCH.exists() else "Step 5 appearance premise rejected; spatial diagnostics next" if STEP5_GATE.exists() else "Step 5 mechanism direction selected" if STEP5_PLAN.exists() else "Step 4 seed-0 screen complete" if STEP4_SEED0.exists() else "Step 4 transform refit/preflight active"
+    state = "Step 5 feature screens closed negative; retinal-backbone audit next" if STEP5_SPATIAL.exists() else "Step 5 source-only baseline complete; spatial diagnostics next" if STEP5_SOURCE.exists() else "Step 5 strict source-only baseline running; spatial diagnostics next" if STEP5_LAUNCH.exists() else "Step 5 appearance premise rejected; spatial diagnostics next" if STEP5_GATE.exists() else "Step 5 mechanism direction selected" if STEP5_PLAN.exists() else "Step 4 seed-0 screen complete" if STEP4_SEED0.exists() else "Step 4 transform refit/preflight active"
     textbox(s, 1.2, 2.25, 10.9, .6, f"Evidence update: {state}", 20, False, INK, PP_ALIGN.CENTER)
     ppt_box(s, 2.15, 3.35, 9.0, 1.05, "Natural joint training remains the strongest simple reference.\nA novel method has not yet been established.", LIGHT_GREEN, GREEN, 20, True)
     textbox(s, 1.0, 6.55, 11.3, .35, UPDATED, 12, False, MUTED, PP_ALIGN.CENTER)
@@ -619,7 +667,11 @@ def build_pptx(summary, preflight):
         source_text = f"Source-only complete: DR/ME F1 {dr:.3f}/{me:.3f}"
     else:
         source_text = "Strict BRSET-only seed 0 running" if STEP5_LAUNCH.exists() else "Strict BRSET-only baseline"
-    next_items = [source_text, "GFP pooled-feature comparator", "Global vs label-specific spatial features"]
+    if STEP5_SPATIAL.exists() and STEP5_GFP.exists():
+        spatial = json.loads(STEP5_SPATIAL.read_text())
+        next_items = [source_text, "GFP: no useful pruning gain; gate failed", f"Top-{spatial['chosen_k']}: DR AUC up, F1 gate failed", "Matched RETFound seed 0 running"]
+    else:
+        next_items = [source_text, "GFP pooled-feature comparator", "Global vs label-specific spatial features"]
     bullets(s, next_items, x=9.01, y=2.25, w=3.55, h=3.1, size=16)
     textbox(s, .85, 6.15, 11.65, .45, "Internal paper targets: complete draft 15 October • hard freeze 19 October • official deadline 26 October", 16, True, BLUE, PP_ALIGN.CENTER)
 
@@ -668,7 +720,10 @@ def main():
     if STEP5_PLAN.exists(): inputs[str(STEP5_PLAN.relative_to(ROOT))] = sha(STEP5_PLAN)
     if STEP5_GATE.exists(): inputs[str(STEP5_GATE.relative_to(ROOT))] = sha(STEP5_GATE)
     if STEP5_REVISION.exists(): inputs[str(STEP5_REVISION.relative_to(ROOT))] = sha(STEP5_REVISION)
-    for path in (STEP5_DESIGN, STEP5_INTEGRITY, STEP5_SMOKE, STEP5_LAUNCH, STEP5_SOURCE):
+    for path in (STEP5_DESIGN, STEP5_INTEGRITY, STEP5_SMOKE, STEP5_LAUNCH, STEP5_SOURCE,
+                 STEP5_FEATURES, STEP5_GFP, STEP5_SPATIAL, STEP5_ERRORS, STEP5_DIAGNOSTIC_REVIEW,
+                 STEP5_RETFOUND, STEP5_RETFOUND_PREFLIGHT, STEP5_RETFOUND_SMOKE,
+                 STEP5_RETFOUND_RESUME, STEP5_RETFOUND_LAUNCH):
         if path.exists(): inputs[str(path.relative_to(ROOT))] = sha(path)
     print(json.dumps(verify(inputs), indent=2))
 

@@ -1,0 +1,76 @@
+{
+  "status": "pass",
+  "job_id": "4410120",
+  "node": "arctrdagn031",
+  "gpu": "NVIDIA A40",
+  "resolution": 512,
+  "microbatch": 16,
+  "accumulation": 4,
+  "fit_microsteps_measured": 4,
+  "losses": [
+    0.17331603169441223,
+    0.17328260838985443,
+    0.17334860563278198,
+    0.17326432466506958
+  ],
+  "gradient_norm": 3.318739891052246,
+  "backbone_gradient_numel_coverage": 1.0,
+  "median_microstep_seconds": 1.0167461223900318,
+  "estimated_update_seconds": 4.066984489560127,
+  "estimated_train_hours": 6.524120952002704,
+  "estimated_selection_hours_per_pass": 0.019422075640048005,
+  "estimated_seed_hours": 7.029094918643953,
+  "peak_allocated_gib": 7.016911029815674,
+  "finite_validation_probabilities": [
+    [
+      [
+        0.5002913475036621,
+        0.4999649226665497
+      ]
+    ],
+    [
+      [
+        0.5002096891403198,
+        0.49991846084594727
+      ]
+    ]
+  ],
+  "checkpoint_load": {
+    "removed_shape_mismatches": [],
+    "missing": [
+      "head.weight",
+      "head.bias"
+    ],
+    "unexpected": [],
+    "ignored_pretraining_keys": [
+      "dino_head.last_layer.weight_g",
+      "dino_head.last_layer.weight_v",
+      "dino_head.mlp.0.bias",
+      "dino_head.mlp.0.weight",
+      "dino_head.mlp.2.bias",
+      "dino_head.mlp.2.weight",
+      "dino_head.mlp.4.bias",
+      "dino_head.mlp.4.weight",
+      "ibot_head.last_layer.weight_g",
+      "ibot_head.last_layer.weight_v",
+      "ibot_head.mlp.0.bias",
+      "ibot_head.mlp.0.weight",
+      "ibot_head.mlp.2.bias",
+      "ibot_head.mlp.2.weight",
+      "ibot_head.mlp.4.bias",
+      "ibot_head.mlp.4.weight",
+      "mask_token"
+    ],
+    "backbone_numel_coverage": 1.0
+  },
+  "memory_gate_pass": true,
+  "runtime_gate_pass": true,
+  "feasibility_gate_pass": true,
+  "assessment_accessed": false,
+  "sha256": {
+    "config": "ef04922052ce12a4fa0eccb69c16a03bc704d3800b0acc5b68644f742f34a517",
+    "preflight": "0865f563f73becbaffccb6c55e3da85a8009c27618b083f8b1b4923a6dda2bf6",
+    "script": "accb52933a68a31ce8a90cd9304fe0b7cb8727434389b04ac521bc5fbbcdbb9b"
+  },
+  "interpretation": "Implementation/runtime evidence only; no model comparison or performance result."
+}

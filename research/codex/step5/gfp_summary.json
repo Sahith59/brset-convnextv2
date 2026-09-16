@@ -1,0 +1,315 @@
+{
+  "status": "pass",
+  "job_id": "4409939",
+  "method": "Independent frozen-head GFP reproduction/comparator",
+  "fit_images": 14774,
+  "selection_images": 725,
+  "assessment_accessed": false,
+  "unmasked_reproduction_max_abs_error": 0.0008307695388793945,
+  "unmasked_reproduction_tolerance": 0.01,
+  "unmasked_thresholds": [
+    0.469,
+    0.427
+  ],
+  "baseline_metrics": {
+    "diabetic_retinopathy": {
+      "threshold": 0.469,
+      "f1_positive": 0.8703170028818443,
+      "f1_class_macro": 0.9147595893828986,
+      "auroc": 0.9562841530054644,
+      "average_precision": 0.9358858829069158,
+      "precision": 0.8830409356725146,
+      "sensitivity": 0.8579545454545454,
+      "specificity": 0.9635701275045537,
+      "confusion_matrix": [
+        [
+          529,
+          20
+        ],
+        [
+          25,
+          151
+        ]
+      ],
+      "n_images": 725
+    },
+    "macular_edema": {
+      "threshold": 0.427,
+      "f1_positive": 0.8489208633093526,
+      "f1_class_macro": 0.9164512783365986,
+      "auroc": 0.9903751454919868,
+      "average_precision": 0.9252863354398807,
+      "precision": 0.8309859154929577,
+      "sensitivity": 0.8676470588235294,
+      "specificity": 0.9817351598173516,
+      "confusion_matrix": [
+        [
+          645,
+          12
+        ],
+        [
+          9,
+          59
+        ]
+      ],
+      "n_images": 725
+    }
+  },
+  "selected": {
+    "group_size": 16,
+    "minimum_keep_ratio": 0.0,
+    "retained_features": [
+      1520,
+      1536
+    ],
+    "validation_mean_auroc": 0.9733710468311068
+  },
+  "selected_thresholds": [
+    0.463,
+    0.427
+  ],
+  "selected_metrics": {
+    "diabetic_retinopathy": {
+      "threshold": 0.463,
+      "f1_positive": 0.8703170028818443,
+      "f1_class_macro": 0.9147595893828986,
+      "auroc": 0.9563669481702268,
+      "average_precision": 0.936071317031283,
+      "precision": 0.8830409356725146,
+      "sensitivity": 0.8579545454545454,
+      "specificity": 0.9635701275045537,
+      "confusion_matrix": [
+        [
+          529,
+          20
+        ],
+        [
+          25,
+          151
+        ]
+      ],
+      "n_images": 725
+    },
+    "macular_edema": {
+      "threshold": 0.427,
+      "f1_positive": 0.8489208633093526,
+      "f1_class_macro": 0.9164512783365986,
+      "auroc": 0.9903751454919868,
+      "average_precision": 0.9252863354398807,
+      "precision": 0.8309859154929577,
+      "sensitivity": 0.8676470588235294,
+      "specificity": 0.9817351598173516,
+      "confusion_matrix": [
+        [
+          645,
+          12
+        ],
+        [
+          9,
+          59
+        ]
+      ],
+      "n_images": 725
+    }
+  },
+  "delta_from_unmasked_b1": {
+    "diabetic_retinopathy": {
+      "f1_positive": 0.0,
+      "auroc": 8.279516476239479e-05,
+      "average_precision": 0.00018543412436722306
+    },
+    "macular_edema": {
+      "f1_positive": 0.0,
+      "auroc": 0.0,
+      "average_precision": 0.0
+    }
+  },
+  "engineering_screen_pass": false,
+  "candidate_summaries": [
+    {
+      "group_size": 16,
+      "minimum_keep_ratio": 0.0,
+      "retained_features": [
+        1520,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733710468311068
+    },
+    {
+      "group_size": 16,
+      "minimum_keep_ratio": 0.25,
+      "retained_features": [
+        1520,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733710468311068
+    },
+    {
+      "group_size": 16,
+      "minimum_keep_ratio": 0.5,
+      "retained_features": [
+        1520,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733710468311068
+    },
+    {
+      "group_size": 16,
+      "minimum_keep_ratio": 0.75,
+      "retained_features": [
+        1520,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733710468311068
+    },
+    {
+      "group_size": 1,
+      "minimum_keep_ratio": 0.0,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 1,
+      "minimum_keep_ratio": 0.25,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 1,
+      "minimum_keep_ratio": 0.5,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 1,
+      "minimum_keep_ratio": 0.75,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 4,
+      "minimum_keep_ratio": 0.0,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 4,
+      "minimum_keep_ratio": 0.25,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 4,
+      "minimum_keep_ratio": 0.5,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 4,
+      "minimum_keep_ratio": 0.75,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 64,
+      "minimum_keep_ratio": 0.0,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 64,
+      "minimum_keep_ratio": 0.25,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 64,
+      "minimum_keep_ratio": 0.5,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 64,
+      "minimum_keep_ratio": 0.75,
+      "retained_features": [
+        1536,
+        1536
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 128,
+      "minimum_keep_ratio": 0.0,
+      "retained_features": [
+        1536,
+        1408
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 128,
+      "minimum_keep_ratio": 0.25,
+      "retained_features": [
+        1536,
+        1408
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 128,
+      "minimum_keep_ratio": 0.5,
+      "retained_features": [
+        1536,
+        1408
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    },
+    {
+      "group_size": 128,
+      "minimum_keep_ratio": 0.75,
+      "retained_features": [
+        1536,
+        1408
+      ],
+      "validation_mean_auroc": 0.9733296492487256
+    }
+  ],
+  "seconds": 92.39967192499898,
+  "private_result_sha256": "dafc2b3b7a3945d63170c7dd6a9379b7eee4ec354e4052f21e924fe3c5172889",
+  "protocol_sha256": "b5ae44561060f44ae3510ebccf131d87ed465329dfa351c4ff0ca6e7c920d281",
+  "script_sha256": "42061048940c3c0c1793704b6a4d0719f2c36eef91914fcd9a1ee7e0cce2f52d",
+  "interpretation": "Validation-selected published comparator; not the proposed contribution and no test assessment."
+}

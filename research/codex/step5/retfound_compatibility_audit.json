@@ -1,0 +1,147 @@
+{
+  "status": "pass",
+  "comparison_ready": false,
+  "companion_repository": "/home/users/sthummala2/mbrset-retfound",
+  "existing_result_scope": "Separate mBRSET-only or BRSET-only RETFound runs for referable DR; no protocol-matched joint any-DR plus ME result.",
+  "cohorts": {
+    "current_mbrset": {
+      "test": {
+        "images": 732,
+        "patients": 193
+      },
+      "train": {
+        "images": 3402,
+        "patients": 899
+      },
+      "val": {
+        "images": 725,
+        "patients": 193
+      }
+    },
+    "companion_mbrset": {
+      "test": {
+        "images": 734,
+        "patients": 193
+      },
+      "train": {
+        "images": 3389,
+        "patients": 899
+      },
+      "val": {
+        "images": 736,
+        "patients": 193
+      }
+    },
+    "common_files": 4859,
+    "current_only_files": 0,
+    "companion_only_files": 0,
+    "same_split_common_files": 2597,
+    "different_split_common_files": 2262
+  },
+  "label_alignment": {
+    "current_dr": "any DR binary label",
+    "companion_dr": "referable DR, final ICDR grade >= 2",
+    "same_dr_label_common_files": 4588,
+    "different_dr_label_common_files": 271,
+    "companion_me": "absent",
+    "splitter_definition_verified": true
+  },
+  "protocol_matrix": [
+    {
+      "item": "backbone",
+      "B1": "ConvNeXt V2 Large",
+      "existing_companion": "ViT-Large",
+      "aligned": false
+    },
+    {
+      "item": "pretraining",
+      "B1": "external ConvNeXt initialization",
+      "existing_companion": "RETFound DINOv2 Shanghai CFP",
+      "aligned": false
+    },
+    {
+      "item": "outputs",
+      "B1": "two sigmoid labels: any DR and ME",
+      "existing_companion": "two-class softmax: referable DR only",
+      "aligned": false
+    },
+    {
+      "item": "input",
+      "B1": "bilinear 560 resize, 512 crop",
+      "existing_companion": "224 px input",
+      "aligned": false
+    },
+    {
+      "item": "optimization budget",
+      "B1": "5775 optimizer updates, effective batch 64",
+      "existing_companion": "50 epochs, batch 24",
+      "aligned": false
+    },
+    {
+      "item": "split",
+      "B1": "frozen original patient split",
+      "existing_companion": "new seed-42 70/15/15 patient split after quality/label filtering",
+      "aligned": false
+    },
+    {
+      "item": "selection",
+      "B1": "mean DR/ME validation AUROC then label-wise F1 thresholds",
+      "existing_companion": "RETFound trainer validation criterion and argmax",
+      "aligned": false
+    },
+    {
+      "item": "training domains",
+      "B1": "joint BRSET + mBRSET",
+      "existing_companion": "separate dataset runs",
+      "aligned": false
+    },
+    {
+      "item": "assessment",
+      "B1": "732-image reused historical split with fixed thresholds",
+      "existing_companion": "different held-out split; previously assessed",
+      "aligned": false
+    }
+  ],
+  "blocking_mismatches": [
+    "Different clinical task: referable DR instead of any DR, and no ME output.",
+    "Different patient split and inclusion cohort.",
+    "Different image resolution, training budget, selection rule and prediction threshold.",
+    "Existing runs are source-only or target-only, not a joint B1-style comparator.",
+    "Existing test metrics were already used and cannot be relabeled as a fresh matched comparison."
+  ],
+  "usable_assets": {
+    "official_code_checkout_present": true,
+    "official_code_commit": "ae9a9ecf37857cf47b8aa9f87cd6f710d75db287",
+    "pretrained_weight_present": true,
+    "pretrained_weight_bytes": 1609833910,
+    "pretrained_weight_sha256": "17f735ec62c34fc4a103b7e85a88ae98c3cc3cbf0e7a82295480a0434bba345e",
+    "weight_config": {
+      "architectures": [
+        "ViT-Large"
+      ],
+      "SSL strategy": "DINOV2",
+      "image modality": "CFP",
+      "model_type": "vit",
+      "hidden_size": 1024,
+      "num_attention_heads": 16,
+      "num_hidden_layers": 24,
+      "image_size": 224,
+      "patch_size": 16,
+      "pretrained": true,
+      "dataset": "Shanghai SDPP",
+      "fine_tuned": false,
+      "author": "Yukun Zhou",
+      "license": "CC BY-NC 4.0"
+    }
+  },
+  "decision": "Do not cite the old numbers as a B1 comparator and do not launch the old scripts. Build a new protocol-matched RETFound adapter only after a frozen implementation contract and allocated preflight/smoke pass.",
+  "input_sha256": {
+    "/home/users/sthummala2/brset-convnextv2/research/codex/step2/full_pool/protocol/full_pool_manifest.csv": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc",
+    "/home/users/sthummala2/brset-convnextv2/research/codex/step2/full_pool/protocol/v1.json": "58ab3a2d6790eff50d6ada2d61fc0357c070436c09e90a26fefa0ee56fb05e2f",
+    "/home/users/sthummala2/mbrset-retfound/results/splits.csv": "103b456e8b2561a99a32760066d8b6e31008827a7fe6ff47e18f075fafb7c8c7",
+    "/home/users/sthummala2/mbrset-retfound/scripts/05_focal_finetune.slurm": "5cf8a9697ce83a8be5ddddb04d29f8730482b6afde02a590b9076ed4e6b55399",
+    "/home/users/sthummala2/mbrset-retfound/scripts/01_prepare_splits.py": "c25a2f8031a6fe3227f5b7baef19ef893cc5129b8161fdda7ea9aa51233eb1d9",
+    "/home/users/sthummala2/mbrset-retfound/checkpoints/RETFound_dinov2_shanghai/config.json": "e3b61d17e9a8dbd3bd05a38fd5d4a243b15172f935b334541c115e481cae7bc4"
+  },
+  "privacy": "Aggregate counts only; no patient identifier or row-level label exported."
+}

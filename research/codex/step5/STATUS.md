@@ -1,27 +1,49 @@
 # Step 5 status
 
-**Updated:** September 15, 2026
-**State:** strict source-only seed 0 completed and independently verified; frozen-feature diagnostics are next.
+**Updated:** September 16, 2026
+**State:** source-only and frozen-feature diagnostics are closed; the protocol-matched RETFound seed-0 comparator passed all engineering gates and is running.
 
-## Completed gates
+## Completed source-only evidence
 
-- The design preflight reconstructed the original patient-separated cohorts: 11,372 BRSET fit images from 5,966 patients, 2,451 BRSET selection images from 1,279 patients and 732 mBRSET assessment images from 193 patients.
-- The full allocated integrity audit decoded all 14,555 images with zero decode errors and found zero exact duplicate groups within or across roles/domains. This does not rule out near duplicates or cross-dataset patient identity.
-- The CPU/provenance preflight passed syntax, manifest-hash, role-count, patient-separation, no-target-access and decoded-image-integrity checks.
-- Allocated A40 smoke job 4402154 completed successfully. Six-update uninterrupted and stop/resume executions had zero model, EMA, optimizer or counter mismatches; no mBRSET assessment was accessed. The smoke is implementation evidence only.
+- Training job 4402198, locked assessment 4402199 and independent verification 4404962 completed successfully.
+- Fitting/selection used only BRSET. The selected checkpoint was update 2,310 and DR/ME thresholds were 0.399/0.451.
+- On the historical 732-image mBRSET assessment, DR F1/AUROC/sensitivity were 0.7218/0.9100/0.6038; ME values were 0.6972/0.9734/0.6032.
+- This quantifies a source-to-target positive-case gap for one seed. It is not a fair resource-matched competitor to B1 because B1 uses labeled mBRSET training images.
 
-## Completed source-only seed 0
+## Completed frozen-feature evidence
 
-- **4402198:** full BRSET-only seed-0 training completed in 8:17:10 on one nonexclusive A40.
-- **4402199:** dependency-locked mBRSET assessment completed in 1:03 after successful training.
-- **4404962:** independent recomputation/provenance verification passed.
-- The BRSET-selected checkpoint was update 2,310, with DR/ME thresholds 0.399/0.451.
-- On 732 mBRSET assessment images, DR F1/AUROC were 0.7218/0.9100 and ME F1/AUROC were 0.6972/0.9734. DR and ME sensitivity were 0.6038 and 0.6032.
+- Smoke 4409933 and extraction 4409936 passed. The frozen B1 seed-0 checkpoint produced 1,536×16×16 maps for 14,774 fit and 725 validation images. Cached logits/probabilities reproduce B1 exactly; no assessment feature was created.
+- GFP job 4409939 passed implementation checks but failed its engineering screen. It retained 1,520/1,536 DR channels and all 1,536 ME channels; DR/ME F1 changes were both 0.0000.
+- Spatial smoke 4409940 failed before a result because deterministic CUDA required `CUBLAS_WORKSPACE_CONFIG`; only the environment was corrected and smoke 4409983 passed.
+- The first spatial array 4409991 and finalizer 4409992 were cancelled after 45 seconds because two tasks shared one node. All partial outputs were ignored.
+- Final seeds 4409997/4409998/4409999 ran on distinct nodes 031/032/033 and finalizer 4410000 passed. Mean top-1 minus global DR F1/AUROC were −0.0012/+0.0101; ME F1/AUROC were +0.0048/−0.0036. The frozen F1 gate failed.
+- Error/uncertainty audit 4410017 found a patient-bootstrap DR AUROC interval of [+0.0011,+0.0220], but DR F1 interval [−0.0205,+0.0186]; ME AUROC decreased. The DR patch signal is a ranking observation, not lesion localization or a useful two-label decision gain.
 
-## Interpretation boundary
+## Frozen decision
 
-This run measures strict BRSET-to-mBRSET transfer. The lower positive-class F1 and sensitivity show a meaningful source-to-target gap for seed 0 even though threshold-free AUROC remains high. It does not compete fairly with B1 as a training-resource strategy because B1 uses labeled mBRSET training images. It is a missing baseline and gap measurement, not the proposed contribution. The historically reused mBRSET test split will be described transparently and cannot be treated as untouched external validation. One seed does not measure training variability.
+GFP and the global-versus-top-k diagnostic both failed. P1 patch evidence, P2 device adapters in this interaction study and P3 combined training are not launched. No test assessment is used to rescue either screen. The current paper does not yet have a novel-method performance claim.
+
+## RETFound compatibility gate
+
+- Allocated audit 4410067 completed successfully.
+- The existing companion repository contains the official checkout and a verified 1.61 GB RETFound DINOv2 Shanghai ViT-Large weight, but its old results are not comparable to B1.
+- The companion uses referable DR only and no ME output; 271/4,859 shared mBRSET files have different DR labels under the any-DR definition.
+- Although both studies contain the same 4,859 mBRSET files, 2,262 files have different split assignments. The companion also uses 224-pixel input, 50 epochs/batch 24, single-dataset training and a different selection/assessment procedure.
+- Do not cite its old F1/AUC values as a matched comparator or run its old scripts unchanged.
+
+## Reports
+
+Living DOCX/PPTX and a dedicated Step-5 advisor DOCX/PPTX were regenerated by allocated CPU job 4411098 from hashed aggregate inputs. Checks verify Times New Roman, required content, archive readability, privacy exclusions and slide bounds. The dedicated package has 50 paragraphs/10 tables and 12 slides. No file has been sent to Dong.
+
+## Protocol-matched RETFound comparator
+
+- The frozen contract uses the exact B1 fit pool (11,372 BRSET + 3,402 mBRSET), the 725-image/193-patient mBRSET validation cohort, any-DR plus ME labels, 560-resize/512-crop input, 5,775 updates, effective batch 64, four-flip validation and the same checkpoint/threshold logic. Assessment access is disabled.
+- Preflight 4410136 passed all cohort, label, path, hash and no-assessment checks.
+- Feasibility job 4410137 loaded 100% of the pretrained backbone parameters, demonstrated gradients through 100% of the backbone, used 7.02 GiB peak GPU memory and estimated 7.01 hours for one seed.
+- Exact interruption/resume job 4410171 passed after six updates with zero state mismatch and no assessment access.
+- Invalid or corrected attempts are excluded: 4410101 failed JSON serialization after checks; 4410102 was dependency-cancelled; 4410105 was cancelled before running on the wrong partition; 4410107 did not prove full-backbone gradients; 4410138 exposed nondeterminism and was replaced by exact run 4410171.
+- Full seed-0 job 4411081 started on one nonexclusive A40. Update 1 had finite loss 0.17327 and gradient norm 4.175; stderr was empty. This is only an early implementation-health check.
 
 ## Next gate
 
-Implement and smoke-test frozen B1 feature extraction. Reproduce the published GFP comparator and compare a matched global head with label-specific spatial evidence using fitting/validation data only. P1/P2/P3 training remains blocked unless the frozen spatial diagnostic passes its predeclared validation rule.
+Wait for job 4411081 to complete, independently verify its validation summary and compare it with B1 on the exact same 725-image validation cohort. Replicate only if the frozen material-gain rule is met. Do not access the assessment split to rescue a failed validation result. RETFound is a published-backbone comparator, not the proposed novelty.

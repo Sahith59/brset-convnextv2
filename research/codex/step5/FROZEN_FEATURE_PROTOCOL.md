@@ -38,6 +38,8 @@ Compare heads on the same frozen canonical spatial features:
 
 Use focal loss and fixed L2 regularization. Train the small heads on the natural BRSET+mBRSET fitting pool with three deterministic head seeds. Choose one common `k` on mBRSET validation by mean DR/ME AUROC; ties prefer larger `k`. Thresholds are selected independently per label on validation using the existing grid. The backbone remains frozen.
 
+Implementation details frozen before extraction: the canonical spatial tensor is the raw final `forward_features` map. G0 averages this tensor over its spatial dimensions before its trainable linear head. G1 applies its trainable 1x1 label scorers to the same raw tensor and averages the top-k patch logits. Fitting features use one deterministic center crop; validation metrics average probabilities over the same four flips as B1. Each head trains for 20 fixed epochs with AdamW, learning rate `1e-3`, weight decay `1e-4`, batch 64, focal loss and cosine decay. The final epoch is evaluated; validation does not select an epoch. These small-head settings are engineering controls, not a claim that they are optimal.
+
 The spatial diagnostic passes only if the three-seed mean G1−G0 validation result has one F1 difference at least `+0.01`, the other at least `-0.01`, and both AUROC differences at least `-0.01`. This is an engineering screen. Attention or selected patches are not lesion-localization evidence.
 
 ## Decision
@@ -45,4 +47,3 @@ The spatial diagnostic passes only if the three-seed mean G1−G0 validation res
 - GFP positive, spatial negative: investigate representation pruning or a stronger published backbone; do not build a patch mechanism.
 - Spatial positive: freeze P1/P2/P3 full-training controls and repeat the closest-work audit.
 - Both negative: stop custom feature mechanisms and frame the paper around rigorously measured transfer/baseline findings or replace the backbone with a published retinal foundation model if access and compute permit.
-

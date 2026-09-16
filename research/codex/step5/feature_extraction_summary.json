@@ -1,0 +1,57 @@
+{
+  "status": "pass",
+  "job_id": "4409936",
+  "fit_images": 14774,
+  "selection_images": 725,
+  "assessment_accessed": false,
+  "shapes": {
+    "fit": {
+      "spatial": [
+        14774,
+        1,
+        1536,
+        16,
+        16
+      ],
+      "pooled": [
+        14774,
+        1,
+        1536
+      ]
+    },
+    "selection": {
+      "spatial": [
+        725,
+        4,
+        1536,
+        16,
+        16
+      ],
+      "pooled": [
+        725,
+        4,
+        1536
+      ]
+    }
+  },
+  "reproduction": {
+    "logit_max_abs_error": 0.0,
+    "probability_max_abs_error": 0.0,
+    "logit_tolerance": 1e-05,
+    "probability_tolerance": 1e-06,
+    "pass": true
+  },
+  "seconds": 850.4761467799544,
+  "peak_gpu_gib": 3.2836790084838867,
+  "private_artifact_sha256": {
+    "fit_spatial.npy": "598aac25e4d7915d71c5e47b32b2f2d1f89601eb550fea0d752f6ad4336bef48",
+    "fit_pooled.npy": "f18f409d425efd35a3809eee98ad1b42456a82449ca56eebb4e6142a787a213e",
+    "selection_spatial.npy": "c8658916629bb19624df73209748a0222ee5e5ef5f73938bd57dc3deb99c30ec",
+    "selection_pooled.npy": "f12b1a1a3c54437535af825c6f3b8906084a80513897cbd0eac118bec1dbb7fd",
+    "rows.npz": "61683e290d1abf4e22cf60f7cab8918cd9687caefc06438e43a8cbd5f2145007",
+    "head.npz": "23a96c879250fae6edbbcda9ffa78245ba2622f667baa259066fc7e783f25997"
+  },
+  "config_sha256": "a3e53bde921bcef9a1b6d11db7832188a191681910dd0a9d7fdbde453a9c5700",
+  "extractor_sha256": "8686de1970c9f25379fb945af410fadc8337ce02df5b4815401461a20c2ab899",
+  "privacy": "Features and row-level metadata remain in private shared storage; this summary contains aggregate shapes and hashes only."
+}

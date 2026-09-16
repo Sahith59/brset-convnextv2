@@ -1,6 +1,6 @@
 # Step 5 plan draft: content-aware latent transition
 
-**Status:** Revised after the allocated appearance-error gate. CPU evidence gate complete; no Step-5 GPU work has launched.
+**Status:** Frozen diagnostics completed September 15. Strict source-only evidence is verified; GFP and simple top-k spatial pooling failed their validation gates. Conditional P1/P2/P3 will not launch. A protocol-matched retinal-backbone comparator is the next branch.
 
 ## Plain-language goal
 
@@ -56,3 +56,11 @@ Replicate only an arm with one F1 delta at least `+0.01`, the other at least `-0
 ## Superseded branch
 
 W1/W2/W3 action-conditioned degradation is suspended by `appearance_error_gate.json` and `APPEARANCE_ERROR_GATE_REVIEW.md`. It must not be launched as the first Step-5 screen. Reconsider it only if later evidence identifies a localized acquisition-transition problem.
+
+## Completed outcome
+
+- Strict source-only seed 0: DR/ME F1 0.7218/0.6972 and sensitivity 0.6038/0.6032 on the historical mBRSET assessment, with all selection performed on BRSET.
+- GFP retained almost every final channel and changed neither DR nor ME F1.
+- Top-1 spatial pooling improved mean DR AUROC by 0.0101 across three head seeds but changed DR F1 by −0.0012 and ME AUROC by −0.0036; the frozen gate failed.
+- P1/P2/P3 are blocked under the predeclared decision rule. See `STEP5_DIAGNOSTIC_REVIEW.md`.
+- The existing `mbrset-retfound` results are protocol-incompatible: different referable-DR label, no ME, different split for 2,262/4,859 files, 224-pixel input and different optimization/selection. Reuse only the official code/weight after a new matched contract. See `retfound_compatibility_audit.json`.

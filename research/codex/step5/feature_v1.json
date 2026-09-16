@@ -1,0 +1,22 @@
+{
+  "version": "1.0-frozen-b1-features",
+  "checkpoint": "/data/users3/sthummala2/brset-codex/step2-full-pool/B1_seed0/best.pth",
+  "checkpoint_sha256": "ca5ab1479257ac3f38257fa19d65fe4ed024dbf8f4a7182f27918b15cdf25a47",
+  "selection_predictions": "/data/users3/sthummala2/brset-codex/step2-full-pool/B1_seed0/selection_predictions.npz",
+  "selection_predictions_sha256": "652c730a9cd1db5dbc5500c45a9b853cbc7791b6e879a0af78ee4b0020c39a43",
+  "manifest": "research/codex/step2/full_pool/protocol/full_pool_manifest.csv",
+  "manifest_sha256": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc",
+  "model": "convnextv2_large.fcmae_ft_in22k_in1k_384",
+  "seed": 0,
+  "fit_images": 14774,
+  "selection_images": 725,
+  "assessment_images_allowed": 0,
+  "preprocess": "bilinear resize 560x560, center crop 512x512, ImageNet normalization",
+  "fit_views": ["identity"],
+  "selection_views": ["identity", "horizontal", "vertical", "horizontal_vertical"],
+  "pooled_dtype": "float32",
+  "spatial_dtype": "float16",
+  "logit_max_abs_tolerance": 0.00001,
+  "probability_max_abs_tolerance": 0.000001,
+  "private_output": "/data/users3/sthummala2/brset-codex/step5/b1_features"
+}

@@ -1,0 +1,36 @@
+{
+  "status": "pass",
+  "job_id": "4410136",
+  "checks": {
+    "fit_counts": true,
+    "selection_images": true,
+    "selection_patients": true,
+    "two_binary_labels": true,
+    "both_labels_in_fit": true,
+    "both_labels_in_selection": true,
+    "no_assessment_in_fit_or_selection": true,
+    "all_paths_exist": true,
+    "code_files_exist": true,
+    "assessment_disabled": true
+  },
+  "counts": {
+    "fit_images": 14774,
+    "fit_patients": 6865,
+    "fit_by_domain": {
+      "BRSET": 11372,
+      "mBRSET": 3402
+    },
+    "selection_images": 725,
+    "selection_patients": 193,
+    "assessment_rows_present_but_forbidden": 732
+  },
+  "sha256": {
+    "config": "27d3dfb1fcd4585e505218d1758db9112668cd750b2f4b3250005e9f9474122f",
+    "protocol": "1da02293545d88dbf2d4adbb8390f3b3013d7ca0e1f98144a8646f53e858aa0d",
+    "manifest": "04181fe8ba018839181ecade097228856622cab8d428b77a22635b881c5bc3fc",
+    "weight": "17f735ec62c34fc4a103b7e85a88ae98c3cc3cbf0e7a82295480a0434bba345e",
+    "models_vit": "f5a91312fcbac14141405d24a92ac3a95e2573e98260bbd3c5b044792edd2f75",
+    "pos_embed": "313da4d9178b59c429907cde34ab584409f1e20d9fa8f9d113642610d9548c09"
+  },
+  "privacy": "Aggregate counts and hashes only."
+}

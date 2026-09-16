@@ -1,0 +1,9 @@
+{
+  "pass": true,
+  "job_id": "4410171",
+  "state_mismatches": [],
+  "updates": 6,
+  "assessment_accessed": false,
+  "full_max_gpu_gib": 8.934429168701172,
+  "resume_max_gpu_gib": 8.93438720703125
+}

@@ -1,0 +1,43 @@
+{
+  "status": "running",
+  "recorded_utc": "2026-09-16T02:56:00Z",
+  "job_id": "4411081",
+  "job_name": "br_s5_rf_train0",
+  "partition": "qTRDGPU",
+  "node": "arctrdagn031",
+  "resource": "one nonexclusive NVIDIA A40 GPU, 8 CPUs, 64 GiB host memory",
+  "time_limit_hours": 18,
+  "estimated_wall_hours": "approximately 8-9 from the exact trainer resume smoke; feasibility extrapolation was 7.01 hours",
+  "seed": 0,
+  "fit_images": 14774,
+  "fit_by_domain": {
+    "BRSET": 11372,
+    "mBRSET": 3402
+  },
+  "selection": {
+    "domain": "mBRSET",
+    "images": 725,
+    "patients": 193
+  },
+  "assessment_access": false,
+  "early_health": {
+    "update": 1,
+    "loss": 0.17327283322811127,
+    "learning_rate": 0.000003,
+    "gradient_norm": 4.175173759460449,
+    "update_seconds": 8.028806824237108,
+    "gpu_memory_mib_at_check": 9940,
+    "stderr_empty": true,
+    "interpretation": "Implementation health only; this is not a validation or performance result."
+  },
+  "sha256": {
+    "config": "27d3dfb1fcd4585e505218d1758db9112668cd750b2f4b3250005e9f9474122f",
+    "protocol": "1da02293545d88dbf2d4adbb8390f3b3013d7ca0e1f98144a8646f53e858aa0d",
+    "preflight": "c5c4467e873724ff085719d03a7af06e4b40228fd9441ef8fd9bcdc41efdfe24",
+    "feasibility_smoke": "922e9c5f2244fad19c9982addb2934934736a30bdde1063db19dba797a1ae18d",
+    "resume_smoke": "a40f79bb9a5749bed44a051dbec95429d510583e12f2cca6a3a3daa32aa6227f",
+    "trainer": "4a48752fc1ad382af0dce58188767f6b1f9e786ce5483924650612bbc0bfe0d8",
+    "slurm": "3bba5089c89aa960d5db9ae534d99c0ca3d6a974191d452ef158dc7fb6fd5379"
+  },
+  "decision_boundary": "Use mBRSET validation only for the seed-0 comparison. Replication and any assessment remain conditional on the frozen material-gain rule."
+}

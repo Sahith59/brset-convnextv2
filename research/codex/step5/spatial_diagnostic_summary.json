@@ -1,0 +1,151 @@
+{
+  "status": "pass",
+  "job_id": "4410000",
+  "head_seeds": [
+    0,
+    1,
+    2
+  ],
+  "chosen_k": 1,
+  "k_selection_mean_dr_me_auroc": {
+    "1": 0.9748661494848797,
+    "4": 0.9732707705558955,
+    "8": 0.9748318446993993,
+    "16": 0.9740144036788895,
+    "32": 0.97394147699502
+  },
+  "aggregate": {
+    "diabetic_retinopathy": {
+      "f1_positive": {
+        "G0_mean": 0.8647315675336519,
+        "G1_mean": 0.8635210246391419,
+        "difference_mean": -0.0012105428945098362,
+        "differences_by_seed": [
+          0.007101600227251148,
+          -0.002421269188162656,
+          -0.008311959722618001
+        ],
+        "G0_sample_sd": 0.0029356365472405265,
+        "G1_sample_sd": 0.006917291509902209
+      },
+      "auroc": {
+        "G0_mean": 0.9529619970193742,
+        "G1_mean": 0.9630802561130429,
+        "difference_mean": 0.010118259093668813,
+        "differences_by_seed": [
+          0.01033904619970194,
+          0.011819009769829303,
+          0.008196721311475197
+        ],
+        "G0_sample_sd": 0.002294230149458692,
+        "G1_sample_sd": 0.00190356681983024
+      },
+      "average_precision": {
+        "G0_mean": 0.9280708262332579,
+        "G1_mean": 0.9347632441731782,
+        "difference_mean": 0.006692417939920296,
+        "differences_by_seed": [
+          0.01006736953721743,
+          0.007326448784773065,
+          0.0026834354977703923
+        ],
+        "G0_sample_sd": 0.003622714618192058,
+        "G1_sample_sd": 0.006025261833142488
+      },
+      "sensitivity": {
+        "G0_mean": 0.8655303030303031,
+        "G1_mean": 0.8806818181818182,
+        "difference_mean": 0.015151515151515174,
+        "differences_by_seed": [
+          0.017045454545454586,
+          0.0,
+          0.02840909090909094
+        ],
+        "G0_sample_sd": 0.006560798513518469,
+        "G1_sample_sd": 0.009841197770277733
+      },
+      "specificity": {
+        "G0_mean": 0.9562841530054644,
+        "G1_mean": 0.9489981785063751,
+        "difference_mean": -0.007285974499089261,
+        "differences_by_seed": [
+          -0.0018214936247723523,
+          -0.0018214936247723523,
+          -0.01821493624772308
+        ],
+        "G0_sample_sd": 0.004819219145837119,
+        "G1_sample_sd": 0.004819219145837119
+      }
+    },
+    "macular_edema": {
+      "f1_positive": {
+        "G0_mean": 0.8431356168198274,
+        "G1_mean": 0.84795003086756,
+        "difference_mean": 0.00481441404773264,
+        "differences_by_seed": [
+          0.00461006530925856,
+          0.018456725755995773,
+          -0.008623548922056412
+        ],
+        "G0_sample_sd": 0.0011941955801944805,
+        "G1_sample_sd": 0.01279125821663417
+      },
+      "auroc": {
+        "G0_mean": 0.9902706897066285,
+        "G1_mean": 0.9866520428567164,
+        "difference_mean": -0.0036186468499119773,
+        "differences_by_seed": [
+          -0.004185692541856967,
+          -0.002395021935714947,
+          -0.004275226072164018
+        ],
+        "G0_sample_sd": 0.0005601811366190657,
+        "G1_sample_sd": 0.000641873823798144
+      },
+      "average_precision": {
+        "G0_mean": 0.9214105120923649,
+        "G1_mean": 0.90118562146051,
+        "difference_mean": -0.020224890631854953,
+        "differences_by_seed": [
+          -0.026373863768391348,
+          -0.007416340340530514,
+          -0.026884467786642996
+        ],
+        "G0_sample_sd": 0.003277121409735446,
+        "G1_sample_sd": 0.008227922277475876
+      },
+      "sensitivity": {
+        "G0_mean": 0.8431372549019608,
+        "G1_mean": 0.8480392156862745,
+        "difference_mean": 0.004901960784313708,
+        "differences_by_seed": [
+          0.02941176470588236,
+          0.0,
+          -0.014705882352941235
+        ],
+        "G0_sample_sd": 0.022463606347822775,
+        "G1_sample_sd": 0.022463606347822775
+      },
+      "specificity": {
+        "G0_mean": 0.9837645865043125,
+        "G1_mean": 0.9842719431760528,
+        "difference_mean": 0.0005073566717402519,
+        "differences_by_seed": [
+          -0.0030441400304414,
+          0.004566210045662156,
+          0.0
+        ],
+        "G0_sample_sd": 0.0031684413994918395,
+        "G1_sample_sd": 0.000878767533013161
+      }
+    }
+  },
+  "engineering_screen_pass": false,
+  "assessment_accessed": false,
+  "input_sha256": {
+    "spatial_head_seed0.json": "d83cb0244988e1645dcd1167a4451e5b65eb390f49e62bf00f4345c932f05b01",
+    "spatial_head_seed1.json": "613f09c3a153a4510795098e5f203487bc702fc8d7e7325e0c0221df2bb86891",
+    "spatial_head_seed2.json": "abd29af86353cd106fb88c76396e8b9eaad4e19b824b236afaebea92c1a45aee"
+  },
+  "interpretation": "Three-seed frozen-backbone development diagnostic. Passing supports full-model patch controls; it does not establish lesion localization or novelty."
+}

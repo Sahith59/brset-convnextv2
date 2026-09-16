@@ -1,0 +1,40 @@
+{
+  "pass": true,
+  "generated": "16 September 2026",
+  "docx": {
+    "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Step5_Diagnostic_Update_for_Dong.docx",
+    "sha256": "8b3421a7988a8b34c1c5bc8f4f4ed33cfeeb752ef6ecf8e457fa9feb4650593e",
+    "paragraphs": 50,
+    "tables": 10,
+    "times_new_roman_present": true
+  },
+  "pptx": {
+    "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Step5_Diagnostic_Update_for_Dong.pptx",
+    "sha256": "62734bc723714d3a714d7a817d96fa0ec14dc2d8e5eda6fe8970b839c9e00fe9",
+    "slides": 12,
+    "times_new_roman_present": true,
+    "all_shape_bounds_inside_slide": true
+  },
+  "required_content": {
+    "Current novelty status": true,
+    "P1/P2/P3": true,
+    "Source-only": true,
+    "Patient-bootstrap": true,
+    "RETFound": true
+  },
+  "input_sha256": {
+    "research/codex/step5/source_only_seed0_verification.json": "ae70c729ba78394d6a2147357f9444ab6ed0f287960ef1eef54517168f04e704",
+    "research/codex/step5/feature_extraction_summary.json": "63c307b3b63619699ccc73aac22db4f16057cbf853ae0d2308a1d92cd1cf1045",
+    "research/codex/step5/gfp_summary.json": "e3cdf1da61501c2aeb6b3b683d3159b47bb5e43eb102c6108618c5aff3a68c2f",
+    "research/codex/step5/spatial_diagnostic_summary.json": "ad4b9ec6c871c2ae80125685e76da128c86eb3a67443cf0f40e1a3db1577f111",
+    "research/codex/step5/diagnostic_error_analysis.json": "98b9a0863742fc319e12fa9a97a41f8fb32d542a6cc28ceaddb97d4c9761d64f",
+    "research/codex/step5/FROZEN_FEATURE_PROTOCOL.md": "b138a14ed76efaeee287e9079a57fd7217dff3b2b1800e11ae1b469f0f79bfc4",
+    "research/codex/step5/STEP5_DIAGNOSTIC_REVIEW.md": "30792c234ea1784439f94c0f20a296d1be6ecd25575d0b0225f28d18f1a3d934",
+    "research/codex/step5/retfound_compatibility_audit.json": "3ac5d40837a411c126fe9c8d683160861809ce73857746ed5c02a012d041629a",
+    "research/codex/step5/retfound_preflight.json": "c5c4467e873724ff085719d03a7af06e4b40228fd9441ef8fd9bcdc41efdfe24",
+    "research/codex/step5/retfound_smoke.json": "922e9c5f2244fad19c9982addb2934934736a30bdde1063db19dba797a1ae18d",
+    "research/codex/step5/retfound_resume_checks.json": "a40f79bb9a5749bed44a051dbec95429d510583e12f2cca6a3a3daa32aa6227f",
+    "research/codex/step5/launch_retfound_seed0.json": "e8897ae1b0d0804f1f1a749076d11ee0231127d679f322d79758f1ae2a79e770"
+  },
+  "privacy": "No dataset image, filename, patient identifier, private manifest or row-level prediction embedded."
+}

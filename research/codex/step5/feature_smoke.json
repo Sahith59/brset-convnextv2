@@ -1,0 +1,27 @@
+{
+  "status": "pass",
+  "job_id": "4409933",
+  "images": 32,
+  "shapes_per_image": {
+    "spatial": [
+      1536,
+      16,
+      16
+    ],
+    "pooled": [
+      1536
+    ]
+  },
+  "reproduction": {
+    "logit_max_abs_error": 0.0,
+    "probability_max_abs_error": 0.0,
+    "logit_tolerance": 1e-05,
+    "probability_tolerance": 1e-06,
+    "pass": true
+  },
+  "seconds": 8.941904693841934,
+  "peak_gpu_gib": 3.2836790084838867,
+  "assessment_accessed": false,
+  "config_sha256": "a3e53bde921bcef9a1b6d11db7832188a191681910dd0a9d7fdbde453a9c5700",
+  "extractor_sha256": "8686de1970c9f25379fb945af410fadc8337ce02df5b4815401461a20c2ab899"
+}
