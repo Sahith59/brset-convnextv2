@@ -1,6 +1,6 @@
 # Step 5 plan draft: content-aware latent transition
 
-**Status:** Frozen diagnostics completed September 15. Strict source-only evidence is verified; GFP and simple top-k spatial pooling failed their validation gates. Conditional P1/P2/P3 will not launch. A protocol-matched retinal-backbone comparator is the next branch.
+**Status:** Historical Step-5 plan, closed September 16. Strict source-only evidence is verified; GFP and simple top-k spatial pooling failed their validation gates. Conditional P1/P2/P3 will not launch. The later RETFound side run was excluded by Dong's direction; the current next step is a patient-level B1 error audit under ConvNeXt V2 Large.
 
 ## Plain-language goal
 
@@ -63,4 +63,4 @@ W1/W2/W3 action-conditioned degradation is suspended by `appearance_error_gate.j
 - GFP retained almost every final channel and changed neither DR nor ME F1.
 - Top-1 spatial pooling improved mean DR AUROC by 0.0101 across three head seeds but changed DR F1 by −0.0012 and ME AUROC by −0.0036; the frozen gate failed.
 - P1/P2/P3 are blocked under the predeclared decision rule. See `STEP5_DIAGNOSTIC_REVIEW.md`.
-- The existing `mbrset-retfound` results are protocol-incompatible: different referable-DR label, no ME, different split for 2,262/4,859 files, 224-pixel input and different optimization/selection. Reuse only the official code/weight after a new matched contract. See `retfound_compatibility_audit.json`.
+- The existing `mbrset-retfound` results are protocol-incompatible: different referable-DR label, no ME, different split for 2,262/4,859 files, 224-pixel input and different optimization/selection. A separate matched seed-0 run was later completed but is archived because Dong had put this backbone aside. No further RETFound work is planned; see D062 in `../DECISIONS.md`.

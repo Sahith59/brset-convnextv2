@@ -8,7 +8,7 @@
 - **B1, joint:** train on 11,372 BRSET plus 3,402 mBRSET training images in one mixed pool.
 - **B2, source to target:** train first on 11,372 BRSET images and then fine-tune on 3,402 mBRSET images.
 
-All arms used ConvNeXt V2 Tiny, the same total 5,775 optimizer updates, the same effective batch size 64, ordinary training augmentation and Mixup, and no fitted degradation, routing, or private encoder mechanism. Model selection and DR/ME threshold choice used the 725-image mBRSET validation split. The gated assessment used the same 732-image mBRSET test split for every arm and seed.
+All arms used ConvNeXt V2 Large (`convnextv2_large.fcmae_ft_in22k_in1k_384`), the same total 5,775 optimizer updates, the same effective batch size 64, ordinary training augmentation and Mixup, and no fitted degradation, routing, or private encoder mechanism. Model selection and DR/ME threshold choice used the 725-image mBRSET validation split. The gated assessment used the same 732-image mBRSET test split for every arm and seed. The architecture is verified against `protocol/v1.json` and the executable `frozen/train_baseline.py`; the earlier word “Tiny” in this paragraph was incorrect.
 
 ## Repeated results
 

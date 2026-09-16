@@ -3,7 +3,7 @@
   "generated": "16 September 2026",
   "docx": {
     "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Record.docx",
-    "sha256": "48bc4db902c59da2188696cb2c63f295157ef5d8d90fd2f37877a5297c823223",
+    "sha256": "82cca019cd8936b82d9380c199455442268c0c87c3ff5b45578ff45da23b3d48",
     "sections": 1,
     "tables": 16,
     "paragraphs": 74,
@@ -11,7 +11,7 @@
   },
   "pptx": {
     "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Update.pptx",
-    "sha256": "e1d798f9114006dc53ad068a032ba95f2771fb27e3ae6ce283f43e5680c66e58",
+    "sha256": "13b52cf93064c1fdf8805d2c861843da67ab0a071a9bf9e929fc9acb5caf4910",
     "slides": 9,
     "times_new_roman_present": true,
     "all_shape_bounds_inside_slide": true
@@ -29,7 +29,7 @@
     "research/codex/step4/preflight.json": "254c5a01a34aa3a2dc2534eedb508fe4d7bb712015f312bc5cde810315554d6f",
     "research/codex/step4/seed0_validation_summary.json": "cfd34e89ff20dc7778d4c4692aef1e9611d129d05312ec4763b0d1ca374a46bd",
     "research/codex/literature/STEP5_MECHANISM_DEEP_RESEARCH.md": "20a128acccdb769ef6226b5f043f15df93dd51b2961f6586d6ffaaf807f033c7",
-    "research/codex/step5/STEP_5_PLAN_DRAFT.md": "53d52acdb5dc48a603f4c13b233ef710cd50d346ba973c452f8f7eb9656e1d3c",
+    "research/codex/step5/STEP_5_PLAN_DRAFT.md": "d15a42b5642440116028c0ec185ba7b7b444fee753bc60910beef778aa6a2bfc",
     "research/codex/step5/appearance_error_gate.json": "bb3feb043a54415a6d89fb498951ba2477d05283e23f9dddfaec8ab20fd31d32",
     "research/codex/literature/STEP5_DIRECTION_REVISION.md": "a12dbeea638ee041ef880016ded1ec6a1573f3ce9601ed47d5ef3ae269c08082",
     "research/codex/step5/design_preflight.json": "7c2e93cb1ad55dab9f78b5af2a29dbdad4c233f184ddea891c12e6a09132b35e",
@@ -41,12 +41,13 @@
     "research/codex/step5/gfp_summary.json": "e3cdf1da61501c2aeb6b3b683d3159b47bb5e43eb102c6108618c5aff3a68c2f",
     "research/codex/step5/spatial_diagnostic_summary.json": "ad4b9ec6c871c2ae80125685e76da128c86eb3a67443cf0f40e1a3db1577f111",
     "research/codex/step5/diagnostic_error_analysis.json": "98b9a0863742fc319e12fa9a97a41f8fb32d542a6cc28ceaddb97d4c9761d64f",
-    "research/codex/step5/STEP5_DIAGNOSTIC_REVIEW.md": "30792c234ea1784439f94c0f20a296d1be6ecd25575d0b0225f28d18f1a3d934",
+    "research/codex/step5/STEP5_DIAGNOSTIC_REVIEW.md": "2ce3669ae651ecff34d0a3dcce085e4f47ed90dc0258d494760ae450e147b1ca",
     "research/codex/step5/retfound_compatibility_audit.json": "3ac5d40837a411c126fe9c8d683160861809ce73857746ed5c02a012d041629a",
     "research/codex/step5/retfound_preflight.json": "c5c4467e873724ff085719d03a7af06e4b40228fd9441ef8fd9bcdc41efdfe24",
     "research/codex/step5/retfound_smoke.json": "922e9c5f2244fad19c9982addb2934934736a30bdde1063db19dba797a1ae18d",
     "research/codex/step5/retfound_resume_checks.json": "a40f79bb9a5749bed44a051dbec95429d510583e12f2cca6a3a3daa32aa6227f",
-    "research/codex/step5/launch_retfound_seed0.json": "e8897ae1b0d0804f1f1a749076d11ee0231127d679f322d79758f1ae2a79e770"
+    "research/codex/step5/launch_retfound_seed0.json": "e8897ae1b0d0804f1f1a749076d11ee0231127d679f322d79758f1ae2a79e770",
+    "research/codex/meeting/DONG_MEETING_BRIEF_2026-09-16.md": "d6f79a6f1ed2905bf67f38c5bf6530da5a2e52f2da86399119e2d7f734d4ac44"
   },
   "privacy": "No dataset images, patient identifiers, private manifests, or per-image predictions embedded."
 }

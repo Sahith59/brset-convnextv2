@@ -107,7 +107,7 @@ def build_docx(source, features, gfp, spatial, errors, retfound, rf_preflight, r
     style.add_body(document, "B1 means supervised joint training on labeled BRSET and labeled mBRSET training images. It is not zero-shot transfer. The strict source-only run alone trains and selects without any target-domain training or validation exposure.", "Terminology:")
 
     style.add_heading(document, "2.", "STRICT SOURCE-ONLY TRANSFER")
-    style.add_body(document, "The source-only model used the same ConvNeXt V2 Tiny training recipe and 5,775-update budget as the Step-2 baselines. Its checkpoint and the DR/ME thresholds were selected only on BRSET validation data. The selected thresholds were 0.399 for DR and 0.451 for ME. The locked mBRSET assessment was then run once.")
+    style.add_body(document, "The source-only model used the same ConvNeXt V2 Large training recipe and 5,775-update budget as the Step-2 baselines. Its checkpoint and the DR/ME thresholds were selected only on BRSET validation data. The selected thresholds were 0.399 for DR and 0.451 for ME. The locked mBRSET assessment was then run once.")
     rows = [["Label", "F1", "AUROC", "Average precision", "Precision", "Sensitivity", "Specificity", "FN / positives"]]
     for key, label in [("diabetic_retinopathy", "DR"), ("macular_edema", "ME")]:
         m = source["assessment_metrics"][key]

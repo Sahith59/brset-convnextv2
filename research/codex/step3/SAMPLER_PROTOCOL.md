@@ -4,7 +4,7 @@ Status: frozen for implementation verification and seed-0 validation screening o
 
 ## Fixed factors
 
-All controls inherit the completed B1 recipe: ConvNeXt V2 Tiny, seed-0 initialization, 5,775 optimizer updates, effective batch 64, focal loss, ordinary image augmentation, Mixup, AdamW schedule, EMA, four-flip inference, checkpoint selection by mean DR/ME validation AUROC, and validation-only threshold selection. The fit pool remains 11,372 BRSET plus 3,402 mBRSET images. No degradation, routing, private encoder, test assessment or other mechanism is introduced.
+All controls inherit the completed B1 recipe: ConvNeXt V2 Large, seed-0 initialization, 5,775 optimizer updates, effective batch 64, focal loss, ordinary image augmentation, Mixup, AdamW schedule, EMA, four-flip inference, checkpoint selection by mean DR/ME validation AUROC, and validation-only threshold selection. The fit pool remains 11,372 BRSET plus 3,402 mBRSET images. No degradation, routing, private encoder, test assessment or other mechanism is introduced.
 
 ## Changed factor
 

@@ -2,6 +2,7 @@
 
 **Evidence date:** September 15, 2026
 **Decision:** close GFP and simple top-k spatial pooling as negative mechanism screens; do not launch P1/P2/P3.
+**Current direction (September 16):** The historical RETFound plan later in this review is superseded by the advisor correction at the end. The active backbone is ConvNeXt V2 Large.
 
 ## What was tested
 
@@ -73,3 +74,7 @@ Current evidence supports a rigorous transfer study with a strong joint baseline
 The required new implementation is now frozen and has passed its engineering gates. It uses the exact B1 joint fit cohort, any-DR and ME labels, the same 560-resize/512-crop input and 5,775-update budget, and validation-only development. Preflight job 4410136, full-backbone feasibility job 4410137 and exact-resume job 4410171 passed. The failure history and corrections are detailed in `RETFOUND_FEASIBILITY_REVIEW.md`.
 
 Full seed-0 job 4411081 is running on one nonexclusive A40. Its first update is finite and its error log is empty. This is only implementation-health evidence; no RETFound performance or novelty claim is available until the completed validation output is independently verified.
+
+## Advisor correction on September 16
+
+The separate RETFound run completed after 5,775 updates, but the user clarified that Dong had previously set this backbone aside. Launching it was a direction error. Preserve the run record for provenance; exclude it from today's presentation, method selection, replication and assessment. The completed scientific Steps 2–5 used ConvNeXt V2 Large. The next branch returns to patient-level B1 error and clinical-evidence review under that backbone.
