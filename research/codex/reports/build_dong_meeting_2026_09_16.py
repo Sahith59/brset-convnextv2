@@ -271,9 +271,9 @@ def make_deck() -> Presentation:
     # 4 — original and degraded images.
     s = base(prs, 4, "Dong’s requested visual check",
              "Verified original and degraded fundus images",
-             "Columns 1–4 within a row share one source photograph. The real mBRSET image is unrelated.",
+             "Columns 1–4 share one BRSET photograph; only BRSET is transformed. The mBRSET image is unpaired.",
              "Image provenance: step4/preflight.json; reports/private/gallery_source_audit.json")
-    labels = ["BRSET original", "FundusAug component", "Target-fitted full", "No synthetic overlays", "Real mBRSET · unpaired"]
+    labels = ["BRSET original", "A1 · FundusAug artifacts", "A2 · target-fitted", "A3 · no overlays", "Real mBRSET · unpaired"]
     for block, path in enumerate(IMAGES):
         ly = 1.75 + block*2.43
         for i, label in enumerate(labels):
@@ -320,7 +320,7 @@ def make_deck() -> Presentation:
 
     # 7 — sampler control.
     s = base(prs, 7, "Step 3 · sampling controls", "Rebalancing the two datasets did not replace B1",
-             "C1 changed only sampling: 50% BRSET / 50% mBRSET draws, at fixed model and updates.",
+             "B1 naturally draws ~23% mBRSET; C1 forces 50%, using the same images, model and update budget.",
              "Evidence: step3/c1_validation_three_seeds.json; STEP_3_FINAL_REVIEW.md")
     table(s, ["Three-seed validation difference · C1 − B1", "DR", "ME"], [
         ["F1 at selected threshold", f"{p3['aggregate']['diabetic_retinopathy']['f1_positive']['difference_mean']:+.4f}",
@@ -331,11 +331,14 @@ def make_deck() -> Presentation:
          f"{p3['aggregate']['macular_edema']['average_precision']['difference_mean']:+.4f}"],
     ], .80, 2.03, [7.05, 2.35, 2.35], .72, 16)
     card(s, .85, 5.41, 11.68, .95, "Conclusion",
-         "The small F1 changes came with lower AUROC; natural B1 remained the cleaner reference.", PALE_AMBER, AMBER, 17, 16)
+         "More target-image exposure gave small F1 changes but lower AUROC; retain natural B1.", PALE_AMBER, AMBER, 17, 16)
+    text(s, .88, 6.48, 11.5, .27,
+         "C2 matched target-label proportions; C3 combined that with equal domains. Neither passed the seed-0 screen.",
+         11, False, GREY)
 
     # 8 — direct classifier test of degradation.
     s = base(prs, 8, "Step 4 · decisive negative", "Target-like appearance did not improve diagnosis",
-             "New target-fitted transforms made global appearance statistics much closer; classifier selection used mBRSET validation only.",
+             "A1: FundusAug artifacts only. A2: fit to mBRSET training averages. A3: refit with spots/holes/halo off.",
              "Evidence: step4/degradation_refit.json; seed0_validation_summary.json")
     text(s, .74, 1.79, 11.7, .34,
          f"Refit appearance distance on held-out BRSET: unchanged {fit['identity_validation']['distance_mean']:.3f} → full {fit['arms']['full']['validation']['distance_mean']:.3f} / no overlays {fit['arms']['overlay_free']['validation']['distance_mean']:.3f}",
@@ -363,8 +366,8 @@ def make_deck() -> Presentation:
     linked(s, .80, 6.54, 6.0, "FundusAug source: GDRNet · MICCAI 2023  ↗", "GDRNet · MICCAI 2023", 10)
 
     # 9 — error premise and world-model boundary.
-    s = base(prs, 9, "Step 5 · test the premise", "Appearance did not explain the missed cases",
-             "A patient-grouped validation analysis checked whether five appearance statistics predict model errors across three B1 seeds.",
+    s = base(prs, 9, "Step 5A · test the premise", "Five appearance measures did not reliably explain errors",
+             "We asked whether camera-like image summaries predict B1's DR/ME mistakes on patient-grouped validation data.",
              "Evidence: step5/appearance_error_gate.json; APPEARANCE_ERROR_GATE_REVIEW.md")
     dr_gate = gate['labels']['diabetic_retinopathy']
     me_gate = gate['labels']['macular_edema']
@@ -379,13 +382,13 @@ def make_deck() -> Presentation:
          f"{me_gate['positive_false_negative_model']['bootstrap']['appearance_auc_point']:.3f}"],
     ], .78, 1.97, [6.20, 2.77, 2.77], .72, 15)
     card(s, .83, 5.35, 11.66, 1.04, "Decision on Dong’s world-model suggestion",
-         "CheXWorld is radiograph prior art; our data do not yet justify a fundus adaptation.",
+         "This measured appearance signal failed the gate; a fundus adaptation of CheXWorld is deferred.",
          PALE_AMBER, AMBER, 16, 14)
     linked(s, 1.00, 6.56, 4.7, "Open CheXWorld · CVPR 2025", "CheXWorld · CVPR 2025", 11)
 
     # 10 — strict source-only and frozen feature diagnostics.
-    s = base(prs, 10, "Step 5 · measured transfer gap", "The gap is real; simple feature fixes were not enough",
-             "Source-only uses no mBRSET labels before locked historical assessment. GFP and spatial tests use validation only.",
+    s = base(prs, 10, "Step 5B · gap and feature probes", "Measure the transfer gap; test two simple explanations",
+             "BRSET-only measures transfer without target labels; GFP tests channel pruning; top-1 tests local versus global evidence.",
              "Evidence: source_only_seed0_verification.json; gfp_summary.json; spatial_diagnostic_summary.json")
     sm = source["assessment_metrics"]
     table(s, ["Strict BRSET-only → mBRSET test", "DR", "ME"], [
@@ -393,14 +396,14 @@ def make_deck() -> Presentation:
         ["AUROC", f"{sm['diabetic_retinopathy']['auroc']:.4f}", f"{sm['macular_edema']['auroc']:.4f}"],
         ["Sensitivity · positives detected", f"{sm['diabetic_retinopathy']['sensitivity']:.4f}", f"{sm['macular_edema']['sensitivity']:.4f}"],
     ], .72, 1.94, [7.06, 2.34, 2.34], .57, 14)
-    card(s, .78, 4.48, 5.73, 1.25, "GFP feature pruning",
+    card(s, .78, 4.48, 5.73, 1.25, "GFP · remove weak channels",
          f"Retained {gfp['selected']['retained_features'][0]:,}/1,536 DR and {gfp['selected']['retained_features'][1]:,}/1,536 ME channels; ΔF1 = 0 for both.",
          PALE_AMBER, AMBER, 15, 14)
-    card(s, 6.76, 4.48, 5.74, 1.25, "Top-1 spatial evidence",
+    card(s, 6.76, 4.48, 5.74, 1.25, "Top-1 · strongest location",
          f"DR ΔAUROC {spatial['aggregate']['diabetic_retinopathy']['auroc']['difference_mean']:+.4f}, but ΔF1 {spatial['aggregate']['diabetic_retinopathy']['f1_positive']['difference_mean']:+.4f}; ME ΔAUROC {spatial['aggregate']['macular_edema']['auroc']['difference_mean']:+.4f}.",
          PALE_AMBER, AMBER, 15, 14)
     text(s, .83, 6.14, 11.7, .46,
-         "No P1/P2/P3 full-model mechanism was launched. A high-scoring patch is not confirmed lesion localization.",
+         "Neither feature probe passed the F1 gate; P1/P2/P3 were not trained. A top patch is not a verified lesion.",
          14, True, NAVY)
 
     # 11 — literature and collision audit.
@@ -427,8 +430,8 @@ def make_deck() -> Presentation:
              "Internal target: complete draft by 15 October; ISBI four-page deadline is 26 October 2026.",
              "Deadline: biomedicalimaging.org/2027/ · linked source below")
     for i, (head, body) in enumerate([
-        ("1  Audit misses", "Review patient-level DR/ME false negatives by image quality and retinal evidence; obtain clinical review for a small stratified set."),
-        ("2  Freeze one mechanism", "Only if local evidence is confirmed, specify label-wise local/global evidence agreement on ConvNeXt V2 Large; no new backbone or pixel generator."),
+        ("1  Audit misses", "Use three B1 seeds to review patient-level DR/ME misses by confidence, image quality and suspected retinal cues; ask Dong to inspect a stratified sample."),
+        ("2  Freeze one mechanism", "Only if local evidence is supported, specify label-wise local/global agreement on ConvNeXt V2 Large; distinguish it from prior work before training."),
         ("3  Test controls", "Compare B1, local-only, agreement-only and combined at equal data/updates. Predeclare +0.01 F1 gate; protect both labels and AUROC."),
         ("4  Replicate or stop", "Only a passing validation seed gets seeds 1/2, patient-level intervals and a post-freeze assessment, disclosed as historically reused."),
     ]):

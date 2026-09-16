@@ -3,7 +3,7 @@
   "generated": "16 September 2026",
   "docx": {
     "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Record.docx",
-    "sha256": "82cca019cd8936b82d9380c199455442268c0c87c3ff5b45578ff45da23b3d48",
+    "sha256": "c1f32cc3ff74d7e721568d2fb4ce42a963ae7ce85862696294b919af148cb8e9",
     "sections": 1,
     "tables": 16,
     "paragraphs": 74,
@@ -11,7 +11,7 @@
   },
   "pptx": {
     "path": "/home/users/sthummala2/brset-convnextv2/research/codex/reports/BRSET_mBRSET_Research_Update.pptx",
-    "sha256": "13b52cf93064c1fdf8805d2c861843da67ab0a071a9bf9e929fc9acb5caf4910",
+    "sha256": "9beb126f6f6f50c5db3905618f687a81e11e9f9cac31b684742048621ac2b2fb",
     "slides": 9,
     "times_new_roman_present": true,
     "all_shape_bounds_inside_slide": true
@@ -47,7 +47,7 @@
     "research/codex/step5/retfound_smoke.json": "922e9c5f2244fad19c9982addb2934934736a30bdde1063db19dba797a1ae18d",
     "research/codex/step5/retfound_resume_checks.json": "a40f79bb9a5749bed44a051dbec95429d510583e12f2cca6a3a3daa32aa6227f",
     "research/codex/step5/launch_retfound_seed0.json": "e8897ae1b0d0804f1f1a749076d11ee0231127d679f322d79758f1ae2a79e770",
-    "research/codex/meeting/DONG_MEETING_BRIEF_2026-09-16.md": "d6f79a6f1ed2905bf67f38c5bf6530da5a2e52f2da86399119e2d7f734d4ac44"
+    "research/codex/meeting/DONG_MEETING_BRIEF_2026-09-16.md": "824198412b0c7f3985718ab78509296feded6fc772f7e08d08355a0bc5d8dc40"
   },
   "privacy": "No dataset images, patient identifiers, private manifests, or per-image predictions embedded."
 }
