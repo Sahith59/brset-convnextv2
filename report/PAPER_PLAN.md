@@ -1,3 +1,5 @@
+> SUPERSEDED by report/PLAN_v2.md (8 Oct 2026). Kept for the record of the first pivot draft.
+
 # Paper plan: learned device translation for cross-camera retinal screening
 
 Written 8 October 2026, in response to the review that the work so far reads as

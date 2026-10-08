@@ -1,3 +1,5 @@
+> SUPERSEDED by report/PLAN_v2.md (8 Oct 2026). Kept for the record of the architecture-side era.
+
 # Research plan: BRSET to mBRSET cross-device transfer
 
 Last updated 3 September 2026, after the advisor meeting. Priorities reordered. Target submission mid-October 2026.
