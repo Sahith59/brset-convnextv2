@@ -203,6 +203,16 @@ def get_args():
                          "while leaving mBRSET untouched, creating a geometric domain gap in "
                          "preprocessing. 'preserve' resizes the short side and centre crops, treating "
                          "both datasets identically.")
+    p.add_argument("--target_budget", default=-1, type=int,
+                    help="Number of REAL target-domain (domain==1) training images to keep. -1 "
+                         "keeps all of them, which reproduces every earlier run. This is the "
+                         "x-axis of the label-efficiency study: how many real handheld-camera "
+                         "labels are needed, with and without synthesised ones. Stratified on DR "
+                         "and nested across budgets for a fixed --budget_seed.")
+    p.add_argument("--budget_seed", default=0, type=int,
+                    help="Which subsample of the target domain to draw. Separate from --seed so "
+                         "the effect of WHICH images were labelled can be separated from the "
+                         "effect of training randomness.")
     p.add_argument("--warm_start_ckpt", default="",
                     help="Initialize weights from this checkpoint instead of ImageNet. Used to "
                          "fine-tune a BRSET-trained model on mBRSET. The classifier head is kept "
@@ -246,6 +256,48 @@ def get_args():
     p.add_argument("--output_dir", default="/home/users/sthummala2/brset-convnextv2/results")
     p.add_argument("--seed", default=0, type=int)
     return p.parse_args()
+
+
+def apply_target_budget(ds, args):
+    """Keep only `target_budget` images from the target domain (domain == 1).
+
+    The label-efficiency curve is the backbone of the synthesis study: it asks
+    how many REAL handheld-camera labels are needed to reach a given accuracy,
+    with and without synthesised ones. Subsampling here instead of on disk
+    keeps a single copy of the data and makes the budget a run parameter.
+
+    Two properties matter for the curve to be interpretable:
+      - Stratified on the DR label, so a small budget does not drift away from
+        the full target set's 23.4 percent positive rate and confound budget
+        with class balance.
+      - Nested across budgets. For a fixed budget_seed the permutation does not
+        depend on n, so the 500-image set is a strict subset of the 1000-image
+        set. Adjacent points on the curve then differ by which images were
+        ADDED, not by an unrelated redraw.
+    """
+    n = getattr(args, "target_budget", -1)
+    if n < 0:
+        return
+    df = ds.labels_df
+    if "domain" not in df.columns:
+        raise SystemExit("--target_budget requires a 'domain' column; "
+                         "point --data_path at data/finetune_joint")
+    src, tgt = df[df.domain == 0], df[df.domain == 1]
+    if n >= len(tgt):
+        print(f"target budget {n} >= available {len(tgt)}; keeping all", flush=True)
+        return
+    rng = np.random.RandomState(args.budget_seed)
+    keep = []
+    for _, grp in tgt.groupby("diabetic_retinopathy"):
+        k = int(round(n * len(grp) / len(tgt)))
+        keep.append(rng.permutation(grp.index.values)[:k])
+    keep = np.concatenate(keep)
+    ds.labels_df = pd.concat([src, tgt.loc[keep]]).reset_index(drop=True)
+    kept = ds.labels_df[ds.labels_df.domain == 1]
+    print(f"target budget: kept {len(kept)} of {len(tgt)} target images "
+          f"(DR+ {int(kept.diabetic_retinopathy.sum())}, "
+          f"{100 * kept.diabetic_retinopathy.mean():.1f} percent) "
+          f"alongside {len(src)} source images", flush=True)
 
 
 def build_transforms(args):
@@ -424,6 +476,7 @@ def main():
     ds_train = BRSETMultiLabel(data_path / "train", train_tf)
     ds_val = BRSETMultiLabel(data_path / "val", eval_tf)
     ds_test = BRSETMultiLabel(data_path / "test", eval_tf)
+    apply_target_budget(ds_train, args)
     print(f"train/val/test sizes: {len(ds_train)}/{len(ds_val)}/{len(ds_test)}", flush=True)
 
     sample_weights, counts = build_sample_weights(ds_train.labels_df)
