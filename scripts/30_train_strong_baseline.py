@@ -203,6 +203,15 @@ def get_args():
                          "while leaving mBRSET untouched, creating a geometric domain gap in "
                          "preprocessing. 'preserve' resizes the short side and centre crops, treating "
                          "both datasets identically.")
+    p.add_argument("--target_pos_rate", default=-1.0, type=float,
+                    help="Resample so the EXPECTED fraction of DR-positive images drawn per epoch "
+                         "equals this rate. -1 disables, reproducing every earlier run. This "
+                         "isolates Dr. Ye's label-distribution hypothesis: BRSET train is 6.6 "
+                         "percent DR-positive and mBRSET is 23.4 percent, so pooling more than "
+                         "doubles the absolute positive count (748 to 1545). Synthetic target "
+                         "images inherit BRSET's labels and therefore CANNOT reproduce that, so if "
+                         "the pooling gain is mostly class balance the synthesis claim fails. "
+                         "Setting this with --target_budget 0 is the decisive control.")
     p.add_argument("--target_budget", default=-1, type=int,
                     help="Number of REAL target-domain (domain==1) training images to keep. -1 "
                          "keeps all of them, which reproduces every earlier run. This is the "
@@ -256,6 +265,25 @@ def get_args():
     p.add_argument("--output_dir", default="/home/users/sthummala2/brset-convnextv2/results")
     p.add_argument("--seed", default=0, type=int)
     return p.parse_args()
+
+
+def apply_pos_rate(weights, labels_df, rate):
+    """Reweight sampling so DR positives are drawn at `rate`.
+
+    With n_pos positives and n_neg negatives, giving negatives weight 1 and
+    positives weight w makes the expected positive share w*n_pos/(w*n_pos+n_neg).
+    Solving for the requested rate gives w = rate*n_neg / (n_pos*(1-rate)).
+    """
+    y = labels_df["diabetic_retinopathy"].values.astype(float)
+    n_pos, n_neg = float(y.sum()), float((1 - y).sum())
+    if n_pos < 1 or n_neg < 1 or not (0.0 < rate < 1.0):
+        return weights
+    w_pos = rate * n_neg / (n_pos * (1.0 - rate))
+    out = np.where(y == 1, w_pos, 1.0)
+    eff = float((out * y).sum() / out.sum())
+    print(f"target_pos_rate: requested {rate:.4f}, achieved {eff:.4f} "
+          f"(positive weight {w_pos:.3f}, {int(n_pos)} pos / {int(n_neg)} neg)", flush=True)
+    return out
 
 
 def apply_target_budget(ds, args):
@@ -480,6 +508,9 @@ def main():
     print(f"train/val/test sizes: {len(ds_train)}/{len(ds_val)}/{len(ds_test)}", flush=True)
 
     sample_weights, counts = build_sample_weights(ds_train.labels_df)
+    if args.target_pos_rate > 0:
+        sample_weights = apply_pos_rate(sample_weights, ds_train.labels_df,
+                                        args.target_pos_rate)
     print(f"train label counts: {counts} (of {len(ds_train)})", flush=True)
 
     # Report the positive rate the loss will ACTUALLY see. With the sampler on this

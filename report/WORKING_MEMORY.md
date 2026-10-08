@@ -17,6 +17,8 @@ decision is made; it is the first thing to read when resuming work.
 | 4572239 | lebase_b500_s0 | 500 | 8 Oct | ~11h, tonight |
 | 4572240 | lebase_b1000_s0 | 1000 | 8 Oct | ~11h, tonight |
 | 4572241 | lebase_b2000_s0 | 2000 | 8 Oct | ~11h, tonight |
+| 4572531 | balctl_s0 | 0 + rebalanced | 8 Oct | ~12h |
+| 4572532 | balctl_s1 | 0 + rebalanced | 8 Oct | ~12h |
 
 Check with `squeue -u sthummala2`. Results land in `results/lebase_b<N>_s0/`.
 
@@ -46,6 +48,28 @@ Check with `squeue -u sthummala2`. Results land in `results/lebase_b<N>_s0/`.
    comparison reviewers will expect.
 4. **Generate and audit synthetic sets**, qualitative figure.
 5. **Downstream grid**: budgets 250/500/1000 first, arms B4 and B3.
+
+## TOP RISK, under test right now
+
+**The label-balance confound. This can kill the headline claim.**
+
+BRSET train is 6.6 percent DR-positive, mBRSET is 23.4 percent. Pooling does two
+things at once: it adds handheld appearance AND it more than doubles the absolute
+positive count, 748 to 1545. Every result so far confounds them.
+
+Synthetic handheld images are made from BRSET and INHERIT BRSET'S LABELS at 6.6
+percent. They add appearance but not one new positive. So if the pooling gain is
+mostly class balance, synthesis cannot reproduce it and the label-efficiency
+claim fails regardless of translator quality.
+
+Dr. Ye raised this 3 September. It was never tested. `balctl_s0/s1` tests it:
+BRSET only, zero target images, positives resampled to 23.4 percent.
+
+**Reading the result:**
+- lands near 0.84 -> appearance is NOT the story; re-plan before building stage 2
+- stays near 0.79 -> device adaptation IS the story; synthesis direction is sound
+
+Do not invest further in the translator until this reads out.
 
 ## Open decisions
 
