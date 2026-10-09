@@ -109,8 +109,24 @@ def image_stats_torch(x, mask=None):
     go = (g * outer).sum(dim=(1, 2, 3)) / outer.sum(dim=(1, 2, 3)).clamp(min=1.0)
 
     sat = (saturation_map(x) * mask).sum(dim=(1, 2, 3)) / n
-    return {"sharpness": lap_var, "brightness": mean, "contrast": var.clamp(min=0).sqrt(),
-            "falloff": gi - go, "saturation": sat}
+
+    out = {"sharpness": lap_var, "brightness": mean, "contrast": var.clamp(min=0).sqrt(),
+           "falloff": gi - go, "saturation": sat}
+
+    # CHROMATIC moments. Added 9 Oct after verifying that none of the five
+    # statistics above carries chromatic information: every one is computed on
+    # grayscale or on (max-min)/max. Nothing in the pipeline had a gradient
+    # toward correct hue, which is the single largest perceptual gap.
+    for i, c in enumerate("rgb"):
+        ch = x[:, i:i + 1]
+        cm = (ch * mask).sum(dim=(1, 2, 3)) / n
+        cv = ((ch - cm.view(-1, 1, 1, 1)) ** 2 * mask).sum(dim=(1, 2, 3)) / n
+        out[f"{c}_mean"] = cm
+        out[f"{c}_std"] = cv.clamp(min=0).sqrt()
+    tot = out["r_mean"] + out["g_mean"] + out["b_mean"] + 1e-9
+    for c in "rgb":
+        out[f"{c}_frac"] = out[f"{c}_mean"] / tot
+    return out
 
 
 class PhysicalAcquisition(nn.Module):
@@ -126,31 +142,48 @@ class PhysicalAcquisition(nn.Module):
     are learned, which is the part the statistics actually constrain.
     """
 
-    FITTED = {"blur_sigma": 0.9071, "light_strength": 0.2613, "halo": 0.0857,
-              "spot_amp": 0.20, "hole_amp": 0.20, "noise_sigma": 0.01195,
-              "brightness_gain": 1.0767, "contrast_gain": 0.9160,
-              "saturation_gain": 1.0028}
-
-    # Physically plausible bounds, enforced by construction.
+    # Fifteen bounded parameters. Extended 9 Oct after verifying the previous
+    # nine had NO chromatic degree of freedom: sweeping every one to both
+    # extremes moved the R:G:B ratio by at most 0.00088. The earlier claim that
+    # the physical model was "exhausted" was therefore false. It was not
+    # exhausted, it had no colour parameter. Three additions, each physically
+    # interpretable and each provably photometric so none can move anatomy:
     #
-    # These are not cosmetic. Left unbounded, fitting the five statistics by
-    # gradient descent drives spot and hole amplitude to 2.98 and 1.95 on a
-    # [0,1] image: the optimiser discovers it can hit the target sharpness and
-    # contrast by painting enormous blobs, and the result is numerically
-    # excellent and visually destroyed. That is the same "statistics are not
-    # appearance" failure found during the hand-fit, now in gradient form.
-    #
-    # Bounding the acquisition stage is therefore load-bearing. It forces the
-    # residual appearance gap onto the learned refinement stage, which is
-    # exactly the division of labour the dual-domain design intends.
-    RANGES = {"blur_sigma": (0.0, 3.0), "light_strength": (0.0, 0.60),
-              "halo": (0.0, 0.30), "spot_amp": (0.0, 0.40),
-              "hole_amp": (0.0, 0.40), "noise_sigma": (0.0, 0.08),
-              "brightness_gain": (0.50, 1.60), "contrast_gain": (0.50, 1.60),
-              "saturation_gain": (0.50, 1.60)}
+    #  - per-channel gain and offset: a different sensor's spectral response and
+    #    black level. This is what hue actually is, and the old brightness_gain
+    #    (a single scalar on all channels) is a special case of it.
+    #  - signal-dependent noise sigma(x) = sqrt(a*x + b^2): shot plus read noise,
+    #    the actual physics of a small sensor. The old i.i.d. Gaussian supplied
+    #    about 81 percent of the matched sharpness statistic by itself, which is
+    #    both wrong physics and destroyed by JPEG and resampling.
+    #  - a SIGNED sharpness operator x + k*(x - blur(x)): k < 0 blurs, k > 0
+    #    sharpens. The old blur-only parameter fitted to 0.907 and so BLURRED the
+    #    source to make room for synthetic noise, which is backwards given the
+    #    measured fact that mBRSET carries 5 to 7 times MORE high-frequency
+    #    energy. It also destroyed microaneurysm-scale structure, the exact
+    #    thing this pipeline promises to preserve.
+    FITTED = {"sharpen_k": 0.0, "light_strength": 0.2613, "halo": 0.0857,
+              "spot_amp": 0.20, "hole_amp": 0.20, "noise_a": 1e-4, "noise_b": 0.004,
+              "gain_r": 1.0, "gain_g": 1.0, "gain_b": 1.0,
+              "off_r": 0.0, "off_g": 0.0, "off_b": 0.0,
+              "contrast_gain": 0.9160, "saturation_gain": 1.0028}
 
-    KEYS = ["blur_sigma", "light_strength", "halo", "spot_amp", "hole_amp",
-            "noise_sigma", "brightness_gain", "contrast_gain", "saturation_gain"]
+    # Bounds are load-bearing, not cosmetic. Unbounded, fitting the statistics by
+    # gradient descent drove spot and hole amplitude to 2.98 and 1.95 on a [0,1]
+    # image: the optimiser hit the targets by painting large blobs, numerically
+    # excellent and visually destroyed.
+    RANGES = {"sharpen_k": (-0.95, 2.50), "light_strength": (0.0, 0.60),
+              "halo": (0.0, 0.30), "spot_amp": (0.0, 0.40), "hole_amp": (0.0, 0.40),
+              "noise_a": (0.0, 2e-3), "noise_b": (0.0, 0.03),
+              "gain_r": (0.60, 1.60), "gain_g": (0.60, 1.60), "gain_b": (0.60, 1.60),
+              "off_r": (-0.15, 0.15), "off_g": (-0.15, 0.15), "off_b": (-0.15, 0.15),
+              "contrast_gain": (0.50, 1.60), "saturation_gain": (0.50, 1.60)}
+
+    KEYS = ["sharpen_k", "light_strength", "halo", "spot_amp", "hole_amp",
+            "noise_a", "noise_b", "gain_r", "gain_g", "gain_b",
+            "off_r", "off_g", "off_b", "contrast_gain", "saturation_gain"]
+
+    BLUR_SIGMA = 1.0   # fixed scale of the unsharp kernel; only k is learned
 
     def __init__(self, init=None, n_spot=1, n_hole=3, learnable=True):
         super().__init__()
@@ -161,7 +194,6 @@ class PhysicalAcquisition(nn.Module):
         raws = []
         for k in self.KEYS:
             lo, hi = self.RANGES[k]
-            # invert lo + (hi-lo)*sigmoid(r), keeping away from the asymptotes
             u = min(max((float(p[k]) - lo) / (hi - lo), 1e-3), 1 - 1e-3)
             raws.append(float(np.log(u / (1.0 - u))))
         self.raw = nn.Parameter(torch.tensor(raws, dtype=torch.float32),
@@ -175,14 +207,20 @@ class PhysicalAcquisition(nn.Module):
         return out
 
     def forward(self, x, generator=None):
-        """x in [0,1], shape (B,3,H,W). Same operator order as script 55:
-        optics, then illumination, then artifacts, then sensor, then colour."""
+        """x in [0,1], shape (B,3,H,W).
+
+        Order follows the physical chain: optics, illumination, artifacts,
+        sensor noise, then the camera's colour pipeline. Every operation is
+        photometric or a smooth global field, so none can displace anatomy.
+        """
         p = self.params()
         b, _, h, w = x.shape
         dev, dt = x.device, x.dtype
         mask = fundus_mask(x)
 
-        out = gaussian_blur(x, p["blur_sigma"])
+        # signed sharpness: k<0 blurs, k>0 unsharp-masks
+        blurred = gaussian_blur(x, torch.as_tensor(self.BLUR_SIGMA, device=dev, dtype=dt))
+        out = x + p["sharpen_k"] * (x - blurred)
 
         # uneven illumination, centre jittered off-axis per sample
         off = (torch.rand(b, 2, device=dev, generator=generator) * 0.44 - 0.22)
@@ -190,8 +228,7 @@ class PhysicalAcquisition(nn.Module):
         cy = (h - 1) / 2.0 + off[:, 0].view(-1, 1, 1) * h
         cx = (w - 1) / 2.0 + off[:, 1].view(-1, 1, 1) * w
         d2 = ((yy - cy) ** 2 + (xx - cx) ** 2) / (2.0 * (0.55 * min(h, w)) ** 2)
-        light = 1.0 + p["light_strength"] * (torch.exp(-d2).unsqueeze(1) - 0.5)
-        out = out * light
+        out = out * (1.0 + p["light_strength"] * (torch.exp(-d2).unsqueeze(1) - 0.5))
 
         # halo ring plus bright spots and dark holes
         _, _, r = _radial(h, w, dev, dt)
@@ -209,12 +246,17 @@ class PhysicalAcquisition(nn.Module):
                                    / (2 * rad.view(-1, 1, 1) ** 2))).unsqueeze(1)
                 out = out + sign * amp * blob
 
-        # sensor noise, inside the field of view only
-        noise = torch.randn(x.shape, device=dev, dtype=dt, generator=generator)
-        out = out + p["noise_sigma"] * noise * mask
+        # signal-dependent sensor noise: shot (proportional to signal) + read
+        sigma = (p["noise_a"] * out.clamp(min=0.0) + p["noise_b"] ** 2).clamp(min=1e-12).sqrt()
+        eps = torch.randn(x.shape, device=dev, dtype=dt, generator=generator)
+        out = out + sigma * eps * mask
 
-        # camera colour pipeline: brightness, then contrast, then saturation
-        out = out * p["brightness_gain"]
+        # camera colour pipeline: per-channel affine (white balance and black
+        # level), then global contrast, then saturation
+        gain = torch.stack([p["gain_r"], p["gain_g"], p["gain_b"]]).view(1, 3, 1, 1)
+        offs = torch.stack([p["off_r"], p["off_g"], p["off_b"]]).view(1, 3, 1, 1)
+        out = out * gain + offs
+
         gmean = (rgb_to_gray(out) * mask).sum(dim=(1, 2, 3), keepdim=True) \
             / mask.sum(dim=(1, 2, 3), keepdim=True).clamp(min=1.0)
         out = gmean + (out - gmean) * p["contrast_gain"]
