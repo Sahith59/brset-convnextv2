@@ -60,6 +60,14 @@ def main():
     assert a in s, "anchor for args not found"
     s = s.replace(a, args + a, 1)
 
+    # The per-label dict is discarded into `_` at the unpack, so a naive patch
+    # that references `per` raises NameError at the first validation of every
+    # run. Bind it first, then use it.
+    old_unpack = "            _, macro_auc, macro_f1 = compute_per_label_metrics(y_true, y_prob, thr)"
+    assert old_unpack in s, "anchor for metric unpack not found"
+    s = s.replace(old_unpack,
+                  "            per, macro_auc, macro_f1 = compute_per_label_metrics(y_true, y_prob, thr)", 1)
+
     old = "            score = (macro_auc + macro_f1) / 2"
     assert old in s, "anchor for selection score not found"
     new = ('            score = (per["diabetic_retinopathy"]["auc"]\n'

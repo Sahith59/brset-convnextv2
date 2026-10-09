@@ -2,24 +2,47 @@
 
 Every claim the paper makes, its exact number, where that number comes from, and
 how many seeds back it. Nothing enters the paper that is not in this file.
-Status: MEASURED means the number exists today.
 
----
+**THRESHOLD POLICY, set 9 Oct after review.** Two F1 numbers exist for every run.
+The *val-threshold* number uses the cutoff tuned on the 725-image target
+validation set, which is what a deployed system can actually do. The *oracle*
+number sweeps the cutoff on the TEST set and is an upper bound no deployment can
+reach. Earlier versions of this file silently quoted the oracle everywhere; at
+budget 1000 that inflated F1 by +0.0323, which is larger than the 0.0199 noise
+floor. **DR AUC is now the headline metric** because it needs no threshold at
+all. Val-threshold F1 is secondary. Oracle numbers appear only where labelled.
 
 ## C1. The cross-camera gap is real and large
-**MEASURED.** Zero-shot BRSET -> mBRSET: DR F1 **0.7826**, **42 of 159** diseased
-patients missed, AUC 0.9104. Against pooling at 0.8455. Test set 732 images,
-159 DR+, 63 ME+, element-wise identical across every model compared.
-Source: `results/lebase_b0_s0/`. Seeds: 1 now, 3 by tonight.
+**MEASURED.** Zero target *training* labels, BRSET -> mBRSET:
+**DR AUC 0.9104**, val-threshold DR F1 0.7774, 42 of 159 missed
+(oracle F1 0.7826). Test set 732 images, 159 DR+, element-wise identical across
+every model compared.
+
+**Naming correction.** This is NOT "zero-shot". The run still consumes the
+725-image target validation set for checkpoint selection (argmaxed over 25
+epochs x 2 variants) and for threshold tuning. Honest label cost at this point
+is **725 target labels**, and at budget 500 it is **1,225**. The paper says
+"zero target training labels" and puts total label cost on the x-axis.
+Source: `results/lebase_b0_s0/`. Seeds: 1 now, 3 landing tonight.
 
 ## C2. Pooling saturates the target-trained ceiling
-**MEASURED.** Pooling BRSET + all 3,402 real target images: **0.8455** (3-seed
-mean, best-cutoff). Best of six models trained DIRECTLY on target data:
-**0.8456**. Mean of those six: 0.8271. Even a 6-model ensemble reaches only
-0.8581, inside the noise floor.
+**MEASURED, and it SURVIVES the threshold correction.** Recomputed 9 Oct at both
+threshold policies:
+
+                              val-threshold F1   oracle F1    DR AUC
+    pooling, 3-seed mean               0.8365      0.8455    0.9463
+    best of six target-trained         0.8355      0.8456    0.9446
+    mean of six target-trained         0.8209      0.8271    0.9409
+    difference (pooling minus best)   +0.0010     -0.0001   +0.0017
+
+Pooling equals the best directly-target-trained model under every metric and
+every threshold policy, and the difference is two orders of magnitude inside the
+0.0199 noise floor. A 6-model ensemble reaches only 0.8581 oracle, also inside.
+
 Why it matters: this is why five architecture-side interventions all failed, and
-it is the justification for moving to the data axis.
-Source: verified 8 Oct, all eight test sets element-wise identical. Seeds: 3.
+it is the justification for moving to the data axis. It is the one load-bearing
+claim that did not weaken under review.
+Source: 8 models, all test sets verified element-wise identical. Seeds: 3.
 
 ## C3. Class balance does NOT explain the pooling gain
 **MEASURED.** BRSET train is 6.6% DR+, mBRSET 23.4%; pooling more than doubles
@@ -35,21 +58,39 @@ Class balance closes **+0.0017 of +0.0629**, three percent, far inside the
 Why it matters: rules out the main alternative explanation a reviewer will
 raise, and it was the advisor's own hypothesis. Seeds: 2, third running.
 
-## C4. The curve plateaus at roughly 500 real target images, not 3,402
-**MEASURED (seed 0; seeds 1-2 running).**
+## C4. The curve plateaus, but ONLY on AUC. Corrected 9 Oct.
+**MEASURED (seed 0; seeds 1-2 landing tonight).**
 
-    budget      0    250    500   1000   2000   3402
-    DR AUC  0.9104 0.9278 0.9422 0.9424 0.9453 0.9377
-    DR F1   0.7826 0.7785 0.8167 0.8456 0.8350 0.8383
+    budget          0      250      500     1000     2000     3402
+    DR AUC     0.9104   0.9278   0.9422   0.9424   0.9453   0.9377
+    val-thr F1 0.7774   0.7785   0.8014   0.8133   0.8317   0.8250
+    oracle F1  0.7826   0.7785   0.8167   0.8456   0.8350   0.8383
 
-AUC rises to 0.9422 by budget 500 then flat. Steps clearing the floor:
-250->500 (+0.0382), 500->1000 (+0.0289). Steps inside the floor: 1000->2000,
-2000->3402. Caveat: 250 scores slightly BELOW 0 on F1 while missing fewer
-patients, which is noise; this is why seeds 1-2 are running.
-Why it matters: it sets the synthesis target precisely. Reach ~0.942 AUC with
-fewer than 500 real labels.
+**AUC plateaus at budget 500** (0.9422, then 0.9424, 0.9453, 0.9377: flat within
+noise). **Val-threshold F1 does NOT plateau**; it rises monotonically through
+2000. The earlier "plateaus at roughly 500" rested on oracle F1, where budget
+1000 was inflated by +0.0323.
+
+The honest statement: **the ranking signal saturates by 500 target images, while
+the operating point keeps improving to 2000.** That distinction is itself worth
+stating, since it means the residual benefit of more target data is calibration
+rather than representation.
+
+Caveat: single seed. Budget 250 scores below budget 0 on F1 while missing fewer
+patients, which is noise. Seeds 1-2 running.
 
 ## C5. The appearance gap is noise and contrast, NOT blur
+**UNDER RE-DERIVATION. DO NOT QUOTE A NUMBER YET.** Review raised a second
+contamination: the Laplacian is computed on the full frame then masked, so the
+field-of-view RIM (retina meeting black surround, a hard step) is included.
+BRSET's disc is clipped by the frame top and bottom so part of its boundary is
+the image border with no step, while mBRSET's disc is fully inscribed and has a
+complete 360-degree rim. If the rim dominates, the statistic measures FOV
+geometry, not image quality. `scripts/74_audit_physics.py` tests this by eroding
+the mask; the ratio may fall to roughly 2.4x. This would be the THIRD version of
+this number, so nothing is written until the audit lands.
+
+Previous (now suspect) values below, retained for the record.
 **MEASURED, and CORRECTED DOWNWARD 9 Oct.** 400 images per dataset.
 
 The earlier "5 to 7 times more high-frequency energy" was inflated by a scale
