@@ -253,3 +253,42 @@ lesions, noise and over-sharpening invent false ones, and photometric
 operations do neither. Any synthesis method for this task must be placed on
 that frontier, and nobody currently reports it.
 
+
+## C9. The two-stage translator, first trained result
+**MEASURED 9 Oct.** 4000 steps, 7.7 min on one A40. Fit evaluated on a HELD-OUT
+source split the translator never saw. `results/xlate_v2_noartifact/`.
+
+**Controlled comparison, artifact amplitude capped vs free:**
+
+    quantity                        free (v1)   capped (v2)
+    weighted z^2, FITTED             0.336        0.414
+    brightness z, NOT fitted         +0.34        -0.07
+    r_mean error, NOT fitted          0.069        0.018
+    hole_amp                      pinned 0.40    capped 0.02
+    visible haemorrhage-like blobs   2-3/image     none
+
+Fitted freely the model scores better on the objective and worse on everything
+the objective does not contain. Dark blobs lower the mean and raise the standard
+deviation at once, so they are the cheapest simultaneous fix for brightness
+(z +0.34) and contrast (z -0.32). The images then carry two or three dark round
+structures indistinguishable from blot haemorrhages, on source images that keep
+their original label, 93.4 percent of which are disease-negative.
+
+Capping the amplitude costs **+0.078 weighted z^2** and removes the mechanism.
+The unfitted diagnostics improve sharply, which is the evidence that the
+artifact route was overfitting the objective rather than modelling the device.
+
+**Capped fit quality, held out, all 13 fitted statistics:** every |z| <= 0.32.
+Chromatic fractions r -0.18, g +0.10, b +0.21. Per-channel Laplacian variance
+r -0.15, g -0.09, b -0.08. The chromatic gap that motivated the whole design is
+closed.
+
+**Honest caveats.**
+- Eight of nineteen parameters pin at a bound (sharpen_k, spot_amp, hole_amp,
+  noise_a_b, noise_b_r, noise_b_g, off_g, off_b). The family is straining, so no
+  claim is made about any individual fitted value.
+- `sharpness` as a diagnostic remains short, 0.00037 against 0.00056.
+- Qualitatively the synthetic images still lack the strong specular flash
+  artifact visible at the frame edge of many real mBRSET images, and carry a
+  faint bright rim the real images do not have.
+- Stage 2 adds little visible change over stage 1 at these settings.
