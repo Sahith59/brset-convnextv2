@@ -78,9 +78,21 @@ def saturation_map(x):
 
 
 def laplacian(x):
+    """Four-neighbour Laplacian applied INDEPENDENTLY to each input channel.
+
+    Grouped, so a 3-channel input returns 3 Laplacians instead of the Laplacian
+    of their sum. The previous single-group kernel collapsed the channels, which
+    is why the only high-frequency statistic available was a grayscale one. The
+    measured excess high-frequency energy is strongly channel-asymmetric (std
+    ratio BRSET to mBRSET: red 1.02x, green 1.60x, blue 2.85x), so a grayscale
+    statistic cannot even express the thing the model is supposed to reproduce.
+    For C=1 this is bit-identical to the old behaviour.
+    """
+    c = x.shape[1]
     k = torch.tensor([[0., 1., 0.], [1., -4., 1.], [0., 1., 0.]],
                      device=x.device, dtype=x.dtype).view(1, 1, 3, 3)
-    return F.conv2d(F.pad(x, (1, 1, 1, 1), mode="reflect"), k)
+    k = k.expand(c, 1, 3, 3)
+    return F.conv2d(F.pad(x, (1, 1, 1, 1), mode="reflect"), k, groups=c)
 
 
 def image_stats_torch(x, mask=None):
@@ -117,12 +129,22 @@ def image_stats_torch(x, mask=None):
     # statistics above carries chromatic information: every one is computed on
     # grayscale or on (max-min)/max. Nothing in the pipeline had a gradient
     # toward correct hue, which is the single largest perceptual gap.
+    # PER-CHANNEL high-frequency energy, added 9 Oct. Without this the fit could
+    # not see the channel asymmetry it was built to explain: every HF statistic
+    # was grayscale, and the per-channel statistics it did have (mean, std) are
+    # dominated by anatomy and vignetting, not by the sensor noise that produces
+    # the blue excess. This is the statistic the per-channel noise parameters
+    # are actually identified by.
+    lap_c = laplacian(x)
     for i, c in enumerate("rgb"):
         ch = x[:, i:i + 1]
         cm = (ch * mask).sum(dim=(1, 2, 3)) / n
         cv = ((ch - cm.view(-1, 1, 1, 1)) ** 2 * mask).sum(dim=(1, 2, 3)) / n
         out[f"{c}_mean"] = cm
         out[f"{c}_std"] = cv.clamp(min=0).sqrt()
+        lc = lap_c[:, i:i + 1]
+        lm = (lc * mask).sum(dim=(1, 2, 3)) / n
+        out[f"{c}_lapvar"] = ((lc - lm.view(-1, 1, 1, 1)) ** 2 * mask).sum(dim=(1, 2, 3)) / n
     tot = out["r_mean"] + out["g_mean"] + out["b_mean"] + 1e-9
     for c in "rgb":
         out[f"{c}_frac"] = out[f"{c}_mean"] / tot
@@ -132,18 +154,18 @@ def image_stats_torch(x, mask=None):
 class PhysicalAcquisition(nn.Module):
     """Learnable fundus acquisition model, the acquisition-domain stage.
 
-    Nine interpretable parameters, the same nine script 57 fitted by random
-    search, now trained by gradient descent jointly with the refinement stage.
-    Initialising at the fitted values means the learned stage starts from the
-    best purely physical explanation of the gap rather than from noise.
+    Nineteen interpretable parameters, grown from the nine script 57 fitted by
+    random search, now trained by gradient descent jointly with the refinement
+    stage. Initialising at the fitted values means the learned stage starts from
+    the best purely physical explanation of the gap rather than from noise.
 
     Stochastic placement (where the illumination centre sits, where artifacts
     land) stays random per sample, as in the numpy version. Only the magnitudes
     are learned, which is the part the statistics actually constrain.
     """
 
-    # Fifteen bounded parameters. Extended 9 Oct after verifying the previous
-    # nine had NO chromatic degree of freedom: sweeping every one to both
+    # Bounded parameters, nine then fifteen then nineteen. Extended 9 Oct after
+    # verifying the original nine had NO chromatic degree of freedom: sweeping every one to both
     # extremes moved the R:G:B ratio by at most 0.00088. The earlier claim that
     # the physical model was "exhausted" was therefore false. It was not
     # exhausted, it had no colour parameter. Three additions, each physically
@@ -162,8 +184,18 @@ class PhysicalAcquisition(nn.Module):
     #    measured fact that mBRSET carries 5 to 7 times MORE high-frequency
     #    energy. It also destroyed microaneurysm-scale structure, the exact
     #    thing this pipeline promises to preserve.
+    # NINETEEN parameters as of 9 Oct. The sensor noise pair became a per-channel
+    # triple of pairs because one shared (a, b) structurally cannot produce the
+    # measured asymmetry: the excess high-frequency energy is red 1.02x, green
+    # 1.60x, blue 2.85x, so any single noise magnitude must either underfit blue
+    # or inject noise into red that is not there. Shot and read noise are
+    # physically per-channel quantities anyway (different quantum efficiency and
+    # different black level per colour filter), so this is not a free knob added
+    # to improve a number, it is the correct form of the operator.
     FITTED = {"sharpen_k": 0.0, "light_strength": 0.2613, "halo": 0.0857,
-              "spot_amp": 0.20, "hole_amp": 0.20, "noise_a": 1e-4, "noise_b": 0.004,
+              "spot_amp": 0.20, "hole_amp": 0.20,
+              "noise_a_r": 1e-4, "noise_a_g": 1e-4, "noise_a_b": 1e-4,
+              "noise_b_r": 0.004, "noise_b_g": 0.004, "noise_b_b": 0.004,
               "gain_r": 1.0, "gain_g": 1.0, "gain_b": 1.0,
               "off_r": 0.0, "off_g": 0.0, "off_b": 0.0,
               "contrast_gain": 0.9160, "saturation_gain": 1.0028}
@@ -174,21 +206,68 @@ class PhysicalAcquisition(nn.Module):
     # excellent and visually destroyed.
     RANGES = {"sharpen_k": (-0.95, 2.50), "light_strength": (0.0, 0.60),
               "halo": (0.0, 0.30), "spot_amp": (0.0, 0.40), "hole_amp": (0.0, 0.40),
-              "noise_a": (0.0, 2e-3), "noise_b": (0.0, 0.03),
+              "noise_a_r": (0.0, 2e-3), "noise_a_g": (0.0, 2e-3), "noise_a_b": (0.0, 2e-3),
+              "noise_b_r": (0.0, 0.03), "noise_b_g": (0.0, 0.03), "noise_b_b": (0.0, 0.03),
               "gain_r": (0.60, 1.60), "gain_g": (0.60, 1.60), "gain_b": (0.60, 1.60),
               "off_r": (-0.15, 0.15), "off_g": (-0.15, 0.15), "off_b": (-0.15, 0.15),
               "contrast_gain": (0.50, 1.60), "saturation_gain": (0.50, 1.60)}
 
     KEYS = ["sharpen_k", "light_strength", "halo", "spot_amp", "hole_amp",
-            "noise_a", "noise_b", "gain_r", "gain_g", "gain_b",
+            "noise_a_r", "noise_a_g", "noise_a_b",
+            "noise_b_r", "noise_b_g", "noise_b_b",
+            "gain_r", "gain_g", "gain_b",
             "off_r", "off_g", "off_b", "contrast_gain", "saturation_gain"]
+
+    # Named so callers that need to switch the sensor noise off (the noise-share
+    # audit in script 79) do not have to know how many channels there are.
+    NOISE_KEYS = ["noise_a_r", "noise_a_g", "noise_a_b",
+                  "noise_b_r", "noise_b_g", "noise_b_b"]
+
+    # Accepted in init dicts so checkpoints and scripts written against the
+    # 15-parameter model still load: a scalar noise_a or noise_b is broadcast to
+    # all three channels, which reproduces the old model exactly.
+    LEGACY_ALIASES = {"noise_a": ("noise_a_r", "noise_a_g", "noise_a_b"),
+                      "noise_b": ("noise_b_r", "noise_b_g", "noise_b_b")}
 
     BLUR_SIGMA = 1.0   # fixed scale of the unsharp kernel; only k is learned
 
-    def __init__(self, init=None, n_spot=1, n_hole=3, learnable=True):
+    def __init__(self, init=None, n_spot=1, n_hole=3, learnable=True,
+                 max_artifact=None):
+        """max_artifact caps the spot and hole amplitudes. Default None keeps
+        the published ranges, so existing behaviour is unchanged.
+
+        Why it exists. Fitted freely, hole_amp pins at its 0.40 ceiling and the
+        output carries two or three dark round blobs visually indistinguishable
+        from blot haemorrhages. The diagnostics say why: the fit leaves contrast
+        at z = -0.32 (too low) and brightness at z = +0.34 (too high), and dark
+        spots fix both at once, lowering the mean while raising the standard
+        deviation. It is the cheapest route to two statistics simultaneously.
+
+        That route is unacceptable here. A translated image keeps its SOURCE
+        label, so painting haemorrhage-shaped structures onto the 93.4 percent
+        of BRSET that is disease-negative manufactures mislabelled positives.
+        Capping the amplitude forces the fit onto contrast_gain and the
+        per-channel affine terms, which are photometric and carry no
+        pathological shape.
+        """
         super().__init__()
         p = dict(self.FITTED)
+        if max_artifact is not None:
+            self.RANGES = dict(self.RANGES)
+            for k in ("spot_amp", "hole_amp"):
+                lo, _ = self.RANGES[k]
+                self.RANGES[k] = (lo, float(max_artifact))
+                p[k] = min(p[k], float(max_artifact) * 0.5)
         if init:
+            init = dict(init)
+            for legacy, targets in self.LEGACY_ALIASES.items():
+                if legacy in init:
+                    v = init.pop(legacy)
+                    for t in targets:
+                        init.setdefault(t, v)
+            unknown = [k for k in init if k not in self.RANGES]
+            if unknown:
+                raise KeyError(f"unknown acquisition parameters: {unknown}")
             p.update(init)
         self.n_spot, self.n_hole = n_spot, n_hole
         raws = []
@@ -246,8 +325,12 @@ class PhysicalAcquisition(nn.Module):
                                    / (2 * rad.view(-1, 1, 1) ** 2))).unsqueeze(1)
                 out = out + sign * amp * blob
 
-        # signal-dependent sensor noise: shot (proportional to signal) + read
-        sigma = (p["noise_a"] * out.clamp(min=0.0) + p["noise_b"] ** 2).clamp(min=1e-12).sqrt()
+        # signal-dependent sensor noise: shot (proportional to signal) + read,
+        # now with its own (a, b) per channel so the model can place noise in
+        # blue without placing it in red. sigma_c(x) = sqrt(a_c * x + b_c^2).
+        na = torch.stack([p["noise_a_r"], p["noise_a_g"], p["noise_a_b"]]).view(1, 3, 1, 1)
+        nb = torch.stack([p["noise_b_r"], p["noise_b_g"], p["noise_b_b"]]).view(1, 3, 1, 1)
+        sigma = (na * out.clamp(min=0.0) + nb ** 2).clamp(min=1e-12).sqrt()
         eps = torch.randn(x.shape, device=dev, dtype=dt, generator=generator)
         out = out + sigma * eps * mask
 

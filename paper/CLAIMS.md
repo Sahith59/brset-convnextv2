@@ -80,44 +80,42 @@ Caveat: single seed. Budget 250 scores below budget 0 on F1 while missing fewer
 patients, which is noise. Seeds 1-2 running.
 
 ## C5. The appearance gap is noise and contrast, NOT blur
-**UNDER RE-DERIVATION. DO NOT QUOTE A NUMBER YET.** Review raised a second
-contamination: the Laplacian is computed on the full frame then masked, so the
-field-of-view RIM (retina meeting black surround, a hard step) is included.
-BRSET's disc is clipped by the frame top and bottom so part of its boundary is
-the image border with no step, while mBRSET's disc is fully inscribed and has a
-complete 360-degree rim. If the rim dominates, the statistic measures FOV
-geometry, not image quality. `scripts/74_audit_physics.py` tests this by eroding
-the mask; the ratio may fall to roughly 2.4x. This would be the THIRD version of
-this number, so nothing is written until the audit lands.
+**SETTLED 9 Oct, third and final version. The honest ratio is 2.1 to 2.5x.**
 
-Previous (now suspect) values below, retained for the record.
-**MEASURED, and CORRECTED DOWNWARD 9 Oct.** 400 images per dataset.
+This number was wrong twice and the paper must carry the right one, so the
+derivation is recorded in full.
 
-The earlier "5 to 7 times more high-frequency energy" was inflated by a scale
-confound: the comparison varied output resolution but always applied a fixed
-3x3 Laplacian at matched PIXEL pitch, never at matched retinal scale. BRSET's
-fundus disc is 2491 px against mBRSET's 1599 px, so BRSET was being measured at
-a finer retinal scale on a power-law spectrum.
+    version 1   "5 to 7x"    inflated by a retinal-scale confound
+    version 2   "4.05x"      disc-matched, but still rim-contaminated
+    version 3   "2.1-2.5x"   rim excluded, and SCALE-INVARIANT
 
-Re-measured with the fundus disc resized to an identical 1024 px in both:
+The contamination. image_stats computes a Laplacian on the full frame and then
+masks, so pixels at the field-of-view rim, where retina meets black surround in
+a hard step, are included. The two datasets have different FOV geometry: BRSET's
+disc is clipped by the frame top and bottom, so part of its boundary is the
+image border with no step, while mBRSET's disc is fully inscribed and carries a
+complete 360-degree rim. Measured mask fractions confirm it: BRSET 0.833 against
+mBRSET 0.775, where an inscribed circle gives pi/4 = 0.785.
 
-    sharpness ratio, native resolution      7.50x
-    sharpness ratio, fundus-disc matched    4.05x   <- the honest number
+Measured with the mask eroded, `scripts/74_audit_physics.py`:
 
-The finding survives and the direction is unchanged: mBRSET carries far MORE
-high-frequency energy, not less. But the paper must quote **4.05x**, not 5-7x.
+    erode px        0      1      2      5     10     20
+    native       5.82   2.74   2.19   2.13   2.12   2.13
+    squash512    2.69   3.58   2.50   2.49   2.52   2.51
 
-Disc-matched, the rest of the gap:
+The ratio collapses once the rim is excluded and then goes flat. Critically it
+also becomes **scale-invariant** (2.13 native against 2.51 at 512), which the
+contaminated versions were not. That stability is the evidence that the eroded
+measurement is the one tracking image content rather than frame geometry.
 
-    statistic    BRSET    mBRSET   ratio
-    sharpness  0.00011   0.00046   4.05
-    contrast   0.08623   0.14265   1.65
-    brightness 0.39623   0.35926   0.91
-    falloff    0.08711   0.09327   1.07
-    saturation 0.80843   0.75780   0.94
+**What survives:** the direction, which is the part the paper needs. mBRSET
+carries roughly 2.1 to 2.5 times MORE high-frequency energy than BRSET, not
+less. The fundus-degradation literature models degradation as blur. On this
+device pair that remains the wrong axis.
 
-Why it matters: the fundus-degradation literature models degradation as blur.
-On this device pair that is the wrong axis, by a factor of four.
+**What does not survive:** any claim of a 4x or 7x gap. The paper quotes 2.1-2.5x
+and states the rim-exclusion protocol, because a reviewer who recomputes without
+eroding will get a different number and needs to know why.
 
 ## C5b. The chromatic gap is a BLUE-CHANNEL gap. NEW, never previously measured.
 **MEASURED 9 Oct**, identical under native and disc-matched measurement, so it

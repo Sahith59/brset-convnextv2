@@ -468,6 +468,13 @@ def build_args(argv=None):
                     help="measured mBRSET statistics; must be measured at "
                          "--presize/--size, see scripts/76_measure_chromatic.py")
     ap.add_argument("--allow_pitch_mismatch", action="store_true")
+    ap.add_argument("--max_artifact", type=float, default=-1.0,
+                    help="Cap on spot and hole amplitude. Negative keeps the published 0.40 "
+                         "ceiling. Fitted freely, hole_amp pins at that ceiling and paints dark "
+                         "blobs that are visually indistinguishable from blot haemorrhages, "
+                         "because they are the cheapest way to lower brightness (z +0.34) and "
+                         "raise contrast (z -0.32) at once. A translated image keeps its SOURCE "
+                         "label, so that manufactures mislabelled positives.")
     ap.add_argument("--init_phys", default="results/physics_v2_fit.json",
                     help="stage-1 init from script 79's fit; falls back to "
                          "PhysicalAcquisition.FITTED if absent")
@@ -538,10 +545,21 @@ def build_args(argv=None):
 
 def check_pitch(targets, a):
     meta = targets.get("_meta", {})
-    tp, ts = meta.get("presize"), meta.get("size")
-    if ts is None:
-        print("[warn] targets JSON has no size metadata; cannot verify pitch")
+    tp = meta.get("presize")
+    # scripts/76 records the pitch two different ways. The --size path writes
+    # `size` and leaves `crop` at 0; the --presize/--crop path (the one that
+    # reproduces the trainer) writes presize and crop and leaves `size` at 0.
+    # The EFFECTIVE pitch is the crop whenever a crop was taken, so read that
+    # first. Comparing `size` alone rejects correctly-measured targets.
+    ts = meta.get("crop") or meta.get("size")
+    if ts is None and meta.get("size") is None and meta.get("crop") is None:
+        print("[warn] targets JSON has no size metadata at all; cannot verify pitch")
         return
+    if not ts:
+        # Both fields present and zero means the targets were measured at NATIVE
+        # resolution, which has no single pixel pitch and can never match a
+        # fixed training pitch. Treat it as a mismatch, not as missing data.
+        ts = "native"
     if (ts, tp) != (a.size, a.presize):
         msg = (f"targets were measured at presize={tp} size={ts} but training "
                f"runs at presize={a.presize} size={a.size}. Laplacian variance "
@@ -567,7 +585,8 @@ def build_model(a, device):
         print(f"[warn] no stage-1 warm start from {p} ({type(e).__name__}); "
               f"starting at PhysicalAcquisition.FITTED. Run "
               f"scripts/80_fit_physics_v2.slurm for a fitted init.")
-    phys = P.PhysicalAcquisition(init=init, learnable=not a.freeze_phys)
+    phys = P.PhysicalAcquisition(init=init, learnable=not a.freeze_phys,
+                                 max_artifact=(a.max_artifact if a.max_artifact >= 0 else None))
     ref = R.ResidualRefiner(lf_stride=a.lf_stride, lf_width=a.lf_width,
                             lf_depth=a.lf_depth, hf_width=a.hf_width,
                             eps_lf=a.eps_lf, eps_hf=a.eps_hf,
