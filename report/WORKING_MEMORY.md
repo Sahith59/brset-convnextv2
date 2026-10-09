@@ -10,17 +10,9 @@ decision is made; it is the first thing to read when resuming work.
 
 ## Currently running
 
-| Job | Task | Budget | Started | Expected |
-|---|---|---|---|---|
-| 4572237 | lebase_b0_s0 | 0 | 8 Oct | ~11h, tonight |
-| 4572238 | lebase_b250_s0 | 250 | 8 Oct | ~11h, tonight |
-| 4572239 | lebase_b500_s0 | 500 | 8 Oct | ~11h, tonight |
-| 4572240 | lebase_b1000_s0 | 1000 | 8 Oct | ~11h, tonight |
-| 4572241 | lebase_b2000_s0 | 2000 | 8 Oct | ~11h, tonight |
-| 4572531 | balctl_s0 | 0 + rebalanced | 8 Oct | ~12h |
-| 4572532 | balctl_s1 | 0 + rebalanced | 8 Oct | ~12h |
-
-Check with `squeue -u sthummala2`. Results land in `results/lebase_b<N>_s0/`.
+Seeds 1 and 2 at budgets 0/250/500/1000, jobs 4588222-4588229. Eight runs, the
+left half of the curve where synthesis has to act. Single-seed points cannot be
+claimed against a 0.0199 floor.
 
 ## Done and verified
 
@@ -39,6 +31,25 @@ Check with `squeue -u sthummala2`. Results land in `results/lebase_b<N>_s0/`.
   both amplitudes pinned at ceiling, contrast and saturation still short.
   This is claim 2 of the paper and it is already evidence.
 
+## Label-efficiency curve, seed 0 (first read)
+
+    budget   DR AUC   best-cut F1   missed/159
+         0   0.9104        0.7826           42
+       250   0.9278        0.7785           36
+       500   0.9422        0.8167           32
+      1000   0.9424        0.8456           33
+      2000   0.9453        0.8350           35
+      3402   0.9377        0.8383           32   (seed 0)
+                           0.8455                (3-seed mean)
+
+**The curve plateaus at roughly 500 to 1000 real images, not 3402.** AUC is the
+cleaner read: 0.9104 -> 0.9422 by budget 500, then flat. Steps 250->500 (+0.0382)
+and 500->1000 (+0.0289) clear the noise floor; 1000->2000 (-0.0106) and
+2000->3402 (+0.0033) do not.
+
+So the target for synthesis is sharp: reach ~0.84 F1 / ~0.942 AUC using FEWER
+than 500 real images. Caveat: single seed, seeds 1 and 2 now running.
+
 ## Next up, in order
 
 1. **Residual refiner + discriminator + joint training loop** (stage 2). Critical path.
@@ -49,7 +60,7 @@ Check with `squeue -u sthummala2`. Results land in `results/lebase_b<N>_s0/`.
 4. **Generate and audit synthetic sets**, qualitative figure.
 5. **Downstream grid**: budgets 250/500/1000 first, arms B4 and B3.
 
-## TOP RISK, under test right now
+## TOP RISK: RESOLVED 9 Oct, IN OUR FAVOUR
 
 **The label-balance confound. This can kill the headline claim.**
 
@@ -62,14 +73,21 @@ percent. They add appearance but not one new positive. So if the pooling gain is
 mostly class balance, synthesis cannot reproduce it and the label-efficiency
 claim fails regardless of translator quality.
 
-Dr. Ye raised this 3 September. It was never tested. `balctl_s0/s1` tests it:
-BRSET only, zero target images, positives resampled to 23.4 percent.
+**RESULT, 2 seeds, best-cutoff DR F1:**
 
-**Reading the result:**
-- lands near 0.84 -> appearance is NOT the story; re-plan before building stage 2
-- stays near 0.79 -> device adaptation IS the story; synthesis direction is sound
+    budget 0, no rebalancing      0.7826   (42 missed)
+    budget 0, rebalanced to 23.4% 0.7843   (45.5 missed)
+    pooling, all 3402 real        0.8455
 
-Do not invest further in the translator until this reads out.
+    total gap                     +0.0629
+    closed by class balance alone +0.0017   = 3 percent of the gap
+    remaining for device          +0.0612   = 3x the noise floor
+    noise floor                    0.0199
+
+**Class balance explains essentially none of it.** Dr. Ye's label-distribution
+hypothesis is tested and rejected, which is itself a citable result: it rules
+out the main alternative explanation for why pooling works. Device adaptation
+is real and synthesis has a genuine job. Stage 2 is cleared to build.
 
 ## Open decisions
 
