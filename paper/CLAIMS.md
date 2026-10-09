@@ -179,11 +179,79 @@ methodological spine and it is what makes the negatives credible.
 Needs: stage 2 built and trained. Metric: appearance distance below 1.36, plus
 qualitative panel.
 
-## C10. Translation preserves lesions
-Needs: the preservation metric. Reported per method and per residual bound eps.
 
 ## C11. HEADLINE. Synthetic target images substitute for real target labels
 Needs: synthesis arms of the curve at budgets 0/250/500, versus C4's baseline,
 versus the hand-crafted chain, versus GDRNet, versus CycleGAN.
 Success condition: at a given budget, synthesis beats no-synthesis by more than
 0.0199, and beats the hand-crafted arm.
+
+## C10. Lesion preservation, MEASURED. The metric works and it has teeth.
+**MEASURED 9 Oct**, 160 BRSET images, `scripts/84_lesion_retention.py`,
+`results/lesion_retention_sq512.json`. Classifier-free: red-lesion candidates
+are detected on the inverted green channel with orientation-wise vessel
+suppression plus black-tophat, then matched between original and translated.
+
+**The metric is validated by its controls**, which is what makes it citable:
+
+    condition              retention   spurious
+    identity (null)            1.000      0.000
+    gaussian blur sigma 1      0.202      0.033
+    gaussian blur sigma 3      0.005      0.168
+    chance (random match)      0.045          -
+
+Perfect on identity, near-total loss under blur, far above chance. It measures
+what it claims to measure.
+
+**FINDING 1. GDRNet destroys half the lesion evidence.**
+
+    numpy55_gdrnet_generic     0.465      0.324
+
+GDRNet's published settings retain only **46.5 percent** of red-lesion
+candidates. This converts C6 from an appearance-distance argument into a
+clinical one: the method does not merely move away from the target
+distribution, it erases the findings the task depends on.
+
+**FINDING 2. Sensor noise is a spurious-lesion generator, and it is the
+dominant harm in our own chain.** Ablating the acquisition model:
+
+    stage1_photometric_only    0.851      0.004   <- clean
+    stage1_no_noise            0.885      0.134
+    stage1_no_artifacts        0.842      0.725
+    stage1_fitted_full         0.829      0.724
+
+Removing the artifact blobs changes spurious not at all (0.725 vs 0.724).
+Removing the NOISE drops it from 0.724 to 0.134. Under the noise sweep,
+spurious reaches 0.92 to 0.94, meaning **over nine in ten detected candidates
+in the synthetic image are fabricated**. Since a translated image keeps its
+source label, that is a label-noise generator pointed at the 93.4 percent of
+BRSET that is disease-negative.
+
+**FINDING 3. The artifact blobs are NOT harmful. A prediction, tested and
+refuted.** Review predicted the blobs would fabricate lesion-scale structures.
+Measured across amplitude 0.20 to 0.40 and sigma 0.015 to 0.055, retention
+stays 0.941 to 0.994 and spurious 0.014 to 0.025. The concern was reasonable
+and it is wrong.
+
+**FINDING 4. Blurring destroys lesions, which retroactively condemns the
+original model.** Sweeping the signed sharpness parameter:
+
+    sharpen_k  -0.95   retention 0.222
+    sharpen_k  -0.60   retention 0.396
+    sharpen_k  -0.30   retention 0.661
+    sharpen_k  +0.00   retention 0.964
+    sharpen_k  +1.00   retention 0.955   spurious 0.671
+    sharpen_k  +2.50   retention 0.931   spurious 0.808
+
+The superseded nine-parameter model fitted `blur_sigma` to 0.907, squarely in
+the destructive region. **It was discarding roughly 60 to 78 percent of
+lesion candidates in order to match a sharpness statistic that synthetic noise
+was supplying anyway.** Sharpening preserves lesions but fabricates them.
+
+**THE FRONTIER. This is the paper's central object.** There is a measurable
+tension between appearance matching and lesion preservation, and the two
+failure modes are distinct and separately attributable: blur loses real
+lesions, noise and over-sharpening invent false ones, and photometric
+operations do neither. Any synthesis method for this task must be placed on
+that frontier, and nobody currently reports it.
+
