@@ -292,3 +292,37 @@ closed.
   artifact visible at the frame edge of many real mBRSET images, and carry a
   faint bright rim the real images do not have.
 - Stage 2 adds little visible change over stage 1 at these settings.
+
+## C11. Downstream result, FIRST ATTEMPT: synthesis as REPLACEMENT hurts.
+**MEASURED 10 Oct.** Zero real target training labels. Identical to the
+baseline at the same budget in every respect except that training images pass
+through the trained translator. Val and test are real target images, never
+translated.
+
+    arm                       DR AUC   val F1   oracle F1   missed
+    baseline, no synthesis    0.9104   0.7774      0.7826       42
+    synthesis, translate_p=1  0.8888   0.7278      0.7584       44
+    delta                    -0.0216  -0.0496     -0.0242       +2
+
+    noise floor 0.0199 DR F1; the F1 change is 2.5x the floor
+    reference ceiling, pooling all 3402 real: AUC 0.9463, val F1 0.8365
+
+**This is a real negative, not noise.** It is also, most likely, a design error
+rather than a verdict on synthesis. `translate_p = 1.0` REPLACES every source
+image with its synthetic version, so the model never sees a real image. The
+prior work that reports gains from generative augmentation trains on synthetic
+PLUS real; the CycleGAN SLO-to-colour-fundus glaucoma study that lifted AUC
+0.89 to 0.94 is explicit about this.
+
+Replacement plausibly trades one domain gap for another: instead of BRSET
+against mBRSET, the classifier now faces OUR SYNTHETIC mBRSET against real
+mBRSET. The two are known to differ qualitatively even though the 13 fitted
+statistics match to |z| <= 0.32: we add a faint bright rim that real images
+lack, and we do not reproduce the specular flash common at the frame edge of
+real handheld captures.
+
+`--translate_p` is added to test this directly. Runs at p = 0.5 and p = 0.25
+use synthesis as augmentation alongside real images rather than as a
+substitution. Whatever the outcome, **the replacement-vs-augmentation
+distinction is itself a reportable result**, since no paper in this area states
+which regime it used or what the difference costs.

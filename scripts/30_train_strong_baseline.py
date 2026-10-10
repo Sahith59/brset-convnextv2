@@ -203,6 +203,25 @@ def get_args():
                          "while leaving mBRSET untouched, creating a geometric domain gap in "
                          "preprocessing. 'preserve' resizes the short side and centre crops, treating "
                          "both datasets identically.")
+    p.add_argument("--translator_ckpt", default="",
+                    help="Path to a trained two-stage translator (scripts/83). When set, every "
+                         "TRAINING image is passed through it on the GPU before normalisation, "
+                         "turning BRSET images into synthetic mBRSET-like ones. Validation and "
+                         "test are NEVER translated; they are real target images. Translation is "
+                         "done on the fly rather than from a saved corpus because JPEG and "
+                         "resampling destroy the sensor-noise component that carries most of the "
+                         "per-channel sharpness match, and because the acquisition model's "
+                         "stochastic terms then redraw every epoch instead of mapping the whole "
+                         "source set onto a single point in appearance space.")
+    p.add_argument("--translate_p", default=1.0, type=float,
+                    help="Probability that a given training image is translated. 1.0 REPLACES "
+                         "every source image with its synthetic version; measured 10 Oct, that "
+                         "costs 0.0216 DR AUC and 0.0496 F1 against the untranslated baseline, "
+                         "2.5x the noise floor. Replacement means the model never sees a real "
+                         "image and simply trades the BRSET-vs-mBRSET gap for a "
+                         "synthetic-vs-real-mBRSET one. Values below 1.0 use synthesis as "
+                         "AUGMENTATION alongside real images, which is what the prior work that "
+                         "reports gains actually does.")
     p.add_argument("--target_pos_rate", default=-1.0, type=float,
                     help="Resample so the EXPECTED fraction of DR-positive images drawn per epoch "
                          "equals this rate. -1 disables, reproducing every earlier run. This "
@@ -335,15 +354,21 @@ def build_transforms(args):
         resize = transforms.Resize(args.resize_size)
     else:
         resize = transforms.Resize((args.resize_size, args.resize_size))
-    train_tf = transforms.Compose([
+    # When a translator is attached, normalisation is deferred to the training
+    # loop: the translator operates on [0,1] images. Augmentation stays here, so
+    # the source image is varied first and the camera model applied second, and
+    # every other element of the pipeline is byte-identical to the baseline arms.
+    train_steps = [
         resize,
         transforms.RandomCrop(args.input_size),
         transforms.RandomHorizontalFlip(),
         transforms.RandomRotation(15),
         transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.1),
         transforms.ToTensor(),
-        transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
-    ])
+    ]
+    if not getattr(args, "translator_ckpt", ""):
+        train_steps.append(transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD))
+    train_tf = transforms.Compose(train_steps)
     eval_tf = transforms.Compose([
         resize,
         transforms.CenterCrop(args.input_size),
@@ -447,8 +472,12 @@ def mixup_batch(images, targets, alpha):
     return lam * images + (1 - lam) * images[perm], lam * targets + (1 - lam) * targets[perm]
 
 
+_NORM_MEAN = None   # set in main() when a translator is attached
+_NORM_STD = None
+
+
 def train_one_epoch(model, ema, loader, optimizer, scheduler, scaler, criterion, device,
-                     epoch, args, print_freq=40):
+                     epoch, args, print_freq=40, translator=None):
     model.train()
     running_loss, n_batches, n_bad = 0.0, 0, 0
     t0 = time.time()
@@ -456,6 +485,19 @@ def train_one_epoch(model, ema, loader, optimizer, scheduler, scaler, criterion,
     for i, (images, targets) in enumerate(loader):
         images = images.to(device, non_blocking=True)
         targets = targets.to(device, non_blocking=True)
+        if translator is not None:
+            # synthesise the target camera, then normalise. Mixup runs AFTER so
+            # it blends already-translated images, matching the baseline order.
+            p_tr = getattr(args, "translate_p", 1.0)
+            if p_tr >= 1.0:
+                images = translator(images).clamp_(0.0, 1.0)
+            elif p_tr > 0.0:
+                # per-image Bernoulli, so a batch mixes real and synthetic
+                sel = torch.rand(images.size(0), device=images.device) < p_tr
+                if sel.any():
+                    images = images.clone()
+                    images[sel] = translator(images[sel]).clamp_(0.0, 1.0)
+            images = (images - _NORM_MEAN) / _NORM_STD
         if args.mixup_alpha > 0:
             images, targets = mixup_batch(images, targets, args.mixup_alpha)
         if args.label_smoothing > 0:
@@ -506,6 +548,20 @@ def main():
     ds_test = BRSETMultiLabel(data_path / "test", eval_tf)
     apply_target_budget(ds_train, args)
     print(f"train/val/test sizes: {len(ds_train)}/{len(ds_val)}/{len(ds_test)}", flush=True)
+
+    # Attach the translator, if one was given. Training images only: validation
+    # and test are real target-domain images and must never be synthesised.
+    translator = None
+    if args.translator_ckpt:
+        global _NORM_MEAN, _NORM_STD
+        import importlib.util as _ilu
+        _sp = _ilu.spec_from_file_location("_synth", str(Path(__file__).parent / "88_synth_augment.py"))
+        _sa = _ilu.module_from_spec(_sp); _sp.loader.exec_module(_sa)
+        translator = _sa.load_translator(args.translator_ckpt, device=device)
+        _NORM_MEAN = torch.tensor(IMAGENET_MEAN, device=device).view(1, 3, 1, 1)
+        _NORM_STD = torch.tensor(IMAGENET_STD, device=device).view(1, 3, 1, 1)
+        print("translator attached: TRAIN images are synthesised on the fly; "
+              "val/test remain real target images", flush=True)
 
     sample_weights, counts = build_sample_weights(ds_train.labels_df)
     if args.target_pos_rate > 0:
@@ -587,7 +643,8 @@ def main():
 
     for epoch in range(args.epochs):
         train_loss = train_one_epoch(model, ema, loader_train, optimizer, scheduler,
-                                      scaler, criterion, device, epoch, args)
+                                      scaler, criterion, device, epoch, args,
+                                      translator=translator)
 
         epoch_best = None
         for variant, net in (("raw", model), ("ema", ema.module if ema else None)):
