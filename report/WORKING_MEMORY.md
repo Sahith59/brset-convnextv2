@@ -1,120 +1,233 @@
 # WORKING MEMORY
 
 Live state of the ISBI push. Plan of record is `report/PLAN_v2.md`.
-**Last updated: 8 October 2026.** Update this file whenever a run lands or a
-decision is made; it is the first thing to read when resuming work.
+**Last updated: 12 October 2026, 14:50.** Update whenever a run lands or a
+decision is made; first thing to read when resuming.
 
-**Deadline: ISBI 2027, 26 October 2026. 18 days out.**
+**Deadline: ISBI 2027, 26 October 2026. 14 days out.**
 
 ---
 
+## READ FIRST (12 Oct, 17:00)
+
+- **Authoritative record is `research/codex/` (MEMORY.md, PLAN.md, DECISIONS.md,
+  SESSION_LOG.md), per `AGENTS.md`.** This file is a working scratchpad. The
+  12 Oct entry there lists five corrections to statements made 10-12 Oct.
+- **Hardware now (17:22):** `gen_tgt` 4x H100 (job 4599238, 1.83 it/s), `gen_both`
+  8x A100 (job 4599239, 1.77 it/s), `gen_tgt_sharp` 16x A40 (job 4599320) after
+  an A100 attempt was preempted. Fast runs finish ~22:20-22:45 on 12 Oct.
+- **32 gate jobs queued** on snapshots 5k/10k/20k/40k -> `results/gates_g*.json`.
+- **First-look figure:** `report/figures/first_look_gen_tgt.png` (step 3,000).
+- **Novelty unresolved:** RetSyn and SCR-Net are close prior work.
+- **Downstream comparison needs a protocol first** (validation-selected, one
+  gated test assessment, patient-cluster bootstrap).
+
+## CURRENT DIRECTION (12 Oct): the real generative translator
+
+Decision by the user, following Dr. Ye's 8 Oct verdict ("image synthesis
+converting BRSET to synthesized mBRSET ... joint training ... make use of the
+generative world model ... everything we did till now sounds like preprocessing,
+good for a class project not a conference submission").
+
+**What was wrong before.** "Stage 2" was a 68,346-parameter refiner clamped to
++-0.15 / +-0.02, with a discriminator 2.4x its size. The domain probe sitting at
+1.0000 was a capacity limit, not evidence about synthesis. The claim
+"appearance synthesis is refuted" is WITHDRAWN.
+
+**What is being built.** Dual-domain translator:
+- stage 1, acquisition domain: the 19-parameter physics model (kept)
+- stage 2, image domain: 104.7M-parameter conditional diffusion renderer
+  p(image | structure map, device), trained on real images
+- coupling: diffusion sampling starts from the stage-1 output at an
+  intermediate noise level
+
+**RELAUNCHED 12 Oct 15:20 on 8 A40s each (4 nodes), at the user's request.**
+Effective batch 128, lr 2e-4, 40,000 steps (~22 h instead of ~64 h), snapshot
+`ema_000NNNN.pt` every 2,500 steps (~85 min). Jobs 4599139 / 4599140 / 4599141,
+script `scripts/110_train_diffusion_mn.slurm` with `sbatch --nodes=4`. The table
+and job numbers just below describe the superseded 2-GPU launch.
+
+27 gate jobs queued against snapshots 2,500 / 7,500 / 15,000.
+
+**(superseded) first launch** (2x A40 each, effective batch 32, 120k steps):
+
+| job | tag | what |
+|---|---|---|
+| 4599090 | `gen_tgt` | mBRSET-only renderer |
+| 4599091 | `gen_both` | both devices + device token (world-model form) |
+| 4599092 | `gen_tgt_sharp` | mBRSET-only, structure-map blur 0.8 (tighter lesion pinning) |
+
+First 10k snapshot ~4.5 h after launch; 20k ~9 h. Jobs are resumable: resubmit
+`scripts/110_train_diffusion.slurm` with the same TAG.
+
+**Gates, in order. No downstream run until 1 and 2 pass.**
+1. Realism — domain probe real mBRSET vs translated BRSET, well below 1.0000.
+2. Label preservation — `brset_mbrset_joint` must recover BRSET labels from the
+   translated images, per ICDR grade (grade 1 above all).
+3. Downstream — BRSET + synthetic mBRSET, 3 seeds, `--no_oversample`.
+
+**Measured training rate:** 0.52 it/s at effective batch 32 -> 120k steps in ~64 h.
+EMA snapshots land every ~5.3 h (10k steps). Jobs 4599099 / 4599100 / 4599101.
+
+**Multi-GPU needs `NCCL_P2P_DISABLE=1` on these nodes** (in the slurm script).
+Without it DDP hangs forever in its first collective; the first launch of these
+three jobs sat at 100% CPU with zero steps until that was found.
+
+**Gates are written and validated** (`scripts/112_gates.py`, `112_gate.slurm`):
+- they run on HELD-OUT BRSET (val+test, cache `brset_heldout_560.npy`), because
+  the judge was trained on BRSET train
+- gate 1 primary = a device classifier trained on disjoint real images, scored
+  on the translated ones (did the image cross the device boundary). The direct
+  real-vs-translated probe is reported but is not the criterion: it flags any
+  synthetic image
+- gate 2 judge validated: per-grade AUC 0.988-1.000 on untouched images, and a
+  blur control drops it by 0.21. A 300-step toy model FAILS gate 2 (0.618), so
+  the gate can fail a translator -- which the old lesion detector could not
+
+**To run a gate on a snapshot:**
+`sbatch -J g --export=ALL,RUN=gen_tgt,CKPT=ema_0010000.pt,OUT_TAG=<tag>,STRENGTH=0.6,W_STRUCT=1.5 scripts/112_gate.slurm`
+Sweep STRENGTH (0.3-1.0), W_STRUCT (1-3), INIT (physics/source/none).
+
+**Still to write:** downstream data-dir builder (BRSET + synthetic PNGs, absolute
+paths); a CycleGAN/CUT comparator arm (the unpaired-GAN baseline a reviewer will
+expect); full-corpus translation sharded over GPUs (~26 GPU-hours at 50 steps).
+
+**Smoke evidence (300 steps, 48 images):** BRSET sources come out in mBRSET's
+palette with vessels/disc/bright patches in place. Not evidence of lesion
+preservation — that is gate 2.
+
+---
+
+## EARLIER STATE (through 12 Oct morning) — results below remain valid
+
+## STOP — read this first (11 Oct, 13:50)
+
+**Every comparison made on 10-11 Oct against the 0.9007 baseline is VOID.** The
+baseline passes `--no_oversample`; all new slurms omitted it, so they trained at
+a 60-65% effective positive rate against the baseline's 6.58%. `extmild` peaked
+at best_epoch 1-3 vs the baseline's 24. All arms relaunched with the flag,
+tasks tagged `_ns`. See memory `oversample-flag-confound`.
+
+Within-batch comparisons survive (same regime):
+- `tgtlab`: mild 0.9172 > severe 0.9124 (as predicted, inside floor)
+- `extmild`: severe 0.8688 > mixed 0.8256 > mild 0.8102 — **opposite** of the
+  mild-helps hypothesis, and all far below baseline
+
 ## Currently running
 
-Seeds 1 and 2 at budgets 0/250/500/1000, jobs 4588222-4588229. Eight runs, the
-left half of the curve where synthesis has to act. Single-seed points cannot be
-claimed against a 0.0199 floor.
+**18 jobs, all with `--no_oversample` (tasks `*_ns`):**
+`extmild_{mild,severe,mixed}` x3, `sevmatch` x3, `ordaux_{ord,both}` x3.
+Landing ~19:00. The `extmild` set re-asks the live question; the others
+reinstate valid numbers for the severity interventions.
 
-## Done and verified
+Superseded (confounded, kept on disk as evidence):
+Imports 1,000 real external DR positives from DDR into BRSET training, matched
+count across arms so severity is the only variable. ~5h, landing ~08:00.
 
-- **Saturation measured.** Pooling 0.8455 vs best target-trained 0.8456 at matched
-  best-cutoff. Explains every prior negative. The pivot rests on this.
-- **Seed noise floor.** 0.0199 DR F1, 9 patients, 3 seeds. Nothing smaller is claimable.
-- **Appearance gap measured.** 400 images/dataset, 4 resolutions. Target is noisier,
-  higher contrast, dimmer, more unevenly lit. NOT blurrier.
-- **GDRNet is worse than nothing.** Distance 7.75 vs untouched 5.13 vs fitted 1.36.
-- **`--target_budget` in the trainer.** Stratified on DR, nested across budgets.
-  Offline-tested: stratification, nesting, seed independence, no-op path.
-- **`scripts/72_physical_layer.py`.** Differentiable acquisition model. Statistics
-  agree with numpy reference to 0.2%; 9/9 parameters receive live gradients.
-- **Bounding is load-bearing.** Unbounded fitting drives spot/hole amplitude to
-  2.98/1.95 on a [0,1] image (blob painting). Bounded: 91.8% distance reduction,
-  both amplitudes pinned at ceiling, contrast and saturation still short.
-  This is claim 2 of the paper and it is already evidence.
+| arm | what it adds | role |
+|---|---|---|
+| `mild` | 1,000 grade 1-2 | the hypothesis |
+| `severe` | 1,000 grade 3-4 | control: same new camera, wrong severity |
+| `mixed` | 1,000 proportional | a random mix beat both extremes at n=250 |
 
-## Label-efficiency curve, seed 0 (first read)
+Read as 3-seed means against zero-shot **0.9007**, floor **0.0142**.
 
-    budget   DR AUC   best-cut F1   missed/159
-         0   0.9104        0.7826           42
-       250   0.9278        0.7785           36
-       500   0.9422        0.8167           32
-      1000   0.9424        0.8456           33
-      2000   0.9453        0.8350           35
-      3402   0.9377        0.8383           32   (seed 0)
-                           0.8455                (3-seed mean)
+---
 
-**The curve plateaus at roughly 500 to 1000 real images, not 3402.** AUC is the
-cleaner read: 0.9104 -> 0.9422 by budget 500, then flat. Steps 250->500 (+0.0382)
-and 500->1000 (+0.0289) clear the noise floor; 1000->2000 (-0.0106) and
-2000->3402 (+0.0033) do not.
+## The finding that reframes the project
 
-So the target for synthesis is sharp: reach ~0.84 F1 / ~0.942 AUC using FEWER
-than 500 real images. Caveat: single seed, seeds 1 and 2 now running.
+**The gap is severity, not appearance.** Grade-1 AUC 0.7735 vs grade-4 0.9963.
+All 42 missed patients are grade 1-2, none above. Appearance is orthogonal to
+severity, |rho| <= 0.11 across 9 statistics.
 
-## Next up, in order
+That orthogonality is **generator-independent**: no appearance method can fix a
+severity problem however well built. It is the keystone of the paper.
 
-1. **Residual refiner + discriminator + joint training loop** (stage 2). Critical path.
-2. **Lesion-preservation metric.** Classifier trained on real target data only;
-   score agreement between source label and prediction on translated image.
-3. **CycleGAN/CUT baseline**, trained in parallel as insurance and as the
-   comparison reviewers will expect.
-4. **Generate and audit synthetic sets**, qualitative figure.
-5. **Downstream grid**: budgets 250/500/1000 first, arms B4 and B3.
+---
 
-## TOP RISK: RESOLVED 9 Oct, IN OUR FAVOUR
+## The positive backbone (3 seeds each, test DR AUC)
 
-**The label-balance confound. This can kill the headline claim.**
+| target labels | DR AUC | delta |
+|---|---|---|
+| 0 | 0.9007 | -- |
+| 250 | 0.9219 | +0.0212 |
+| 500 | 0.9360 | +0.0354 |
+| 1000 | 0.9384 | +0.0378 |
+| 2000 | **0.9475** | +0.0469 |
+| pooled (3402) | 0.9377 | |
 
-BRSET train is 6.6 percent DR-positive, mBRSET is 23.4 percent. Pooling does two
-things at once: it adds handheld appearance AND it more than doubles the absolute
-positive count, 748 to 1545. Every result so far confounds them.
+2000 labels beats the pooled model and the target-trained ceiling.
 
-Synthetic handheld images are made from BRSET and INHERIT BRSET'S LABELS at 6.6
-percent. They add appearance but not one new positive. So if the pooling gain is
-mostly class balance, synthesis cannot reproduce it and the label-efficiency
-claim fails regardless of translator quality.
+---
 
-**RESULT, 2 seeds, best-cutoff DR F1:**
+## Negative results, all measured
 
-    budget 0, no rebalancing      0.7826   (42 missed)
-    budget 0, rebalanced to 23.4% 0.7843   (45.5 missed)
-    pooling, all 3402 real        0.8455
+| intervention | result | verdict |
+|---|---|---|
+| 5 architectures | all inside 0.0199 F1 floor | dead |
+| appearance synthesis, 4 ratios | -0.0060 to -0.0452 | dead |
+| translator, 3 variants incl. 2 adversarial | probe AUC 1.0000 -> 1.0000 | dead |
+| ensembling, 1,022 subsets | best < best single model | dead |
+| calibration / thresholds | +0.0052 F1 | noise |
+| aspect-ratio fix | +0.0020 F1 | noise |
+| severity reweighting | +0.0088 DR, oedema -0.0442 | inside floor |
+| ordinal aux head | +0.0101 DR, oedema -0.0689 | inside floor |
+| both | +0.0093 DR, oedema -0.0494 | inside floor |
+| 250 mild-only target labels | 0.9172 | below random 0.9219 |
+| 250 severe-only target labels | 0.9124 | below random |
 
-    total gap                     +0.0629
-    closed by class balance alone +0.0017   = 3 percent of the gap
-    remaining for device          +0.0612   = 3x the noise floor
-    noise floor                    0.0199
+The three severity arms' DR gain is **one seed**: s0 +0.004, s1 +0.027,
+s2 -0.000. 7/9 beat their matched baseline seed, sign test p = 0.09.
 
-**Class balance explains essentially none of it.** Dr. Ye's label-distribution
-hypothesis is tested and rejected, which is itself a citable result: it rules
-out the main alternative explanation for why pooling works. Device adaptation
-is real and synthesis has a genuine job. Stage 2 is cleared to build.
+The 250-label oracle was **underpowered, not refuted**: only 59 images (0.51% of
+training data) differed between arms. It did show the predicted order
+(mild > severe). `extmild` applies 17x the perturbation.
 
-## Open decisions
+**Pattern: rearranging what we have fails; adding information works.** The
+bottleneck is ~115 grade-1 training images.
 
-- Refiner capacity and residual bound: start small and tight, loosen only if the
-  appearance gap does not close. Over-capacity is the lesion-erasure risk.
-- Whether to translate at 512 (matches downstream) or train the translator at 256
-  and upsample. 256 is faster; must verify it does not blur lesions.
+---
 
-## Standing constraints
+## MUST FIX before submission
 
-- BRSET/mBRSET are credentialed PhysioNet data under a DUA. The repo holds code,
-  reports and AGGREGATE results only. No patient images, no per-patient label
-  files, no checkpoints. `results/degradation_examples*.png` and the status deck
-  are gitignored for this reason.
-- Do not monopolise the cluster. Five to six concurrent A40 jobs is the ceiling.
-- Every comparison carries seeds and is scored against the 0.0199 noise floor.
+**The lesion detector cannot separate ICDR grades.** At h=0.012: grade 0 = 799
+candidates, grade 1 = 1133, grade 2 = 727, grade 4 = 714. No threshold in
+0.012-0.15 gives monotone separation. Root cause: `robust_sigma()` returns
+exactly 0.0, so `h` always collapsed to `h_abs` and `--k_rel` never did
+anything in any run.
 
-## Numbers to quote without re-deriving
+Restate these two claims:
+- "translator destroys 57% of lesion evidence" -> 57% of DARK STRUCTURE candidates
+- "GDRNet retains only 46.5% of lesions" -> same correction
 
-```
-test set              732 images, 159 DR+, 63 ME+
-zero-shot             DR F1 0.7842, 50/159 missed
-pooling (3 seeds)     DR F1 0.8250 / 0.8449 / 0.8396, mean 0.8365 at tuned thr
-pooling best-cutoff   mean 0.8455
-target-trained best   0.8456
-noise floor           0.0199 DR F1, 9 patients, 0.0424 ME F1
-BRSET train           11,372 images, 748 DR+ (6.6%)
-mBRSET train          3,402 images, 797 DR+ (23.4%)
-appearance distance   untouched 5.13, GDRNet 7.75, fitted 1.36
-```
+Unaffected: the domain probe (no detector), downstream synthesis losses, the
+per-grade decomposition, orthogonality, the label curve.
+
+---
+
+## Open items
+
+1. `extmild` results, ~08:00. If `mild` > `mixed` > `severe` outside the floor,
+   severity-targeted acquisition is a positive result.
+2. **Talk to Dong.** Appearance synthesis is blocked; reframe the generative work
+   onto severity (manufacturing mild cases). Also disclose the detector problem.
+   Mild-case synthesis is gated behind `extmild`, which is its upper bound.
+3. Mild-case synthesis blocked on annotations: BRSET has no masks, DDR's
+   segmentation subset is not on the cluster, our detector cannot find lesions.
+4. A practical acquisition rule (select by model uncertainty, no grades needed)
+   is what turns the oracle experiment into a method.
+
+## Code added 10-11 Oct
+
+- `--severity_match`, `--ordinal_aux`, `--budget_severity`, `--extra_manifest`
+  in `scripts/30_train_strong_baseline.py`
+- `scripts/101_measure_grade_stats.py` -- grade/candidate calibration
+- `scripts/102_build_extra_manifest.py` -- external dataset manifest
+- `scripts/103_extra_mild.slurm`, `99_ordinal_aux.slurm`, `100_targeted_labels.slurm`
+
+## Queued automatically (12 Oct)
+
+12 gate jobs `g10k_<run>_<init>_s<strength>_w<w_struct>` start at 20:55 on the
+10k-step snapshots of all three generators: physics init at strength 0.4 / 0.6 /
+0.8 and a diffusion-only arm (init none). Each translates the 640-image held-out
+gate subset and writes `results/gates_<tag>.json`. Read those first when resuming.
