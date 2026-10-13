@@ -1,0 +1,19 @@
+{
+  "sources": {
+    "ddr": {
+      "csv_rows": 12522,
+      "files_indexed": 12524,
+      "matched": 12522
+    }
+  },
+  "grade_hist": {
+    "0": 6266,
+    "1": 630,
+    "2": 4477,
+    "3": 236,
+    "4": 913
+  },
+  "mild": 5107,
+  "severe": 1149,
+  "matched_arm_cap": 1149
+}
