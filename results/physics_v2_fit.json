@@ -1,0 +1,154 @@
+{
+ "params": {
+  "sharpen_k": -0.5591182,
+  "light_strength": 0.3509942,
+  "halo": 0.0953584,
+  "spot_amp": 0.392107,
+  "hole_amp": 0.3633594,
+  "noise_a_r": 7.6e-05,
+  "noise_a_g": 3.58e-05,
+  "noise_a_b": 9.1e-06,
+  "noise_b_r": 0.0017435,
+  "noise_b_g": 0.0011403,
+  "noise_b_b": 0.0019625,
+  "gain_r": 0.7113991,
+  "gain_g": 0.9935298,
+  "gain_b": 1.4555111,
+  "off_r": 0.1307471,
+  "off_g": -0.1315572,
+  "off_b": -0.1404706,
+  "contrast_gain": 1.4314554,
+  "saturation_gain": 0.5972039
+ },
+ "z2_untouched": 17.523030559575282,
+ "z2_fitted": 1.3179477475647383,
+ "var2_untouched": 1.816795266594929,
+ "var2_fitted": 1.1248298091809392,
+ "noise_share_of_gap_closed": 1.0534460404336792,
+ "noise_fraction_of_total_sharpness": 0.7153999895510481,
+ "sharpness": {
+  "source": 0.00011690921382978559,
+  "fitted": 0.0003643218078650534,
+  "no_noise": 0.00010368599032517523,
+  "target": 0.0005593958263489185
+ },
+ "per_channel_lapvar": {
+  "r": {
+   "source": 0.00019748772319871932,
+   "fitted": 0.0008150100475177169,
+   "no_noise": 7.598828960908577e-05,
+   "target": 0.0008125606040266575,
+   "gap_closed": 0.0006175223243189976,
+   "noise_contrib": 0.0007390217579086311,
+   "noise_share_of_gap": 1.1967531031750518
+  },
+  "g": {
+   "source": 0.00021636526798829436,
+   "fitted": 0.0005605642800219357,
+   "no_noise": 0.00016801097081042826,
+   "target": 0.0006002383543818724,
+   "gap_closed": 0.00034419901203364134,
+   "noise_contrib": 0.00039255330921150744,
+   "noise_share_of_gap": 1.1404835443663042
+  },
+  "b": {
+   "source": 0.00017353682778775692,
+   "fitted": 0.0004297973355278373,
+   "no_noise": 0.00018279087089467794,
+   "target": 0.0005157313543531927,
+   "gap_closed": 0.00025626050774008036,
+   "noise_contrib": 0.00024700646463315934,
+   "noise_share_of_gap": 0.963888141842335
+  }
+ },
+ "pinned": [
+  "spot_amp",
+  "noise_a_g",
+  "noise_a_b"
+ ],
+ "ranges": {
+  "sharpen_k": [
+   -0.95,
+   2.5
+  ],
+  "light_strength": [
+   0.0,
+   0.6
+  ],
+  "halo": [
+   0.0,
+   0.3
+  ],
+  "spot_amp": [
+   0.0,
+   0.4
+  ],
+  "hole_amp": [
+   0.0,
+   0.4
+  ],
+  "noise_a_r": [
+   0.0,
+   0.002
+  ],
+  "noise_a_g": [
+   0.0,
+   0.002
+  ],
+  "noise_a_b": [
+   0.0,
+   0.002
+  ],
+  "noise_b_r": [
+   0.0,
+   0.03
+  ],
+  "noise_b_g": [
+   0.0,
+   0.03
+  ],
+  "noise_b_b": [
+   0.0,
+   0.03
+  ],
+  "gain_r": [
+   0.6,
+   1.6
+  ],
+  "gain_g": [
+   0.6,
+   1.6
+  ],
+  "gain_b": [
+   0.6,
+   1.6
+  ],
+  "off_r": [
+   -0.15,
+   0.15
+  ],
+  "off_g": [
+   -0.15,
+   0.15
+  ],
+  "off_b": [
+   -0.15,
+   0.15
+  ],
+  "contrast_gain": [
+   0.5,
+   1.6
+  ],
+  "saturation_gain": [
+   0.5,
+   1.6
+  ]
+ },
+ "init_seed": -1,
+ "steps": 400,
+ "lr": 0.05,
+ "var_weight": 1.0,
+ "presize": 560,
+ "size": 512,
+ "targets_file": "results/chromatic_stats_sq512.json"
+}
