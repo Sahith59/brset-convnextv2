@@ -31,7 +31,7 @@ set -euo pipefail
 : "${CKPT:=/home/users/sthummala2/brset-convnextv2/results/xlate_v2_noartifact/translator_last.pth}"
 PY=/home/users/sthummala2/.conda/envs/retfound/bin/python
 cd /home/users/sthummala2/brset-convnextv2
-TASK="synth_b${BUDGET}_s${SEED}_p${TP:-1.0}"
+TASK="synth_b${BUDGET}_s${SEED}_${TMODE:-prob}${TP:-1.0}"
 echo "=== ${TASK}: budget=${BUDGET} seed=${SEED} translator=${CKPT} ==="
 
 "$PY" scripts/30_train_strong_baseline.py \
@@ -44,6 +44,6 @@ echo "=== ${TASK}: budget=${BUDGET} seed=${SEED} translator=${CKPT} ==="
   --ckpt_freq 0 --num_workers 8 --seed "${SEED}" --no_oversample --amp_dtype bf16 \
   --loss focal --focal_gamma 2.0 \
   --target_budget "${BUDGET}" --budget_seed 0 \
-  --translator_ckpt "${CKPT}" --translate_p "${TP:-1.0}" \
+  --translator_ckpt "${CKPT}" --translate_p "${TP:-1.0}" --translate_mode "${TMODE:-prob}" \
   --task "${TASK}" \
   --output_dir /home/users/sthummala2/brset-convnextv2/results

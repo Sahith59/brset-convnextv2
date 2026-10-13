@@ -17,6 +17,24 @@ it never equalised cycles per retinal degree. BRSET's fundus circle is larger in
 pixels than mBRSET's, which attenuates BRSET's measured Laplacian variance on a
 power-law spectrum. --match_disc resizes each image so the fundus circle
 diameter is equal before measuring, which is the honest comparison.
+
+SCALE DECISION, 9 Oct. A target measured at one resolution and chased at another
+is not a target. The native-resolution run measures BRSET with a 2491 px fundus
+disc and mBRSET with a 1599 px disc, but the acquisition model is fitted on
+512x512 tensors and the trainer consumes Resize((560,560)) then a 512 crop, so
+the Laplacian statistics differ by about 3x between the two scales purely
+through the sampling pitch. The measurement resolution is therefore pinned to
+the one synthesis is applied at: --presize 560 --crop 512, which is the
+trainer's own pipeline. The trainer's RandomCrop and the CenterCrop used here
+differ only by a translation, which leaves the sampling pitch, and so every
+statistic here, unchanged in expectation. Native and disc-matched runs are kept
+because they answer a different question (what the cameras do), but they must
+not be used as fit targets.
+
+Also adds PER-CHANNEL Laplacian variance. The headline finding of this script is
+that the high-frequency excess is channel-asymmetric (blue std ratio 2.85x, red
+1.02x), yet every high-frequency statistic measured so far was grayscale, so the
+fit had no target that could see the asymmetry it exists to reproduce.
 """
 import argparse, json
 import numpy as np
@@ -76,6 +94,12 @@ def stats(img, match_disc=None):
     mx = a.max(axis=2); mn = a.min(axis=2)
     sat = np.where(mx > 1e-6, (mx - mn) / np.maximum(mx, 1e-6), 0.0)
     out["sharpness"] = float(ndimage.laplace(g)[m].var())
+    # PER-CHANNEL high-frequency energy, the target the per-channel noise
+    # parameters are fitted against. Same operator as the grayscale sharpness
+    # above, applied to each channel separately instead of to their mean, so the
+    # two are directly comparable.
+    for i, c in enumerate("rgb"):
+        out[f"{c}_lapvar"] = float(ndimage.laplace(a[..., i])[m].var())
     out["brightness"] = float(g[m].mean())
     out["contrast"] = float(g[m].std())
     out["falloff"] = (float(g[inner].mean() - g[outer].mean())
@@ -85,7 +109,26 @@ def stats(img, match_disc=None):
     return out
 
 
-def run(split_dir, n, size, match_disc, seed=0):
+def to_pipeline(im, size, presize, crop):
+    """Bring a native image to the resolution synthesis is applied at.
+
+    presize/crop reproduce the classifier's transform, Resize((S,S)) then a
+    square crop, which is a squash: it ignores aspect ratio exactly as the
+    trainer does. Doing anything else here would measure a target at a sampling
+    pitch the fitted model never sees.
+    """
+    if presize:
+        im = im.resize((presize, presize), Image.BILINEAR)
+        if crop and crop < presize:
+            o = (presize - crop) // 2
+            im = im.crop((o, o, o + crop, o + crop))
+        return im
+    if size:
+        im = im.resize((size, size), Image.BILINEAR)
+    return im
+
+
+def run(split_dir, n, size, match_disc, seed=0, presize=0, crop=0):
     d = Path(split_dir)
     files = pd.read_csv(d / "labels.csv").file.values
     rng = np.random.default_rng(seed)
@@ -96,8 +139,7 @@ def run(split_dir, n, size, match_disc, seed=0):
             im = Image.open(d / f).convert("RGB")
         except Exception:
             continue
-        if size:
-            im = im.resize((size, size), Image.BILINEAR)
+        im = to_pipeline(im, size, presize, crop)
         s = stats(im, match_disc)
         if s:
             rows.append(s)
@@ -111,13 +153,21 @@ def main():
                    help="0 keeps native resolution")
     p.add_argument("--match_disc", type=int, default=0,
                    help="resize so the fundus circle diameter equals this many pixels")
+    p.add_argument("--presize", type=int, default=0,
+                   help="squash-resize to this square size first; 560 with --crop 512 "
+                        "reproduces the trainer pipeline and is the only setting whose "
+                        "output may be used as a fit target")
+    p.add_argument("--crop", type=int, default=0,
+                   help="centre crop after --presize")
     p.add_argument("--out", default="results/chromatic_stats.json")
     a = p.parse_args()
 
-    B = run("data/finetune_multilabel/train", a.n, a.size, a.match_disc, 0)
-    M = run("data/finetune_mbrset_multilabel/train", a.n, a.size, a.match_disc, 1)
+    B = run("data/finetune_multilabel/train", a.n, a.size, a.match_disc, 0, a.presize, a.crop)
+    M = run("data/finetune_mbrset_multilabel/train", a.n, a.size, a.match_disc, 1, a.presize, a.crop)
+    scale = (f"presize={a.presize},crop={a.crop}" if a.presize
+             else f"size={a.size or 'native'}")
     print(f"measured BRSET n={len(B)}, mBRSET n={len(M)}  "
-          f"(size={a.size or 'native'}, match_disc={a.match_disc or 'off'})\n")
+          f"({scale}, match_disc={a.match_disc or 'off'})\n")
 
     keys = [k for k in B.columns if k != "disc_px"]
     print(f"{'statistic':12s} {'BRSET':>10s} {'mBRSET':>10s} {'ratio':>8s} {'delta':>10s}")
@@ -130,7 +180,7 @@ def main():
     print(f"\nfundus disc diameter px: BRSET {B.disc_px.mean():.0f}, "
           f"mBRSET {M.disc_px.mean():.0f}")
     res["_meta"] = {"n_brset": len(B), "n_mbrset": len(M), "size": a.size,
-                    "match_disc": a.match_disc,
+                    "match_disc": a.match_disc, "presize": a.presize, "crop": a.crop,
                     "brset_disc_px": float(B.disc_px.mean()),
                     "mbrset_disc_px": float(M.disc_px.mean())}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
