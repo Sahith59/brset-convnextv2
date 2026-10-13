@@ -87,3 +87,19 @@ research/codex/step4/smoke
 research/codex/step5/private/
 # Advisor-only reports embed licensed BRSET/mBRSET patient images.
 research/codex/reports/private/
+
+# 12-13 Oct 2026. Generated figures and decks that embed BRSET / mBRSET fundus
+# photographs (PhysioNet DUA: no redistribution). Their build scripts and image
+# provenance files ARE tracked; rebuild locally with
+# report/deck_2026-10-13/prep_images.py and build_deck.py, or scripts/113_show.py.
+report/figures/
+report/deck_*/**/*.png
+report/deck_*/*.pptx
+report/deck_*/preview/
+results/xlate_*/panel_*.png
+
+# Per-image derived records: image identifiers paired with DR labels or ICDR
+# grades. Aggregate conclusions are in research/codex/MEMORY.md.
+results/lesion_retention_sq512.json
+results/grade_candidate_stats.csv
+results/extra_manifest.csv
