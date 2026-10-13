@@ -1,0 +1,81 @@
+{
+  "synth_tag": "g20000_gen_tgt_physics_s0.4_w1.5",
+  "n": 546,
+  "n_real": 640,
+  "gate1": {
+    "256": {
+      "floor_real_vs_real": 0.562060546875,
+      "untouched": 0.999956995412844,
+      "translated": 0.999956995412844,
+      "p_target_untouched": 0.0023951732159777158,
+      "p_target_real": 0.997827578510129,
+      "p_target_translated": 0.4537314294328707,
+      "frac_called_target": 0.45787545787545786,
+      "feature_gap_remaining": 0.9208514533197014
+    },
+    "512": {
+      "floor_real_vs_real": 0.47744140625,
+      "untouched": 1.0,
+      "translated": 1.0,
+      "p_target_untouched": 0.0007076634542787753,
+      "p_target_real": 0.9995668535571106,
+      "p_target_translated": 0.4805671765320898,
+      "frac_called_target": 0.47619047619047616,
+      "feature_gap_remaining": 1.0605925057085788
+    }
+  },
+  "gate2": {
+    "rows": [
+      {
+        "grade": "all",
+        "n_pos": 226,
+        "untouched": 0.9871888827,
+        "translated": 0.9625276549,
+        "blur4_control": 0.9145049779,
+        "kept": 0.9750187342
+      },
+      {
+        "grade": 1,
+        "n_pos": 41,
+        "untouched": 0.9811737805,
+        "translated": 0.8986661585,
+        "blur4_control": 0.6853277439,
+        "kept": 0.9159092675
+      },
+      {
+        "grade": 2,
+        "n_pos": 80,
+        "untouched": 0.984296875,
+        "translated": 0.9645703125,
+        "blur4_control": 0.9371484375,
+        "kept": 0.9799587269
+      },
+      {
+        "grade": 3,
+        "n_pos": 25,
+        "untouched": 0.999625,
+        "translated": 0.995375,
+        "blur4_control": 0.99825,
+        "kept": 0.9957484057
+      },
+      {
+        "grade": 4,
+        "n_pos": 80,
+        "untouched": 0.9892773438,
+        "translated": 0.9829492188,
+        "blur4_control": 0.9831445312,
+        "kept": 0.9936032852
+      }
+    ],
+    "mean_abs_dp": 0.10494650155305862,
+    "mean_p_pos": {
+      "untouched": 0.8000443577766418,
+      "translated": 0.759467601776123
+    },
+    "mean_p_neg": {
+      "untouched": 0.05372565984725952,
+      "translated": 0.16290317475795746
+    }
+  },
+  "judge_valid": true
+}
