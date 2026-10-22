@@ -1,0 +1,32 @@
+{
+ "real_mbrset_val": {
+  "mbrset_real": {
+   "n": 725,
+   "dr_auroc": 0.9533552740519954,
+   "me_auroc": 0.9843987823439877
+  },
+  "brset_only": {
+   "n": 725,
+   "dr_auroc": 0.9409980957112105,
+   "me_auroc": 0.986771420897126
+  }
+ },
+ "cascade_smoke": {
+  "mbrset_real": {
+   "n": 8,
+   "dr_auroc": null,
+   "me_auroc": null,
+   "mean_dr_score_by_grade": {
+    "0": 0.4216187298297882
+   }
+  },
+  "brset_only": {
+   "n": 8,
+   "dr_auroc": null,
+   "me_auroc": null,
+   "mean_dr_score_by_grade": {
+    "0": 0.3451235890388489
+   }
+  }
+ }
+}

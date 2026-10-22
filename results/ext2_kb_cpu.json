@@ -1,0 +1,11 @@
+{
+ "xmild_ddr_batch_auroc": 0.5,
+ "xmild_messidor2_batch_auroc": 0.5011106668443734,
+ "xnat_ddr_batch_auroc": 0.5,
+ "xnat_messidor2_batch_auroc": 0.5011106668443734,
+ "rawstats_dr_probe_ddr": 0.6644456537073987,
+ "rawstats_dr_probe_messidor2": 0.6616020258563242,
+ "rawstats_dr_probe_BRSET_reference": 0.7306444444444444,
+ "rawstats_limit": 0.7806444444444445,
+ "pass_": true
+}

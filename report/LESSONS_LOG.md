@@ -154,3 +154,19 @@ regime every single time.
 - Report missed-patient counts alongside F1. With 159 positives, F1 differences
   are usually inside the noise and the count is what survives.
 - When a result is surprising, check for a bug before writing it up as a finding.
+
+## 11 Oct 2026 — validate the instrument against the thing it should obviously track
+
+The red-lesion detector carried two headline claims for weeks. Nobody had ever
+checked whether it separates ICDR grades. It does not: grade 4 scores the same
+as grade 0, and no threshold fixes it. The root cause was a `robust_sigma()`
+that returns exactly 0 on a one-sided response, which silently pinned the
+threshold at its absolute floor and made `--k_rel` a no-op in every run.
+
+Two lessons. First, a measurement tool needs a positive control before it earns
+trust — grade separation here. Second, a parameter that never changes the output
+is a bug, not a setting; sweeping it would have exposed this in minutes.
+
+Also: a validation metric that averages two labels hid a real result. The
+severity arms looked negative on val (macro AUC + macro F1 over DR AND oedema)
+and came out mildly positive on test DR AUC. Judge on the metric being claimed.

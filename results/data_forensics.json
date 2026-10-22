@@ -1,0 +1,1313 @@
+{
+  "_meta": {
+    "script": "scripts/92_data_forensics.py",
+    "question": "What drives the BRSET->mBRSET DR AUC gap (0.9104 zero-shot vs 0.9463 pooled) now that class balance and image appearance are both ruled out?",
+    "brset_csv": "/data/users4/nshaik3/Datasets/BRSET/physionet.org/files/brazilian-ophthalmological/1.0.1/labels_brset.csv",
+    "mbrset_csv": "/data/users4/nshaik3/Datasets/mBRSET/physionet.org/files/mbrset/1.0/labels_mbrset.csv",
+    "brset_rows": 16266,
+    "mbrset_rows": 5164,
+    "dua_note": "aggregates only; no patient images or per-patient rows written"
+  },
+  "1_severity_composition": {
+    "_what": "ICDR 0-4 severity histograms. BRSET grades live in DR_ICDR, mBRSET in final_icdr. The binary training label is (grade >= 1) in both cohorts.",
+    "brset_full": {
+      "counts": {
+        "0": 15183,
+        "1": 158,
+        "2": 451,
+        "3": 78,
+        "4": 396
+      },
+      "n_graded": 16266,
+      "n_nan": 0,
+      "frac": {
+        "0": 0.9334,
+        "1": 0.0097,
+        "2": 0.0277,
+        "3": 0.0048,
+        "4": 0.0243
+      }
+    },
+    "brset_train_split": {
+      "counts": {
+        "0": 10615,
+        "1": 117,
+        "2": 297,
+        "3": 53,
+        "4": 290
+      },
+      "n_graded": 11372,
+      "n_nan": 0,
+      "frac": {
+        "0": 0.9334,
+        "1": 0.0103,
+        "2": 0.0261,
+        "3": 0.0047,
+        "4": 0.0255
+      }
+    },
+    "mbrset_full": {
+      "counts": {
+        "0": 3750,
+        "1": 272,
+        "2": 568,
+        "3": 82,
+        "4": 212
+      },
+      "n_graded": 4884,
+      "n_nan": 280,
+      "frac": {
+        "0": 0.7678,
+        "1": 0.0557,
+        "2": 0.1163,
+        "3": 0.0168,
+        "4": 0.0434
+      }
+    },
+    "mbrset_train_split": {
+      "counts": {
+        "0": 2605,
+        "1": 187,
+        "2": 405,
+        "3": 63,
+        "4": 142
+      },
+      "n_graded": 3402,
+      "n_nan": 0,
+      "frac": {
+        "0": 0.7657,
+        "1": 0.055,
+        "2": 0.119,
+        "3": 0.0185,
+        "4": 0.0417
+      }
+    },
+    "mbrset_test_split": {
+      "counts": {
+        "0": 573,
+        "1": 40,
+        "2": 83,
+        "3": 9,
+        "4": 27
+      },
+      "n_graded": 732,
+      "n_nan": 0,
+      "frac": {
+        "0": 0.7828,
+        "1": 0.0546,
+        "2": 0.1134,
+        "3": 0.0123,
+        "4": 0.0369
+      }
+    },
+    "conditional_on_positive": {
+      "brset_full": {
+        "counts": {
+          "1": 158,
+          "2": 451,
+          "3": 78,
+          "4": 396
+        },
+        "n_graded": 1083,
+        "n_nan": 0,
+        "frac": {
+          "1": 0.1459,
+          "2": 0.4164,
+          "3": 0.072,
+          "4": 0.3657
+        }
+      },
+      "brset_train_split": {
+        "counts": {
+          "1": 117,
+          "2": 297,
+          "3": 53,
+          "4": 290
+        },
+        "n_graded": 757,
+        "n_nan": 0,
+        "frac": {
+          "1": 0.1546,
+          "2": 0.3923,
+          "3": 0.07,
+          "4": 0.3831
+        }
+      },
+      "mbrset_full": {
+        "counts": {
+          "1": 272,
+          "2": 568,
+          "3": 82,
+          "4": 212
+        },
+        "n_graded": 1134,
+        "n_nan": 0,
+        "frac": {
+          "1": 0.2399,
+          "2": 0.5009,
+          "3": 0.0723,
+          "4": 0.1869
+        }
+      },
+      "mbrset_train_split": {
+        "counts": {
+          "1": 187,
+          "2": 405,
+          "3": 63,
+          "4": 142
+        },
+        "n_graded": 797,
+        "n_nan": 0,
+        "frac": {
+          "1": 0.2346,
+          "2": 0.5082,
+          "3": 0.079,
+          "4": 0.1782
+        }
+      },
+      "mbrset_test_split": {
+        "counts": {
+          "1": 40,
+          "2": 83,
+          "3": 9,
+          "4": 27
+        },
+        "n_graded": 159,
+        "n_nan": 0,
+        "frac": {
+          "1": 0.2516,
+          "2": 0.522,
+          "3": 0.0566,
+          "4": 0.1698
+        }
+      }
+    },
+    "tv_distance_pos_brset_train_vs_mbrset_test": 0.2267,
+    "tv_distance_pos_brset_train_vs_mbrset_train": 0.2049,
+    "referable_share_of_positives": {
+      "brset_full": 0.8541,
+      "brset_train_split": 0.8454,
+      "mbrset_full": 0.7601,
+      "mbrset_test_split": 0.7484
+    },
+    "proliferative_share_of_positives": {
+      "brset_train_split": 0.3831,
+      "mbrset_test_split": 0.1698
+    },
+    "chi2_pos_grade_brset_train_vs_mbrset_test": {
+      "chi2": 30.16,
+      "dof": 3,
+      "p": 1.28e-06
+    }
+  },
+  "2_label_definition": {
+    "_what": "Is the binary target the same construct in both cohorts? BRSET ships an explicit diabetic_retinopathy column AND two severity scales (DR_ICDR, DR_SDRG). mBRSET ships only final_icdr, so the pipeline derives the binary label as (final_icdr >= 1). This section audits that derivation and the asymmetric preprocessing.",
+    "brset_binary_vs_icdr_ge1": {
+      "crosstab": {
+        "False": {
+          "0": 15182,
+          "1": 1
+        },
+        "True": {
+          "0": 14,
+          "1": 1069
+        }
+      },
+      "n": 16266,
+      "agreement": 0.9991,
+      "note": "derivation rule used for mBRSET is sound on BRSET's own data"
+    },
+    "brset_icdr_vs_sdrg": {
+      "crosstab": {
+        "0": {
+          "0": 15183,
+          "1": 2,
+          "2": 3,
+          "3": 0,
+          "4": 0
+        },
+        "1": {
+          "0": 0,
+          "1": 154,
+          "2": 126,
+          "3": 0,
+          "4": 0
+        },
+        "2": {
+          "0": 0,
+          "1": 2,
+          "2": 130,
+          "3": 1,
+          "4": 0
+        },
+        "3": {
+          "0": 0,
+          "1": 0,
+          "2": 187,
+          "3": 76,
+          "4": 0
+        },
+        "4": {
+          "0": 0,
+          "1": 0,
+          "2": 5,
+          "3": 1,
+          "4": 396
+        }
+      },
+      "exact_grade_agreement_all": 0.9799,
+      "exact_grade_agreement_among_positives": 0.6981,
+      "binary_agreement": 0.9997,
+      "note": "ICDR and SDRG are two protocols applied to the SAME BRSET images. They agree on presence/absence but not on grade, which bounds how reproducible an ordinal severity target is even within one cohort."
+    },
+    "quality_filter_asymmetry": {
+      "_what": "scripts/13_prepare_splits_mbrset_multilabel.py keeps only final_quality == \"yes\"; scripts/06_prepare_splits_multilabel.py applies NO quality filter to BRSET. So the source domain contains ungradable images and the target domain does not.",
+      "brset_quality_counts_full": {
+        "Adequate": 14280,
+        "Inadequate": 1986
+      },
+      "brset_quality_counts_train_split": {
+        "Adequate": 9985,
+        "Inadequate": 1387
+      },
+      "brset_train_frac_inadequate": 0.122,
+      "mbrset_final_quality_counts_full": {
+        "yes": 4872,
+        "no": 292
+      },
+      "mbrset_frac_dropped_by_quality_filter": 0.0565,
+      "mbrset_final_artifacts_counts_full": {
+        "yes": 4272,
+        "no": 892
+      },
+      "brset_artifacts_counts_full": {
+        "1": 16209,
+        "2": 57
+      }
+    },
+    "quality_vocabulary": {
+      "brset_fields": [
+        "focus",
+        "Illuminaton",
+        "image_field",
+        "artifacts",
+        "quality"
+      ],
+      "mbrset_fields": [
+        "final_quality",
+        "final_artifacts"
+      ],
+      "note": "BRSET grades four separate image-quality axes plus an overall verdict; mBRSET ships one binary gradability flag and one artifact flag. The quality constructs are not interchangeable."
+    },
+    "macular_edema": {
+      "brset_counts": {
+        "0": 15865,
+        "1": 401
+      },
+      "mbrset_final_edema_counts": {
+        "no": 4472,
+        "yes": 427,
+        "nan": 265
+      },
+      "brset_me_by_icdr": {
+        "0": {
+          "0": 15152,
+          "1": 31
+        },
+        "1": {
+          "0": 135,
+          "1": 23
+        },
+        "2": {
+          "0": 273,
+          "1": 178
+        },
+        "3": {
+          "0": 18,
+          "1": 60
+        },
+        "4": {
+          "0": 287,
+          "1": 109
+        }
+      },
+      "brset_me_prevalence": 0.0247,
+      "mbrset_me_prevalence": 0.0827,
+      "note": "BRSET also ships a 3-level `macula` field; mBRSET does not. BRSET's macular_edema is not conditioned on diabetes, mBRSET's final_edema is graded in an all-diabetic cohort."
+    },
+    "unlabelled": {
+      "brset_icdr_nan": 0,
+      "mbrset_icdr_nan": 280,
+      "mbrset_icdr_nan_frac": 0.0542,
+      "note": "mBRSET leaves a non-trivial slice ungraded and those rows are dropped; BRSET grades every image. Dropping is not random -- see section 5 for how it interacts with the two-photos-per-eye design."
+    }
+  },
+  "3_population": {
+    "_what": "BRSET is a hospital ophthalmology cohort (Sao Paulo), mBRSET a handheld community-screening cohort in an underserved population. The decisive number here is what fraction of each cohort even HAS diabetes.",
+    "diabetes_status": {
+      "brset_diabetes_counts": {
+        "No": 13687,
+        "yes": 2579
+      },
+      "brset_frac_diabetic": 0.1586,
+      "mbrset_frac_diabetic": 1.0,
+      "mbrset_note": "mBRSET is a diabetic-screening dataset by construction: every row carries diabetes-specific fields (dm_time, insulin, oraltreatment_dm).",
+      "brset_icdr_ge1_by_diabetes": {
+        "False": {
+          "No": 13292,
+          "yes": 1891
+        },
+        "True": {
+          "No": 395,
+          "yes": 688
+        }
+      },
+      "brset_positives_total": 1083,
+      "brset_positives_from_nondiabetic_record": 395,
+      "brset_positives_from_nondiabetic_frac": 0.3647
+    },
+    "negative_class_composition": {
+      "_what": "A BRSET-trained model's notion of 'negative' is mostly a NON-DIABETIC eye. Every mBRSET negative is a diabetic eye graded ICDR 0 -- a harder negative, and one the source domain barely contains.",
+      "brset_negatives_total": 15183,
+      "brset_negatives_diabetic": 1891,
+      "brset_negatives_diabetic_frac": 0.1245,
+      "mbrset_negatives_diabetic_frac": 1.0
+    },
+    "diabetic_subset_comparison": {
+      "_what": "BRSET restricted to diabetes == 'yes' vs all of mBRSET. The comparable denominators for a screening-vs-hospital contrast.",
+      "brset_diabetic_n_images": 2579,
+      "brset_diabetic_dr_prevalence": 0.2668,
+      "mbrset_dr_prevalence": 0.2196,
+      "brset_diabetic_pos_grade_frac": {
+        "1": 0.1497,
+        "2": 0.4201,
+        "3": 0.077,
+        "4": 0.3532
+      },
+      "mbrset_pos_grade_frac": {
+        "1": 0.2399,
+        "2": 0.5009,
+        "3": 0.0723,
+        "4": 0.1869
+      },
+      "brset_diabetic_prolif_share_of_pos": 0.3532,
+      "mbrset_prolif_share_of_pos": 0.1869,
+      "brset_diabetic_mild_share_of_pos": 0.1497,
+      "mbrset_mild_share_of_pos": 0.2399,
+      "interpretation_hook": "A persisting severity shift inside the diabetic subset separates referral bias from cohort composition; a vanishing one would mean the shift is entirely explained by BRSET's non-diabetic mass."
+    },
+    "age": {
+      "brset": {
+        "n": 10820,
+        "n_missing": 5446,
+        "mean": 57.66,
+        "std": 18.26,
+        "median": 61.0,
+        "p25": 47.0,
+        "p75": 71.0
+      },
+      "mbrset": {
+        "n": 5152,
+        "n_missing": 12,
+        "mean": 61.35,
+        "std": 11.46,
+        "median": 63.0,
+        "p25": 55.0,
+        "p75": 69.0
+      }
+    },
+    "diabetes_duration_years": {
+      "brset_diabetes_time_y": {
+        "n": 1864,
+        "n_missing": 14402,
+        "mean": 13.12,
+        "std": 9.59,
+        "median": 10.0,
+        "p25": 5.0,
+        "p75": 20.0
+      },
+      "mbrset_dm_time": {
+        "n": 5108,
+        "n_missing": 56,
+        "mean": 9.54,
+        "std": 8.64,
+        "median": 7.0,
+        "p25": 3.0,
+        "p75": 15.0
+      },
+      "note": "BRSET records duration for only the diabetic subset, so the two summaries are not drawn from comparable denominators."
+    },
+    "sex": {
+      "brset_patient_sex_counts": {
+        "2": 10052,
+        "1": 6214
+      },
+      "mbrset_sex_counts": {
+        "0": 3360,
+        "1": 1804
+      },
+      "note": "Encodings differ (BRSET 1/2, mBRSET 0/1) and the codebooks are not in the CSVs, so the mapping to male/female is NOT established here. Reported as raw codes only."
+    },
+    "insulin": {
+      "brset_insuline_counts": {
+        "nan": 14552,
+        "yes": 893,
+        "no": 821
+      },
+      "mbrset_insulin_counts": {
+        "0.0": 4052,
+        "1.0": 1064,
+        "nan": 48
+      },
+      "brset_insulin_missing_frac": 0.8946
+    },
+    "brset_comorbidities_freetext_top": {
+      "nan": 8237,
+      "0": 2766,
+      "hypertension": 1752,
+      "diabetes, hypertension": 1036,
+      "diabetes": 854,
+      "diabetes1": 386,
+      "hypothyroidism": 128,
+      "hypertension , hypothyroidism": 49,
+      "diabetes1, hypertension": 41,
+      "diabetes, hypertension , hypothyroidism": 37,
+      "hypercholesterolemia": 36,
+      "lupus": 33
+    },
+    "mbrset_comorbidity_burden": {
+      "systemic_hypertension": {
+        "frac_positive": 0.7141,
+        "n_missing": 44
+      },
+      "oraltreatment_dm": {
+        "frac_positive": 0.8461,
+        "n_missing": 44
+      },
+      "insulin": {
+        "frac_positive": 0.208,
+        "n_missing": 48
+      },
+      "alcohol_consumption": {
+        "frac_positive": 0.1399,
+        "n_missing": 76
+      },
+      "smoking": {
+        "frac_positive": 0.0638,
+        "n_missing": 88
+      },
+      "obesity": {
+        "frac_positive": 0.0802,
+        "n_missing": 76
+      },
+      "vascular_disease": {
+        "frac_positive": 0.1706,
+        "n_missing": 76
+      },
+      "acute_myocardial_infarction": {
+        "frac_positive": 0.0772,
+        "n_missing": 84
+      },
+      "nephropathy": {
+        "frac_positive": 0.0362,
+        "n_missing": 80
+      },
+      "neuropathy": {
+        "frac_positive": 0.0432,
+        "n_missing": 76
+      },
+      "diabetic_foot": {
+        "frac_positive": 0.1369,
+        "n_missing": 108
+      }
+    },
+    "mbrset_socioeconomic": {
+      "insurance_counts": {
+        "0.0": 4720,
+        "1.0": 396,
+        "nan": 48
+      },
+      "educational_level_counts": {
+        "2.0": 2156,
+        "5.0": 988,
+        "1.0": 704,
+        "4.0": 480,
+        "3.0": 464,
+        "7.0": 236,
+        "6.0": 84,
+        "nan": 52
+      },
+      "note": "BRSET ships no socioeconomic fields at all, so this axis cannot be matched even descriptively."
+    },
+    "camera": {
+      "brset_camera_counts": {
+        "Canon CR": 10591,
+        "NIKON NF5050": 5675
+      },
+      "mbrset_camera": "handheld (single device family; no camera column in the CSV)"
+    }
+  },
+  "4_misses": {
+    "_what": "Join the 732 fixed test rows to their ICDR grade and ask where the zero-shot model's errors sit on the severity axis, and whether pooling fixes those same images.",
+    "row_order_contract": {
+      "verified": true,
+      "n_rows": 732,
+      "how": "y_true in both npz files matches data/finetune_joint/test/labels.csv row-for-row on both label columns; the trainer builds the test loader with shuffle=False over .iloc, so npz row i is CSV row i."
+    },
+    "headline": {
+      "n_test": 732,
+      "n_positive": 159,
+      "zeroshot": {
+        "auc": 0.9104,
+        "threshold": 0.29,
+        "missed_positives": 42,
+        "false_positives": 25
+      },
+      "pooled": {
+        "auc": 0.9377,
+        "threshold": 0.36,
+        "missed_positives": 27,
+        "false_positives": 29
+      },
+      "auc_gap": 0.0273
+    },
+    "per_grade": {
+      "0": {
+        "n": 573,
+        "is_positive_class": false,
+        "zeroshot_mean_prob": 0.0956,
+        "pooled_mean_prob": 0.1173,
+        "zeroshot_specificity": 0.9564,
+        "pooled_specificity": 0.9494
+      },
+      "1": {
+        "n": 40,
+        "is_positive_class": true,
+        "zeroshot_mean_prob": 0.281,
+        "pooled_mean_prob": 0.4228,
+        "zeroshot_recall": 0.4,
+        "pooled_recall": 0.575,
+        "zeroshot_missed": 24,
+        "pooled_missed": 17
+      },
+      "2": {
+        "n": 83,
+        "is_positive_class": true,
+        "zeroshot_mean_prob": 0.6389,
+        "pooled_mean_prob": 0.755,
+        "zeroshot_recall": 0.7831,
+        "pooled_recall": 0.8916,
+        "zeroshot_missed": 18,
+        "pooled_missed": 9
+      },
+      "3": {
+        "n": 9,
+        "is_positive_class": true,
+        "zeroshot_mean_prob": 0.8665,
+        "pooled_mean_prob": 0.9325,
+        "zeroshot_recall": 1.0,
+        "pooled_recall": 1.0,
+        "zeroshot_missed": 0,
+        "pooled_missed": 0
+      },
+      "4": {
+        "n": 27,
+        "is_positive_class": true,
+        "zeroshot_mean_prob": 0.8412,
+        "pooled_mean_prob": 0.8839,
+        "zeroshot_recall": 1.0,
+        "pooled_recall": 0.963,
+        "zeroshot_missed": 0,
+        "pooled_missed": 1
+      }
+    },
+    "miss_severity_profile": {
+      "zeroshot_missed_grade_counts": {
+        "1": 24,
+        "2": 18,
+        "3": 0,
+        "4": 0
+      },
+      "pooled_missed_grade_counts": {
+        "1": 17,
+        "2": 9,
+        "3": 0,
+        "4": 1
+      },
+      "positive_grade_counts": {
+        "1": 40,
+        "2": 83,
+        "3": 9,
+        "4": 27
+      },
+      "zeroshot_frac_of_misses_that_are_mild_g1": 0.5714,
+      "base_frac_of_positives_that_are_mild_g1": 0.2516
+    },
+    "paired_agreement": {
+      "both_correct": 642,
+      "both_wrong": 33,
+      "zeroshot_only_correct": 23,
+      "pooled_only_correct": 34,
+      "mcnemar_all": {
+        "a_right_b_wrong": 23,
+        "a_wrong_b_right": 34,
+        "p": 0.18485
+      }
+    },
+    "paired_agreement_positives_only": {
+      "zeroshot_missed": 42,
+      "pooled_missed": 27,
+      "missed_by_both": 25,
+      "rescued_by_pooling": 17,
+      "broken_by_pooling": 2,
+      "rescued_grade_counts": {
+        "1": 8,
+        "2": 9,
+        "3": 0,
+        "4": 0
+      },
+      "missed_by_both_grade_counts": {
+        "1": 16,
+        "2": 9,
+        "3": 0,
+        "4": 0
+      },
+      "mcnemar_positives": {
+        "a_right_b_wrong": 2,
+        "a_wrong_b_right": 17,
+        "p": 0.00073
+      }
+    },
+    "severity_reweighted_auc": {
+      "_what": "Reweight test positives to BRSET-train's conditional ICDR mix (negatives unweighted, total positive weight preserved). This asks directly: if mBRSET's positives were as advanced as BRSET's, how much of the 0.036 AUC gap disappears?",
+      "brset_train_pos_grade_frac": {
+        "1": 0.1546,
+        "2": 0.3923,
+        "3": 0.07,
+        "4": 0.3831
+      },
+      "mbrset_test_pos_grade_frac": {
+        "1": 0.2516,
+        "2": 0.522,
+        "3": 0.0566,
+        "4": 0.1698
+      },
+      "weights_applied_to_positives": {
+        "1": 0.6144,
+        "2": 0.7516,
+        "3": 1.2369,
+        "4": 2.256
+      },
+      "zeroshot_auc_native": 0.9104,
+      "zeroshot_auc_native_ci95": [
+        0.8811,
+        0.9398
+      ],
+      "zeroshot_auc_reweighted": 0.9394,
+      "zeroshot_auc_change": 0.029,
+      "pooled_auc_native": 0.9377,
+      "pooled_auc_reweighted": 0.9573,
+      "pooled_auc_change": 0.0196,
+      "native_gap": 0.0273,
+      "reweighted_gap": 0.0178,
+      "frac_of_gap_removed_by_severity_matching": 0.3471
+    },
+    "grade_stratified_auc_vs_all_negatives": {
+      "_what": "AUC with only grade-g positives retained. Localises WHERE on the severity axis pooling buys its improvement.",
+      "by_grade": {
+        "1": {
+          "n_pos": 40,
+          "zeroshot_auc": 0.7735,
+          "pooled_auc": 0.8432,
+          "gap": 0.0696
+        },
+        "2": {
+          "n_pos": 83,
+          "zeroshot_auc": 0.939,
+          "pooled_auc": 0.9579,
+          "gap": 0.0189
+        },
+        "3": {
+          "n_pos": 9,
+          "zeroshot_auc": 0.9973,
+          "pooled_auc": 1.0,
+          "gap": 0.0027
+        },
+        "4": {
+          "n_pos": 27,
+          "zeroshot_auc": 0.9963,
+          "pooled_auc": 0.9948,
+          "gap": -0.0014
+        }
+      }
+    },
+    "referable_only_task": {
+      "_what": "Drop grade-1 positives entirely; score ICDR>=2 vs ICDR 0.",
+      "n": 692,
+      "n_pos": 119,
+      "zeroshot_auc": 0.9564,
+      "pooled_auc": 0.9695,
+      "gap": 0.013
+    }
+  },
+  "5_structure": {
+    "images_per_patient": {
+      "_what": "Effective sample size and within-patient correlation.",
+      "brset": {
+        "n_images": 16266,
+        "n_patients": 8524,
+        "images_per_patient_mean": 1.908,
+        "distribution": {
+          "1": 804,
+          "2": 7706,
+          "3": 6,
+          "4": 8
+        }
+      },
+      "mbrset": {
+        "n_images": 5164,
+        "n_patients": 1291,
+        "images_per_patient_mean": 4.0,
+        "distribution": {
+          "4": 1291
+        }
+      },
+      "note": "mBRSET is a fixed 4-images-per-patient protocol (2 per eye); BRSET is ~2 (1 per eye). So the same image count buys half the patients, and the 732-image test set is only ~183 patients."
+    },
+    "laterality": {
+      "brset_exam_eye_counts": {
+        "1": 8155,
+        "2": 8111
+      },
+      "mbrset_laterality_counts": {
+        "left": 2584,
+        "right": 2580
+      },
+      "brset_images_per_patient_eye": {
+        "1": 16008,
+        "2": 126,
+        "3": 2
+      },
+      "mbrset_images_per_patient_eye": {
+        "1": 2,
+        "2": 2578,
+        "3": 2
+      }
+    },
+    "intra_eye_grading_consistency": {
+      "_what": "mBRSET photographs each eye TWICE and grades each photo. Disagreement between two photos of the same eye is irreducible label noise, and it is measurable in mBRSET but NOT in BRSET (BRSET has ~1 photo per eye).",
+      "mbrset_eyes_with_2plus_graded_photos": 2359,
+      "mbrset_eyes_discordant_on_grade": 185,
+      "mbrset_frac_eyes_discordant_on_grade": 0.0784,
+      "mbrset_eyes_discordant_on_binary_dr": 119,
+      "mbrset_frac_eyes_discordant_on_binary_dr": 0.0504,
+      "brset_measurable": false,
+      "brset_reason": "BRSET contributes about one photo per eye, so no repeat-photo agreement can be computed; its DR_ICDR vs DR_SDRG disagreement (section 2) is the nearest available analogue."
+    },
+    "test_split_label_ceiling": {
+      "_what": "Test images whose sibling photo of the SAME eye carries the opposite binary DR label. Any model that is consistent at the eye level must be wrong on one of each such pair, so these images cap achievable accuracy.",
+      "n_test_images": 732,
+      "n_test_eyes": 380,
+      "n_test_patients": 193,
+      "n_eyes_discordant_binary": 27,
+      "n_images_in_discordant_eyes": 54,
+      "frac_images_in_discordant_eyes": 0.0738,
+      "zeroshot_auc_all": 0.9104,
+      "zeroshot_auc_excluding_discordant_eyes": 0.9428,
+      "pooled_auc_all": 0.9377,
+      "pooled_auc_excluding_discordant_eyes": 0.9638,
+      "gap_all": 0.0273,
+      "gap_excluding_discordant_eyes": 0.021
+    },
+    "split_integrity": {
+      "_what": "Is the split patient-wise, and is any patient or file shared?",
+      "mbrset_patients": {
+        "train": 899,
+        "val": 193,
+        "test": 193,
+        "train_test_overlap": 0,
+        "train_val_overlap": 0,
+        "val_test_overlap": 0
+      },
+      "mbrset_split_is_patient_wise": true,
+      "joint_train_test_file_overlap": 0,
+      "joint_train_composition": {
+        "n_total": 14774,
+        "by_domain": {
+          "0": 11372,
+          "1": 3402
+        }
+      },
+      "brset_split_is_patient_wise_per_prep_script": true,
+      "brset_prep_note": "scripts/06_prepare_splits_multilabel.py groups by patient_id before splitting; scripts/13_* groups by patient. Verified here for mBRSET against the raw metadata."
+    },
+    "prevalence": {
+      "brset_train_dr_rate": 0.0658,
+      "mbrset_train_dr_rate": 0.2343,
+      "mbrset_test_dr_rate": 0.2172,
+      "note": "already controlled experimentally; closed only ~3% of the gap"
+    },
+    "field_of_view_metadata": {
+      "brset_image_field_counts": {
+        "1": 14865,
+        "2": 1401
+      },
+      "mbrset_equivalent_field_column": null,
+      "note": "BRSET grades whether the field is adequate (image_field); mBRSET ships no field-of-view column, so FOV cannot be compared from metadata. Measured from pixels only if --image_stats is passed."
+    }
+  },
+  "7_seed_averaged": {
+    "_what": "Every decisive test repeated over 3 zero-shot seeds and 3 pooled seeds, because the project's noise floor (0.0199 DR F1, 9 patients) is the same order as the effects being decomposed.",
+    "zeroshot_runs": [
+      "lebase_b0_s0",
+      "lebase_b0_s1",
+      "lebase_b0_s2"
+    ],
+    "pooled_runs": [
+      "brset_mbrset_joint",
+      "joint_seed1",
+      "joint_seed2"
+    ],
+    "zeroshot": {
+      "auc_native": {
+        "per_seed": [
+          0.9104,
+          0.8906,
+          0.9009
+        ],
+        "mean": 0.9007,
+        "std": 0.0099
+      },
+      "auc_severity_reweighted": {
+        "per_seed": [
+          0.9394,
+          0.925,
+          0.9327
+        ],
+        "mean": 0.9324,
+        "std": 0.0072
+      },
+      "auc_referable_only": {
+        "per_seed": [
+          0.9564,
+          0.9448,
+          0.9435
+        ],
+        "mean": 0.9483,
+        "std": 0.0071
+      },
+      "auc_excluding_discordant_eyes": {
+        "per_seed": [
+          0.9428,
+          0.9273,
+          0.93
+        ],
+        "mean": 0.9333,
+        "std": 0.0083
+      },
+      "auc_grade_stratified": {
+        "1": {
+          "per_seed": [
+            0.7735,
+            0.7294,
+            0.7742
+          ],
+          "mean": 0.7591,
+          "std": 0.0257
+        },
+        "2": {
+          "per_seed": [
+            0.939,
+            0.9239,
+            0.9198
+          ],
+          "mean": 0.9276,
+          "std": 0.0101
+        },
+        "3": {
+          "per_seed": [
+            0.9973,
+            0.9971,
+            0.9988
+          ],
+          "mean": 0.9977,
+          "std": 0.001
+        },
+        "4": {
+          "per_seed": [
+            0.9963,
+            0.9918,
+            0.9979
+          ],
+          "mean": 0.9953,
+          "std": 0.0031
+        }
+      },
+      "recall_by_grade": {
+        "1": {
+          "per_seed": [
+            0.4,
+            0.325,
+            0.35
+          ],
+          "mean": 0.3583,
+          "std": 0.0382
+        },
+        "2": {
+          "per_seed": [
+            0.7831,
+            0.7831,
+            0.7711
+          ],
+          "mean": 0.7791,
+          "std": 0.007
+        },
+        "3": {
+          "per_seed": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "4": {
+          "per_seed": [
+            1.0,
+            0.963,
+            1.0
+          ],
+          "mean": 0.9877,
+          "std": 0.0214
+        }
+      }
+    },
+    "pooled": {
+      "auc_native": {
+        "per_seed": [
+          0.9377,
+          0.9519,
+          0.9492
+        ],
+        "mean": 0.9463,
+        "std": 0.0076
+      },
+      "auc_severity_reweighted": {
+        "per_seed": [
+          0.9573,
+          0.9678,
+          0.9659
+        ],
+        "mean": 0.9636,
+        "std": 0.0056
+      },
+      "auc_referable_only": {
+        "per_seed": [
+          0.9695,
+          0.9776,
+          0.9773
+        ],
+        "mean": 0.9748,
+        "std": 0.0046
+      },
+      "auc_excluding_discordant_eyes": {
+        "per_seed": [
+          0.9638,
+          0.9686,
+          0.9711
+        ],
+        "mean": 0.9678,
+        "std": 0.0037
+      },
+      "auc_grade_stratified": {
+        "1": {
+          "per_seed": [
+            0.8432,
+            0.8753,
+            0.8655
+          ],
+          "mean": 0.8613,
+          "std": 0.0165
+        },
+        "2": {
+          "per_seed": [
+            0.9579,
+            0.9684,
+            0.9682
+          ],
+          "mean": 0.9649,
+          "std": 0.006
+        },
+        "3": {
+          "per_seed": [
+            1.0,
+            0.9998,
+            0.9996
+          ],
+          "mean": 0.9998,
+          "std": 0.0002
+        },
+        "4": {
+          "per_seed": [
+            0.9948,
+            0.9985,
+            0.9979
+          ],
+          "mean": 0.9971,
+          "std": 0.002
+        }
+      },
+      "recall_by_grade": {
+        "1": {
+          "per_seed": [
+            0.575,
+            0.5,
+            0.45
+          ],
+          "mean": 0.5083,
+          "std": 0.0629
+        },
+        "2": {
+          "per_seed": [
+            0.8916,
+            0.8675,
+            0.8434
+          ],
+          "mean": 0.8675,
+          "std": 0.0241
+        },
+        "3": {
+          "per_seed": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "mean": 1.0,
+          "std": 0.0
+        },
+        "4": {
+          "per_seed": [
+            0.963,
+            1.0,
+            0.963
+          ],
+          "mean": 0.9753,
+          "std": 0.0214
+        }
+      }
+    },
+    "quoted_figure_reconciliation": {
+      "project_note_says": "0.9104 zero-shot -> 0.9463 pooled, gap 0.036",
+      "0.9104_is": "lebase_b0_s0 alone, the BEST of three zero-shot seeds",
+      "0.9463_is": "the MEAN of three pooled seeds",
+      "seed_consistent_zeroshot_mean": 0.9007,
+      "seed_consistent_pooled_mean": 0.9463,
+      "seed_consistent_gap": 0.0456,
+      "note": "The 0.036 figure mixes a single best seed against a 3-seed mean. Measured consistently the gap is LARGER, not smaller."
+    },
+    "gaps": {
+      "native": 0.0456,
+      "severity_reweighted": 0.0312,
+      "referable_only_grade1_dropped": 0.0265,
+      "excluding_discordant_eyes": 0.0345,
+      "by_grade": {
+        "1": 0.1022,
+        "2": 0.0373,
+        "3": 0.0021,
+        "4": 0.0018
+      }
+    },
+    "frac_of_native_gap_removed": {
+      "by_severity_reweighting": 0.3158,
+      "by_dropping_grade1_positives": 0.4189,
+      "by_excluding_discordant_eye_images": 0.2434
+    },
+    "zeroshot_auc_lift_from_severity_matching_alone": 0.0317
+  },
+  "6_image_stats": {
+    "_what": "Per-image appearance statistics for the 732 test images, used ONLY to ask whether the zero-shot misses are appearance outliers. Aggregates only.",
+    "n_decoded": 732,
+    "n_failed": 0,
+    "zeroshot_miss_vs_hit_among_positives": {
+      "n_miss": 42,
+      "n_hit": 117,
+      "by_statistic": {
+        "brightness": {
+          "miss_mean": 0.3072,
+          "hit_mean": 0.3427,
+          "cohens_d": -0.3543,
+          "mannwhitney_p": 0.04007
+        },
+        "contrast": {
+          "miss_mean": 0.1197,
+          "hit_mean": 0.1336,
+          "cohens_d": -0.3657,
+          "mannwhitney_p": 0.01918
+        },
+        "sharpness": {
+          "miss_mean": 0.0115,
+          "hit_mean": 0.012,
+          "cohens_d": -0.1224,
+          "mannwhitney_p": 0.75612
+        },
+        "saturation": {
+          "miss_mean": 0.4307,
+          "hit_mean": 0.4364,
+          "cohens_d": -0.0955,
+          "mannwhitney_p": 0.92064
+        },
+        "retina_frac": {
+          "miss_mean": 0.7485,
+          "hit_mean": 0.7594,
+          "cohens_d": -0.1955,
+          "mannwhitney_p": 0.04986
+        },
+        "aspect": {
+          "miss_mean": 1.0,
+          "hit_mean": 1.0,
+          "cohens_d": null,
+          "mannwhitney_p": 1.0
+        },
+        "r_mean": {
+          "miss_mean": 0.5568,
+          "hit_mean": 0.591,
+          "cohens_d": -0.2893,
+          "mannwhitney_p": 0.1709
+        },
+        "g_mean": {
+          "miss_mean": 0.2385,
+          "hit_mean": 0.282,
+          "cohens_d": -0.4307,
+          "mannwhitney_p": 0.01518
+        },
+        "b_mean": {
+          "miss_mean": 0.1264,
+          "hit_mean": 0.1552,
+          "cohens_d": -0.3203,
+          "mannwhitney_p": 0.04402
+        }
+      }
+    },
+    "appearance_vs_severity_among_positives": {
+      "brightness": {
+        "spearman_rho_vs_icdr": 0.0201,
+        "p": 0.80152
+      },
+      "contrast": {
+        "spearman_rho_vs_icdr": 0.0616,
+        "p": 0.44032
+      },
+      "sharpness": {
+        "spearman_rho_vs_icdr": -0.0378,
+        "p": 0.636
+      },
+      "saturation": {
+        "spearman_rho_vs_icdr": -0.1078,
+        "p": 0.17622
+      },
+      "retina_frac": {
+        "spearman_rho_vs_icdr": -0.0423,
+        "p": 0.59628
+      },
+      "aspect": {
+        "spearman_rho_vs_icdr": null,
+        "p": null
+      },
+      "r_mean": {
+        "spearman_rho_vs_icdr": -0.0363,
+        "p": 0.65001
+      },
+      "g_mean": {
+        "spearman_rho_vs_icdr": 0.0495,
+        "p": 0.53581
+      },
+      "b_mean": {
+        "spearman_rho_vs_icdr": 0.0646,
+        "p": 0.41859
+      }
+    },
+    "aggregate_summary": {
+      "brightness": {
+        "n": 732,
+        "n_missing": 0,
+        "mean": 0.36,
+        "std": 0.11,
+        "median": 0.34,
+        "p25": 0.28,
+        "p75": 0.44
+      },
+      "contrast": {
+        "n": 732,
+        "n_missing": 0,
+        "mean": 0.14,
+        "std": 0.04,
+        "median": 0.13,
+        "p25": 0.11,
+        "p75": 0.17
+      },
+      "sharpness": {
+        "n": 732,
+        "n_missing": 0,
+        "mean": 0.01,
+        "std": 0.0,
+        "median": 0.01,
+        "p25": 0.01,
+        "p75": 0.01
+      },
+      "saturation": {
+        "n": 732,
+        "n_missing": 0,
+        "mean": 0.44,
+        "std": 0.07,
+        "median": 0.44,
+        "p25": 0.39,
+        "p75": 0.49
+      },
+      "retina_frac": {
+        "n": 732,
+        "n_missing": 0,
+        "mean": 0.76,
+        "std": 0.05,
+        "median": 0.78,
+        "p25": 0.76,
+        "p75": 0.79
+      },
+      "aspect": {
+        "n": 732,
+        "n_missing": 0,
+        "mean": 1.0,
+        "std": 0.0,
+        "median": 1.0,
+        "p25": 1.0,
+        "p75": 1.0
+      },
+      "r_mean": {
+        "n": 732,
+        "n_missing": 0,
+        "mean": 0.61,
+        "std": 0.13,
+        "median": 0.61,
+        "p25": 0.52,
+        "p75": 0.7
+      },
+      "g_mean": {
+        "n": 732,
+        "n_missing": 0,
+        "mean": 0.29,
+        "std": 0.12,
+        "median": 0.28,
+        "p25": 0.21,
+        "p75": 0.37
+      },
+      "b_mean": {
+        "n": 732,
+        "n_missing": 0,
+        "mean": 0.17,
+        "std": 0.1,
+        "median": 0.15,
+        "p25": 0.1,
+        "p75": 0.24
+      }
+    }
+  }
+}

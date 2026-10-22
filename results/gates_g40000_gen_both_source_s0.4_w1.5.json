@@ -1,0 +1,81 @@
+{
+  "synth_tag": "g40000_gen_both_source_s0.4_w1.5",
+  "n": 546,
+  "n_real": 640,
+  "gate1": {
+    "256": {
+      "floor_real_vs_real": 0.56103515625,
+      "untouched": 0.9999283256880733,
+      "translated": 0.9998709862385322,
+      "p_target_untouched": 0.002419445690395231,
+      "p_target_real": 0.9978172402094575,
+      "p_target_translated": 0.12507641483123527,
+      "frac_called_target": 0.0989010989010989,
+      "feature_gap_remaining": 0.9058240508800863
+    },
+    "512": {
+      "floor_real_vs_real": 0.477099609375,
+      "untouched": 1.0,
+      "translated": 1.0,
+      "p_target_untouched": 0.0007025618425358691,
+      "p_target_real": 0.9995643453071633,
+      "p_target_translated": 0.12966461691728426,
+      "frac_called_target": 0.07326007326007326,
+      "feature_gap_remaining": 0.8991574167698502
+    }
+  },
+  "gate2": {
+    "rows": [
+      {
+        "grade": "all",
+        "n_pos": 226,
+        "untouched": 0.9871404867,
+        "translated": 0.9780143805,
+        "blur4_control": 0.9143943584,
+        "kept": 0.9907550077
+      },
+      {
+        "grade": 1,
+        "n_pos": 41,
+        "untouched": 0.9811737805,
+        "translated": 0.9375,
+        "blur4_control": 0.6853277439,
+        "kept": 0.9554882312
+      },
+      {
+        "grade": 2,
+        "n_pos": 80,
+        "untouched": 0.9843945312,
+        "translated": 0.9825585938,
+        "blur4_control": 0.936875,
+        "kept": 0.9981349576
+      },
+      {
+        "grade": 3,
+        "n_pos": 25,
+        "untouched": 0.99975,
+        "translated": 0.99925,
+        "blur4_control": 0.99825,
+        "kept": 0.999499875
+      },
+      {
+        "grade": 4,
+        "n_pos": 80,
+        "untouched": 0.9890039062,
+        "translated": 0.9875976562,
+        "blur4_control": 0.9831054688,
+        "kept": 0.9985781148
+      }
+    ],
+    "mean_abs_dp": 0.07717542350292206,
+    "mean_p_pos": {
+      "untouched": 0.800078809261322,
+      "translated": 0.7590518593788147
+    },
+    "mean_p_neg": {
+      "untouched": 0.053756553679704666,
+      "translated": 0.128182515501976
+    }
+  },
+  "judge_valid": true
+}

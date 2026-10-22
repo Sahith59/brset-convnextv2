@@ -1,0 +1,81 @@
+{
+  "synth_tag": "g40000_gen_both_physics_s0.4_w2.0",
+  "n": 546,
+  "n_real": 640,
+  "gate1": {
+    "256": {
+      "floor_real_vs_real": 0.562060546875,
+      "untouched": 0.999956995412844,
+      "translated": 0.9999426605504587,
+      "p_target_untouched": 0.0023951732159777158,
+      "p_target_real": 0.997827578510129,
+      "p_target_translated": 0.29475219093884586,
+      "frac_called_target": 0.26556776556776557,
+      "feature_gap_remaining": 0.9672218962679262
+    },
+    "512": {
+      "floor_real_vs_real": 0.47744140625,
+      "untouched": 1.0,
+      "translated": 1.0,
+      "p_target_untouched": 0.0007076634542787753,
+      "p_target_real": 0.9995668535571106,
+      "p_target_translated": 0.27392061145513413,
+      "frac_called_target": 0.19230769230769232,
+      "feature_gap_remaining": 1.1362320517663256
+    }
+  },
+  "gate2": {
+    "rows": [
+      {
+        "grade": "all",
+        "n_pos": 226,
+        "untouched": 0.9871888827,
+        "translated": 0.9661780973,
+        "blur4_control": 0.9145049779,
+        "kept": 0.9787165498
+      },
+      {
+        "grade": 1,
+        "n_pos": 41,
+        "untouched": 0.9811737805,
+        "translated": 0.9019054878,
+        "blur4_control": 0.6853277439,
+        "kept": 0.9192107512
+      },
+      {
+        "grade": 2,
+        "n_pos": 80,
+        "untouched": 0.984296875,
+        "translated": 0.9684765625,
+        "blur4_control": 0.9371484375,
+        "kept": 0.9839272958
+      },
+      {
+        "grade": 3,
+        "n_pos": 25,
+        "untouched": 0.999625,
+        "translated": 0.999125,
+        "blur4_control": 0.99825,
+        "kept": 0.9994998124
+      },
+      {
+        "grade": 4,
+        "n_pos": 80,
+        "untouched": 0.9892773438,
+        "translated": 0.9865234375,
+        "blur4_control": 0.9831445312,
+        "kept": 0.9972162445
+      }
+    ],
+    "mean_abs_dp": 0.08604387193918228,
+    "mean_p_pos": {
+      "untouched": 0.8000443577766418,
+      "translated": 0.7012420892715454
+    },
+    "mean_p_neg": {
+      "untouched": 0.05372565984725952,
+      "translated": 0.10174038261175156
+    }
+  },
+  "judge_valid": true
+}

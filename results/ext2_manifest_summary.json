@@ -1,0 +1,80 @@
+{
+ "dedup": {
+  "candidates": 7368,
+  "pair_hist_hamming_0_to_8": {
+   "0": 36,
+   "1": 0,
+   "2": 916,
+   "3": 0,
+   "4": 9097,
+   "5": 0,
+   "6": 42843,
+   "7": 0,
+   "8": 129853
+  },
+  "dup_pairs_le2": 952,
+  "conflicting_pairs": 403,
+  "dropped": 747,
+  "kept": 6621
+ },
+ "sigma_by_source": {
+  "ddr": 0.6,
+  "messidor2": 0.6
+ },
+ "n_union": 3607,
+ "P": 0.3088732760863908,
+ "xmild": {
+  "rows": 2951,
+  "dr_pos": 912,
+  "grades": {
+   "ddr": {
+    "0": 1490,
+    "1": 458,
+    "2": 208
+   },
+   "messidor2": {
+    "0": 549,
+    "1": 172,
+    "2": 74
+   }
+  },
+  "prevalence_by_family": {
+   "ddr/007": 0.309,
+   "messidor2/IM": 0.309,
+   "messidor2/M1_200510": 0.312,
+   "messidor2/M1_200511": 0.308,
+   "messidor2/M1_200512": 0.31,
+   "messidor2/M1_200604": 0.309,
+   "messidor2/M1_200605": 0.31
+  }
+ },
+ "xnat": {
+  "rows": 2951,
+  "dr_pos": 912,
+  "grades": {
+   "ddr": {
+    "0": 1490,
+    "1": 75,
+    "2": 473,
+    "3": 29,
+    "4": 89
+   },
+   "messidor2": {
+    "0": 549,
+    "1": 89,
+    "2": 113,
+    "3": 26,
+    "4": 18
+   }
+  },
+  "prevalence_by_family": {
+   "ddr/007": 0.309,
+   "messidor2/IM": 0.309,
+   "messidor2/M1_200510": 0.312,
+   "messidor2/M1_200511": 0.308,
+   "messidor2/M1_200512": 0.31,
+   "messidor2/M1_200604": 0.309,
+   "messidor2/M1_200605": 0.31
+  }
+ }
+}

@@ -35,6 +35,7 @@ import pandas as pd
 import timm
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from PIL import Image
 from sklearn.metrics import (
     accuracy_score, confusion_matrix, f1_score, precision_score,
@@ -46,6 +47,27 @@ from torchvision import transforms
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 LABEL_COLS = ["diabetic_retinopathy", "macular_edema"]
+
+# Ordinal auxiliary head. The binary DR label collapses the ICDR 0-4 scale, so a
+# grade-1 eye and a grade-4 eye carry an identical target and the model learns a
+# single "positive" prototype -- built, in BRSET, mostly from florid disease
+# (43.8% of its positives are grade 3-4, against 25.9% in mBRSET). Measured
+# consequence: zero-shot AUC 0.7735 at grade 1 versus 0.9963 at grade 4, with
+# every missed patient at grade 1 or 2.
+#
+# These four extra outputs are the cumulative decomposition P(grade >= k), which
+# keeps a monotone severity axis in the representation instead of letting it
+# collapse. This fixes the REPRESENTATION; --severity_match fixes the
+# DISTRIBUTION. They are independent and combinable.
+#
+# _ordm is a per-image mask: 1 where a grade is known, 0 where it is not.
+ORD_COLS = ["_ord1", "_ord2", "_ord3", "_ord4", "_ordm"]
+_EXTRA_COLS = []    # appended to the target tensor when the aux head is on
+_MV = [None, 0.0]  # (cycling iterator over same-eye photo pairs, running consistency loss)
+_NB_OUT = [None]    # eval slices logits and targets back to the scored columns
+# --synth_dir: per-image probability of reading the SYNTHETIC mBRSET twin of a
+# BRSET training image instead of the original. Set only on the training set.
+_SYNTH_P = [0.0]
 AMP_DTYPE = {"fp16": torch.float16, "bf16": torch.bfloat16, "fp32": torch.float32}
 _EVAL_DTYPE = [torch.float16]   # set from args in main()
 
@@ -61,7 +83,12 @@ class BRSETMultiLabel(Dataset):
 
     def __getitem__(self, idx):
         row = self.labels_df.iloc[idx]
+        flag = float(row["_translate"]) if "_translate" in self.labels_df.columns else -1.0
         path = self.split_dir / row["file"]
+        sp = row["_synth"] if "_synth" in self.labels_df.columns else ""
+        if isinstance(sp, str) and sp and _SYNTH_P[0] > 0 and float(torch.rand(())) < _SYNTH_P[0]:
+            opts = sp.split("|")
+            path = Path(opts[int(torch.randint(len(opts), ()))] if len(opts) > 1 else sp)   # same eye, same labels, generator-rendered
         # The images live on NFS and reads occasionally fail transiently under
         # load -- a run died at epoch 6 with FileNotFoundError on a file that
         # was present and whose symlink was intact. Retry rather than lose
@@ -70,7 +97,10 @@ class BRSETMultiLabel(Dataset):
         for attempt in range(5):
             try:
                 img = self.transform(Image.open(path).convert("RGB"))
-                target = torch.tensor([row[c] for c in LABEL_COLS], dtype=torch.float32)
+                target = torch.tensor([row[c] for c in LABEL_COLS + _EXTRA_COLS],
+                                       dtype=torch.float32)
+                if flag >= 0.0:
+                    return img, target, torch.tensor(flag, dtype=torch.float32)
                 return img, target
             except (OSError, IOError) as e:
                 last = e
@@ -160,11 +190,15 @@ class MultiLabelFocalLoss(nn.Module):
         self.gamma = gamma
         self.pos_weight = pos_weight
 
-    def forward(self, logits, targets):
+    def forward(self, logits, targets, weight=None):
         bce = nn.functional.binary_cross_entropy_with_logits(
             logits, targets, pos_weight=self.pos_weight, reduction="none")
         pt = torch.exp(-bce)
-        return (((1 - pt) ** self.gamma) * bce).mean()
+        l = ((1 - pt) ** self.gamma) * bce
+        if weight is None:
+            return l.mean()
+        # per-label validity mask: an invalid label contributes no gradient
+        return (l * weight).sum() / weight.sum().clamp(min=1.0)
 
 
 class ModelEma:
@@ -213,6 +247,14 @@ def get_args():
                          "per-channel sharpness match, and because the acquisition model's "
                          "stochastic terms then redraw every epoch instead of mapping the whole "
                          "source set onto a single point in appearance space.")
+    p.add_argument("--translate_mode", default="prob", choices=["prob", "union"],
+                    help="How synthesis is combined with real data. 'prob' translates each image "
+                         "with probability --translate_p, so an epoch still contains one copy of "
+                         "each image. 'union' is the advisor's request literally: the training "
+                         "set becomes real BRSET PLUS synthetic mBRSET, every image present both "
+                         "ways in every epoch, doubling the epoch. Measured 10 Oct, full "
+                         "REPLACEMENT (prob at p=1.0) costs 0.0216 DR AUC against the "
+                         "untranslated baseline, so the distinction is not cosmetic.")
     p.add_argument("--translate_p", default=1.0, type=float,
                     help="Probability that a given training image is translated. 1.0 REPLACES "
                          "every source image with its synthetic version; measured 10 Oct, that "
@@ -222,6 +264,22 @@ def get_args():
                          "synthetic-vs-real-mBRSET one. Values below 1.0 use synthesis as "
                          "AUGMENTATION alongside real images, which is what the prior work that "
                          "reports gains actually does.")
+    p.add_argument("--severity_match", action="store_true", default=False,
+                    help="Reweight SOURCE-domain positives so their ICDR severity mix matches the "
+                         "target cohort's. Measured 10 Oct: among positives, BRSET is 14.6 percent "
+                         "mild and 36.6 percent proliferative while mBRSET is 24.0 and 18.7. "
+                         "Zero-shot AUC by grade is 0.7735 / 0.9390 / 0.9973 / 0.9963 for grades "
+                         "1 to 4, and ALL 42 missed patients are grade 1 or 2 with none above. "
+                         "The transfer gap therefore sits on a hidden ordinal axis that the binary "
+                         "label collapses, which is orthogonal to image appearance (all 9 "
+                         "appearance statistics correlate with grade at |rho| <= 0.11). Matching "
+                         "the marginal prevalence, which the earlier control did, cannot fix this; "
+                         "the conditional severity distribution is what differs.")
+    p.add_argument("--severity_csv",
+                    default="/data/users4/nshaik3/Datasets/BRSET/physionet.org/files/"
+                            "brazilian-ophthalmological/1.0.1/labels_brset.csv")
+    p.add_argument("--severity_target", default="0.240,0.501,0.072,0.187",
+                    help="target ICDR mix for grades 1,2,3,4 among positives; default is mBRSET's")
     p.add_argument("--target_pos_rate", default=-1.0, type=float,
                     help="Resample so the EXPECTED fraction of DR-positive images drawn per epoch "
                          "equals this rate. -1 disables, reproducing every earlier run. This "
@@ -241,6 +299,50 @@ def get_args():
                     help="Which subsample of the target domain to draw. Separate from --seed so "
                          "the effect of WHICH images were labelled can be separated from the "
                          "effect of training randomness.")
+    p.add_argument("--extra_manifest", default="",
+                    help="CSV of EXTERNAL graded images (file,grade) from "
+                         "102_build_extra_manifest.py. Imports real mild disease "
+                         "that BRSET lacks: ~115 grade-1 training images is the "
+                         "measured bottleneck, and reweighting cannot create "
+                         "diversity that is not there.")
+    p.add_argument("--pseudo_manifest", default="",
+                    help="CSV (file, diabetic_retinopathy, macular_edema, _mdr, _med) of UNLABELLED "
+                         "target images with TEACHER pseudo-labels and per-label validity masks, "
+                         "from scripts/121_pseudo_manifest.py. Real target labels are never read: "
+                         "the rows come from a teacher's scores, not from labels.csv.")
+    p.add_argument("--synth_all", action="store_true",
+                    help="Swap EVERY training row (both domains) for its synthetic twin, not only BRSET rows "
+                         "(D083: train on synthetic images only, from BRSET and mBRSET).")
+    p.add_argument("--mv_weight", default=0.0, type=float,
+                    help="Same-eye consistency on UNLABELLED target photos (research/codex D080): two photos "
+                         "of one mBRSET eye, augmented independently, must get the same predicted "
+                         "probabilities (mean squared difference). 0 = off. No target label is read.")
+    p.add_argument("--mv_batch", default=4, type=int, help="eyes (photo pairs) per micro-step")
+    p.add_argument("--extra_n", default=1000, type=int)
+    p.add_argument("--extra_severity", default="mild",
+                    choices=["mild", "severe", "mixed"],
+                    help="Which external POSITIVES to import. All arms add the "
+                         "same count, so severity is the only thing that varies. "
+                         "'severe' is the control; 'mixed' matters because the "
+                         "oracle test found a random severity mix beat both "
+                         "extremes at a 250-label budget.")
+    p.add_argument("--extra_seed", default=0, type=int)
+    p.add_argument("--synth_dir", default="",
+                    help="Directory of synthetic mBRSET PNGs named <BRSET stem>.png "
+                         "(scripts/111_translate.py). Each BRSET TRAINING image is replaced "
+                         "by its synthetic twin with probability --synth_p, redrawn every "
+                         "time it is loaded. Step count and eye identities are unchanged, "
+                         "so the comparison with the same run without --synth_dir isolates "
+                         "the camera rendering. Val/test are never touched.")
+    p.add_argument("--synth_p", default=0.5, type=float)
+    p.add_argument("--budget_severity", default="random",
+                    choices=["random", "mild", "severe"],
+                    help="WHICH target labels to spend the budget on, holding the "
+                         "budget and the positive rate fixed. 'mild' draws the "
+                         "positives from ICDR 1-2 only, 'severe' from 3-4 only. "
+                         "The severe arm is the control: without it, a win for "
+                         "'mild' is only a better subset, not evidence that "
+                         "severity is the mechanism.")
     p.add_argument("--warm_start_ckpt", default="",
                     help="Initialize weights from this checkpoint instead of ImageNet. Used to "
                          "fine-tune a BRSET-trained model on mBRSET. The classifier head is kept "
@@ -280,10 +382,241 @@ def get_args():
     p.add_argument("--tta", default="flip4", choices=["none", "hflip", "flip4"])
     p.add_argument("--thr_bootstrap", default=200, type=int,
                     help="Resamples for bootstrap-smoothed threshold selection (0 = plain argmax-F1)")
+    p.add_argument("--ordinal_aux", action="store_true", default=False,
+                    help="Add a cumulative-link (CORAL-style) ordinal head on the "
+                         "ICDR grade alongside the binary outputs. Fixes the "
+                         "representation; --severity_match fixes the distribution.")
+    p.add_argument("--ordinal_weight", default=0.3, type=float,
+                    help="Weight on the ordinal term. The binary objective stays "
+                         "primary because it is what we score.")
+    p.add_argument("--ordinal_mbrset_csv",
+                    default="/data/users4/nshaik3/Datasets/mBRSET/physionet.org/"
+                            "files/mbrset/1.0/labels_mbrset.csv",
+                    help="mBRSET grades (final_icdr), same 0-4 ICDR scale as "
+                         "BRSET's DR_ICDR -- which is what makes one shared head "
+                         "legitimate across the two cohorts.")
     p.add_argument("--task", default="convnextv2_large_BRSET_strong_baseline")
     p.add_argument("--output_dir", default="/home/users/sthummala2/brset-convnextv2/results")
     p.add_argument("--seed", default=0, type=int)
     return p.parse_args()
+
+
+
+class MaskedLabelLoss(nn.Module):
+    """Per-label validity mask for rows whose labels are only partly known.
+
+    DDR/Aptos/Messidor2 carry an ICDR grade but no macular-oedema label. Writing
+    a 0 there would teach the model that every imported eye is oedema-free, which
+    is exactly the kind of silent label corruption that made the translator arms
+    worse. The mask zeroes that term instead.
+    """
+
+    def __init__(self, base, nb, off):
+        super().__init__()
+        self.base, self.nb, self.off = base, nb, off
+
+    def forward(self, logits, targets):
+        w = targets[:, self.off:self.off + self.nb].clamp(0.0, 1.0)
+        return self.base(logits[:, :self.nb], targets[:, :self.nb], weight=w)
+
+
+def load_extra_images(ds, args):
+    """Append external graded POSITIVES to the training set.
+
+    Positives only, matched count across arms: the arms then differ in the
+    severity of what was added and in nothing else. Returns the number added.
+    """
+    meta = pd.read_csv(args.extra_manifest)
+    meta = meta[meta.grade >= 1]          # positives only
+    if args.extra_severity == "mild":
+        pool = meta[meta.grade.isin([1, 2])]
+    elif args.extra_severity == "severe":
+        pool = meta[meta.grade.isin([3, 4])]
+    else:
+        pool = meta
+    if len(pool) < args.extra_n:
+        raise SystemExit(f"extra_severity={args.extra_severity}: asked for "
+                         f"{args.extra_n} but only {len(pool)} available")
+    rng = np.random.RandomState(args.extra_seed)
+    sel = pool.iloc[rng.permutation(len(pool))[:args.extra_n]]
+    add = pd.DataFrame(dict(
+        file=sel.file.values,                      # absolute paths
+        diabetic_retinopathy=np.ones(len(sel), dtype=int),
+        macular_edema=np.zeros(len(sel), dtype=int),   # masked, never learned
+        domain=np.full(len(sel), 2)))
+    base = ds.labels_df
+    for c in base.columns:
+        if c not in add.columns:
+            add[c] = 0
+    ds.labels_df = pd.concat([base, add[base.columns]], ignore_index=True)
+    hist = {int(k): int(v) for k, v in sel.grade.value_counts().sort_index().items()}
+    print(f"extra images: +{len(sel)} external positives "
+          f"(severity={args.extra_severity}) grade mix {hist}", flush=True)
+    print(f"  training set {len(base)} -> {len(ds.labels_df)}", flush=True)
+    return len(sel)
+
+
+def load_pseudo_images(ds, args):
+    """Append unlabelled target images with teacher pseudo-labels (domain 3).
+
+    Only images the teacher was confident about are in the manifest; their DR label
+    is the teacher's, the oedema term is masked unless the manifest says otherwise.
+    Returns the manifest so the caller can copy its validity masks.
+    """
+    m = pd.read_csv(args.pseudo_manifest)
+    need = ["file", "diabetic_retinopathy", "macular_edema", "_mdr", "_med"]
+    if list(m.columns[:5]) != need:
+        raise SystemExit(f"pseudo manifest columns {list(m.columns)}; need {need}")
+    add = m[need[:3]].copy()
+    add["domain"] = 3
+    base = ds.labels_df
+    for c in base.columns:
+        if c not in add.columns:
+            add[c] = 0
+    ds.labels_df = pd.concat([base, add[base.columns]], ignore_index=True)
+    print(f"pseudo images: +{len(m)} unlabelled target images with teacher labels "
+          f"(DR+ {int(m.diabetic_retinopathy.sum())}, DR- {int((m.diabetic_retinopathy == 0).sum())}; "
+          f"oedema valid on {int(m._med.sum())}); training set {len(base)} -> {len(ds.labels_df)}", flush=True)
+    return m
+
+
+class EyePairs(torch.utils.data.Dataset):
+    """Two different photos of the same UNLABELLED target eye, each with its own augmentation.
+
+    Eyes come from the training split's target rows (file and domain columns only) joined with
+    acquisition metadata (patient, laterality) -- no diagnosis column is ever parsed."""
+
+    MB = "/data/users4/nshaik3/Datasets/mBRSET/physionet.org/files/mbrset/1.0/labels_mbrset.csv"
+
+    def __init__(self, split_dir, tf):
+        tr = pd.read_csv(Path(split_dir) / "labels.csv", usecols=["file", "domain"])
+        assert sorted(tr.columns) == ["domain", "file"], "label columns must never be parsed"
+        meta = pd.read_csv(self.MB, usecols=["file", "patient", "laterality"])
+        assert sorted(meta.columns) == ["file", "laterality", "patient"], "no diagnosis column may be parsed"
+        d = tr[tr.domain == 1].merge(meta, on="file", how="inner")
+        d["eye"] = d.patient.astype(str) + "_" + d.laterality.astype(str)
+        g = d.groupby("eye").file.apply(list)
+        self.eyes = [v for v in g.values if len(v) >= 2]
+        self.split_dir, self.tf = Path(split_dir), tf
+
+    def __len__(self):
+        return len(self.eyes)
+
+    def __getitem__(self, i):
+        a, b = np.random.choice(self.eyes[i], 2, replace=False)
+        ld = lambda f: self.tf(Image.open(self.split_dir / f).convert("RGB"))
+        return ld(a), ld(b)
+
+
+def _cycle(loader):
+    while True:
+        for x in loader:
+            yield x
+
+
+def _grade_map(args):
+    """filename stem -> ICDR grade, over both cohorts.
+
+    BRSET grades live in DR_ICDR and mBRSET's in final_icdr; both are the same
+    0-4 ICDR scale. BRSET's header carries a BOM, so the id column is taken
+    positionally rather than by name.
+    """
+    m = {}
+    for path, idcol, gcol in ((args.severity_csv, "image_id", "DR_ICDR"),
+                              (args.ordinal_mbrset_csv, "file", "final_icdr")):
+        if not path or not Path(path).exists():
+            continue
+        df = pd.read_csv(path)
+        key = idcol if idcol in df.columns else df.columns[0]
+        if gcol not in df.columns:
+            continue
+        ks = (df[key].astype(str).str.rsplit("/", n=1).str[-1]
+                .str.replace(r"\.(jpg|jpeg|png)$", "", regex=True))
+        for k, g in zip(ks, df[gcol]):
+            if not pd.isna(g):
+                m[k] = float(g)
+    return m
+
+
+def attach_ordinal_targets(labels_df, gmap, name=""):
+    """Write the cumulative ordinal targets into labels_df, in place."""
+    keys = (labels_df["file"].astype(str).str.rsplit("/", n=1).str[-1]
+            .str.replace(r"\.(jpg|jpeg|png)$", "", regex=True))
+    g = keys.map(gmap)
+    known = (~g.isna()).values
+    gv = g.fillna(0.0).values
+    for k in (1, 2, 3, 4):
+        labels_df[f"_ord{k}"] = ((gv >= k) & known).astype("float32")
+    labels_df["_ordm"] = known.astype("float32")
+    print(f"ordinal_aux: {name} {int(known.sum())}/{len(labels_df)} images graded",
+          flush=True)
+    return int(known.sum())
+
+
+class OrdinalAuxLoss(nn.Module):
+    """Binary objective, unchanged, plus masked BCE on the cumulative grade head.
+
+    The mask arrives as the last target column and is applied as a soft
+    per-image weight rather than a hard gate, because mixup and label smoothing
+    both act on the target tensor before the loss sees it: a blended mask
+    correctly down-weights an image whose grade is only partly known.
+    """
+
+    def __init__(self, base, nb, weight):
+        super().__init__()
+        self.base, self.nb, self.weight = base, nb, weight
+
+    def forward(self, logits, targets):
+        main = self.base(logits[:, :self.nb], targets[:, :self.nb])
+        o_lg = logits[:, self.nb:self.nb + 4]
+        o_tg = targets[:, self.nb:self.nb + 4]
+        w = targets[:, self.nb + 4:self.nb + 5].clamp(0.0, 1.0)
+        bce = F.binary_cross_entropy_with_logits(o_lg, o_tg, reduction="none")
+        aux = (bce * w).sum() / w.sum().clamp(min=1.0) / 4.0
+        return main + self.weight * aux
+
+
+def apply_severity_match(weights, labels_df, args):
+    """Reweight source positives to the target cohort's ICDR severity mix.
+
+    The binary DR label collapses an ordinal scale, and the two cohorts sit at
+    opposite ends of it. Reweighting changes WHICH positives the model spends
+    its capacity on, without adding a single target image or label.
+    """
+    meta = pd.read_csv(args.severity_csv)
+    idcol = "image_id" if "image_id" in meta.columns else meta.columns[0]
+    meta["_k"] = meta[idcol].astype(str).str.replace(r"\.(jpg|jpeg|png)$", "", regex=True)
+    g = dict(zip(meta["_k"], meta["DR_ICDR"]))
+
+    keys = (labels_df["file"].astype(str)
+            .str.rsplit("/", n=1).str[-1]
+            .str.replace(r"\.(jpg|jpeg|png)$", "", regex=True))
+    grade = keys.map(g).values
+    pos = labels_df["diabetic_retinopathy"].values == 1
+    if "domain" in labels_df.columns:
+        pos = pos & (labels_df["domain"].values == 0)   # source positives only
+    have = pos & ~pd.isna(grade)
+    if have.sum() < 50:
+        print(f"severity_match: only {int(have.sum())} source positives matched a grade; "
+              f"SKIPPING", flush=True)
+        return weights
+
+    tgt = [float(x) for x in args.severity_target.split(",")]
+    gi = np.where(have, np.nan_to_num(grade, nan=0).astype(float), np.nan)
+    cur = np.array([np.nansum(gi == k) for k in (1, 2, 3, 4)], dtype=float)
+    cur = cur / max(cur.sum(), 1.0)
+    w = np.asarray(weights, dtype=float).copy()
+    print(f"severity_match: {int(have.sum())} source positives graded", flush=True)
+    print(f"  {'grade':>6} {'source':>8} {'target':>8} {'weight':>8}", flush=True)
+    for k in (1, 2, 3, 4):
+        f_cur, f_tgt = cur[k - 1], tgt[k - 1]
+        mult = (f_tgt / f_cur) if f_cur > 1e-9 else 1.0
+        sel = have & (gi == k)
+        w[sel] *= mult
+        print(f"  {k:>6} {f_cur:8.3f} {f_tgt:8.3f} {mult:8.3f}", flush=True)
+    # preserve total positive mass so this changes composition, not prevalence
+    w[pos] *= np.asarray(weights, dtype=float)[pos].sum() / max(w[pos].sum(), 1e-9)
+    return w
 
 
 def apply_pos_rate(weights, labels_df, rate):
@@ -334,10 +667,26 @@ def apply_target_budget(ds, args):
         print(f"target budget {n} >= available {len(tgt)}; keeping all", flush=True)
         return
     rng = np.random.RandomState(args.budget_seed)
+    sev = getattr(args, "budget_severity", "random")
+    gmap = _grade_map(args) if sev != "random" else {}
     keep = []
-    for _, grp in tgt.groupby("diabetic_retinopathy"):
+    for lab, grp in tgt.groupby("diabetic_retinopathy"):
         k = int(round(n * len(grp) / len(tgt)))
-        keep.append(rng.permutation(grp.index.values)[:k])
+        pool = grp
+        if sev != "random" and lab == 1:
+            # Restrict only the POSITIVES. Budget and positive rate stay
+            # identical to the random arm, so the single thing that varies is
+            # the severity composition of the positives being bought.
+            want = (1, 2) if sev == "mild" else (3, 4)
+            g = (grp["file"].astype(str).str.rsplit("/", n=1).str[-1]
+                   .str.replace(r"\.(jpg|jpeg|png)$", "", regex=True).map(gmap))
+            pool = grp[g.isin(want)]
+            print(f"budget_severity={sev}: {len(pool)} of {len(grp)} target "
+                  f"positives are grade {want}; drawing {k}", flush=True)
+            if len(pool) < k:
+                raise SystemExit(f"budget_severity={sev}: need {k} positives but "
+                                 f"only {len(pool)} are grade {want}")
+        keep.append(rng.permutation(pool.index.values)[:k])
     keep = np.concatenate(keep)
     ds.labels_df = pd.concat([src, tgt.loc[keep]]).reset_index(drop=True)
     kept = ds.labels_df[ds.labels_df.domain == 1]
@@ -345,6 +694,14 @@ def apply_target_budget(ds, args):
           f"(DR+ {int(kept.diabetic_retinopathy.sum())}, "
           f"{100 * kept.diabetic_retinopathy.mean():.1f} percent) "
           f"alongside {len(src)} source images", flush=True)
+    if sev != "random" and len(kept):
+        # print the realised mix, so the log proves the arm did what it claims
+        kg = (kept["file"].astype(str).str.rsplit("/", n=1).str[-1]
+                .str.replace(r"\.(jpg|jpeg|png)$", "", regex=True).map(gmap))
+        kp = kg[kept["diabetic_retinopathy"].values == 1]
+        hist = {int(k): int(v) for k, v in kp.value_counts().sort_index().items()
+                if not pd.isna(k)}
+        print(f"  realised grade mix of bought positives: {hist}", flush=True)
 
 
 def build_transforms(args):
@@ -407,6 +764,11 @@ def run_inference(model, loader, device, tta="none"):
                 views.append(torch.flip(images, dims=[2]))
                 views.append(torch.flip(images, dims=[2, 3]))
             probs = torch.stack([torch.sigmoid(model(v).float()) for v in views]).mean(0)
+        if _NB_OUT[0] is not None:
+            # the aux head must not change the shape of anything downstream:
+            # every cached run's metrics and predictions are two-column.
+            probs = probs[:, :_NB_OUT[0]]
+            targets = targets[:, :_NB_OUT[0]]
         all_targets.append(targets.numpy())
         all_probs.append(probs.cpu().numpy())
     return np.concatenate(all_targets), np.concatenate(all_probs)
@@ -482,14 +844,25 @@ def train_one_epoch(model, ema, loader, optimizer, scheduler, scaler, criterion,
     running_loss, n_batches, n_bad = 0.0, 0, 0
     t0 = time.time()
     optimizer.zero_grad(set_to_none=True)
-    for i, (images, targets) in enumerate(loader):
+    for i, batch in enumerate(loader):
+        flags = None
+        if len(batch) == 3:
+            images, targets, flags = batch
+            flags = flags.to(device, non_blocking=True)
+        else:
+            images, targets = batch
         images = images.to(device, non_blocking=True)
         targets = targets.to(device, non_blocking=True)
         if translator is not None:
             # synthesise the target camera, then normalise. Mixup runs AFTER so
             # it blends already-translated images, matching the baseline order.
             p_tr = getattr(args, "translate_p", 1.0)
-            if p_tr >= 1.0:
+            if flags is not None:
+                sel = flags > 0.5
+                if sel.any():
+                    images = images.clone()
+                    images[sel] = translator(images[sel]).clamp_(0.0, 1.0)
+            elif p_tr >= 1.0:
                 images = translator(images).clamp_(0.0, 1.0)
             elif p_tr > 0.0:
                 # per-image Bernoulli, so a batch mixes real and synthetic
@@ -501,7 +874,14 @@ def train_one_epoch(model, ema, loader, optimizer, scheduler, scaler, criterion,
         if args.mixup_alpha > 0:
             images, targets = mixup_batch(images, targets, args.mixup_alpha)
         if args.label_smoothing > 0:
-            targets = targets * (1 - args.label_smoothing) + 0.5 * args.label_smoothing
+            if _EXTRA_COLS[:] == ["_mdr", "_med"]:
+                # smooth the labels only: smoothing the validity masks would give a
+                # masked label 5 % weight and quietly teach it (14 Oct fix)
+                nb = args.nb_classes
+                targets = torch.cat([targets[:, :nb] * (1 - args.label_smoothing) + 0.5 * args.label_smoothing,
+                                     targets[:, nb:]], dim=1)
+            else:
+                targets = targets * (1 - args.label_smoothing) + 0.5 * args.label_smoothing
         with torch.autocast(device_type="cuda", dtype=AMP_DTYPE[args.amp_dtype],
                             enabled=args.amp_dtype != "fp32"):
             loss = criterion(model(images), targets) / args.accum_iter
@@ -512,6 +892,17 @@ def train_one_epoch(model, ema, loader, optimizer, scheduler, scaler, criterion,
             optimizer.zero_grad(set_to_none=True)
             continue
         scaler.scale(loss).backward()
+        if _MV[0] is not None:
+            xa, xb = next(_MV[0])
+            xa, xb = xa.to(device, non_blocking=True), xb.to(device, non_blocking=True)
+            with torch.autocast(device_type="cuda", dtype=AMP_DTYPE[args.amp_dtype],
+                                enabled=args.amp_dtype != "fp32"):
+                pr = torch.sigmoid(model(torch.cat([xa, xb])).float()[:, :args.nb_classes])
+            pa, pb = pr.chunk(2)
+            loss_mv = args.mv_weight * ((pa - pb) ** 2).mean() / args.accum_iter
+            if torch.isfinite(loss_mv):
+                scaler.scale(loss_mv).backward()
+                _MV[1] = 0.98 * _MV[1] + 0.02 * loss_mv.item() * args.accum_iter
         if (i + 1) % args.accum_iter == 0 or (i + 1) == len(loader):
             scaler.step(optimizer)
             scaler.update()
@@ -523,6 +914,7 @@ def train_one_epoch(model, ema, loader, optimizer, scheduler, scaler, criterion,
         if i % print_freq == 0:
             print(f"Epoch: [{epoch}]  [{i}/{len(loader)}]  lr: {optimizer.param_groups[0]['lr']:.7f}  "
                   f"loss: {loss.item()*args.accum_iter:.4f}  avg: {running_loss/n_batches:.4f}  "
+                  + (f"mv: {_MV[1]:.4f}  " if _MV[0] is not None else "") +
                   f"{time.time()-t0:.0f}s", flush=True)
     scheduler.step()
     if n_bad:
@@ -547,7 +939,85 @@ def main():
     ds_val = BRSETMultiLabel(data_path / "val", eval_tf)
     ds_test = BRSETMultiLabel(data_path / "test", eval_tf)
     apply_target_budget(ds_train, args)
+    if args.translator_ckpt and args.translate_mode == "union":
+        # Real BRSET and synthetic mBRSET side by side, which is what "joint
+        # training on BRSET plus synthesized mBRSET" means literally. The epoch
+        # doubles, so this sees twice the gradient steps of the baseline; that
+        # is a real confound and the paper must report it alongside the prob
+        # arms, which hold step count fixed.
+        import pandas as _pd
+        _a = ds_train.labels_df.copy(); _a["_translate"] = 0.0
+        _b = ds_train.labels_df.copy(); _b["_translate"] = 1.0
+        ds_train.labels_df = _pd.concat([_a, _b]).reset_index(drop=True)
+        print(f"translate_mode=union: training set doubled to {len(ds_train.labels_df)} "
+              f"({len(_a)} real + {len(_b)} synthetic)", flush=True)
     print(f"train/val/test sizes: {len(ds_train)}/{len(ds_val)}/{len(ds_test)}", flush=True)
+
+    if args.ordinal_aux:
+        _gm = _grade_map(args)
+        print(f"ordinal_aux: {len(_gm)} graded images across both cohorts", flush=True)
+        n_tr = attach_ordinal_targets(ds_train.labels_df, _gm, "train")
+        # val/test get the columns too, so __getitem__ has them to read; the
+        # ordinal outputs are never scored, only the binary ones are.
+        attach_ordinal_targets(ds_val.labels_df, _gm, "val")
+        attach_ordinal_targets(ds_test.labels_df, _gm, "test")
+        if n_tr < 50:
+            raise SystemExit(f"ordinal_aux: only {n_tr} training images matched a "
+                             f"grade; refusing to run a no-op experiment")
+        _EXTRA_COLS[:] = ORD_COLS
+        _NB_OUT[0] = args.nb_classes
+
+    if args.synth_dir:
+        # --synth_dir may list several folders (comma-separated): different twin sets (BRSET twins, mBRSET
+        # re-renderings) and/or several renderings of the same image (variants, D084). Each row keeps every
+        # twin found under its stem and one is drawn at random on each load.
+        sd = args.synth_dir
+        have = {}
+        for one in str(sd).split(","):
+            for q in Path(one).glob("*.png"):
+                if not q.name.startswith("."):
+                    have[q.stem] = (have[q.stem] + "|" + str(q)) if q.stem in have else str(q)
+        df = ds_train.labels_df
+        is_src = (df["domain"].values == 0) if ("domain" in df.columns and not args.synth_all) else np.ones(len(df), bool)
+        stems = df["file"].astype(str).map(lambda f: Path(f).stem)
+        df["_synth"] = [have.get(st, "") if src else "" for st, src in zip(stems, is_src)]
+        n_src, n_hit = int(is_src.sum()), int((df["_synth"] != "").sum())
+        print(f"synth: {n_hit}/{n_src} BRSET training images have a synthetic twin in {sd}; "
+              f"p={args.synth_p}", flush=True)
+        if n_hit < 0.99 * n_src:
+            raise SystemExit(f"synth: only {n_hit}/{n_src} twins found; refusing to run")
+        if args.synth_p >= 1.0 and n_hit != n_src:
+            # synthetic-only runs (D087): a row without a twin would silently stay a REAL image
+            raise SystemExit(f"synth: synthetic-only run but {n_src - n_hit} rows have no twin; refusing to run")
+        _SYNTH_P[0] = float(args.synth_p)
+
+    if args.extra_manifest or args.pseudo_manifest:
+        if args.ordinal_aux:
+            raise SystemExit("--extra_manifest/--pseudo_manifest with --ordinal_aux is not wired "
+                             "(the added images carry no ordinal mask); run "
+                             "them as separate arms")
+        if args.extra_manifest:
+            load_extra_images(ds_train, args)
+        pm = load_pseudo_images(ds_train, args) if args.pseudo_manifest else None
+        # label-validity masks: everything native is valid; the external rows
+        # have a valid DR label and an invalid oedema label.
+        for d, nm in ((ds_train.labels_df, "train"), (ds_val.labels_df, "val"),
+                      (ds_test.labels_df, "test")):
+            ext = (d["domain"].values == 2) if "domain" in d.columns else \
+                  np.zeros(len(d), bool)
+            d["_mdr"] = 1.0
+            d["_med"] = np.where(ext, 0.0, 1.0)
+        if pm is not None:
+            dtr = ds_train.labels_df
+            isp = dtr["domain"].values == 3
+            assert isp.sum() == len(pm), "pseudo rows lost or duplicated"
+            dtr.loc[isp, "_mdr"] = pm["_mdr"].values.astype(float)
+            dtr.loc[isp, "_med"] = pm["_med"].values.astype(float)
+        _EXTRA_COLS[:] = ["_mdr", "_med"]
+        _NB_OUT[0] = args.nb_classes
+        print(f"label masks on: oedema is masked for "
+              f"{int((ds_train.labels_df['_med'].values == 0).sum())} external "
+              f"training rows", flush=True)
 
     # Attach the translator, if one was given. Training images only: validation
     # and test are real target-domain images and must never be synthesised.
@@ -564,6 +1034,8 @@ def main():
               "val/test remain real target images", flush=True)
 
     sample_weights, counts = build_sample_weights(ds_train.labels_df)
+    if args.severity_match:
+        sample_weights = apply_severity_match(sample_weights, ds_train.labels_df, args)
     if args.target_pos_rate > 0:
         sample_weights = apply_pos_rate(sample_weights, ds_train.labels_df,
                                         args.target_pos_rate)
@@ -592,6 +1064,12 @@ def main():
     loader_train = DataLoader(ds_train, batch_size=args.batch_size, sampler=sampler,
                                shuffle=shuffle, num_workers=args.num_workers,
                                pin_memory=True, drop_last=True)
+    if args.mv_weight > 0:
+        pairs = EyePairs(data_path / "train", train_tf)
+        _MV[0] = _cycle(DataLoader(pairs, batch_size=args.mv_batch, shuffle=True, num_workers=4,
+                                   pin_memory=True, drop_last=True, persistent_workers=True))
+        print(f"same-eye consistency: {len(pairs.eyes)} unlabelled target eyes with >= 2 photos; "
+              f"weight {args.mv_weight}, {args.mv_batch} pairs per micro-step", flush=True)
     loader_val = DataLoader(ds_val, batch_size=args.batch_size, shuffle=False,
                              num_workers=args.num_workers, pin_memory=True)
     loader_test = DataLoader(ds_test, batch_size=args.batch_size, shuffle=False,
@@ -602,8 +1080,12 @@ def main():
     print(f"autocast dtype: {args.amp_dtype}", flush=True)
     _EVAL_DTYPE[0] = (None if args.amp_dtype == "fp32" else AMP_DTYPE[args.amp_dtype])
 
-    model = timm.create_model(args.model, pretrained=True, num_classes=args.nb_classes,
+    _n_out = args.nb_classes + (4 if args.ordinal_aux else 0)
+    model = timm.create_model(args.model, pretrained=True, num_classes=_n_out,
                                drop_path_rate=args.drop_path).to(device)
+    if args.ordinal_aux:
+        print(f"ordinal_aux: head widened {args.nb_classes} -> {_n_out} "
+              f"(4 cumulative grade outputs), weight {args.ordinal_weight}", flush=True)
     print(f"n_parameters: {sum(p.numel() for p in model.parameters())}", flush=True)
 
     if args.warm_start_ckpt:
@@ -628,6 +1110,19 @@ def main():
     else:
         criterion = MultiLabelFocalLoss(gamma=args.focal_gamma)
         print(f"criterion = MultiLabelFocalLoss(gamma={args.focal_gamma})", flush=True)
+
+    if args.extra_manifest or args.pseudo_manifest:
+        if not isinstance(criterion, MultiLabelFocalLoss):
+            raise SystemExit("--extra_manifest needs --loss focal (only that "
+                             "loss accepts the per-label validity mask)")
+        criterion = MaskedLabelLoss(criterion, args.nb_classes, args.nb_classes)
+        print("criterion wrapped in MaskedLabelLoss (oedema masked for "
+              "external rows)", flush=True)
+
+    if args.ordinal_aux:
+        criterion = OrdinalAuxLoss(criterion, args.nb_classes, args.ordinal_weight)
+        print(f"criterion wrapped in OrdinalAuxLoss(weight={args.ordinal_weight})",
+              flush=True)
 
     ema = ModelEma(model, decay=args.ema_decay) if args.ema_decay > 0 else None
 

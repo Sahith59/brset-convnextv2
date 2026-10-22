@@ -1,0 +1,15 @@
+{
+ "ckpt": "results/xlate_adv0.5/translator_last.pth",
+ "n": 60,
+ "H1_lesions": {
+  "retention": 0.42670629444857233,
+  "spurious": 0.6600742742874722,
+  "cand_orig": 628.0666666666667,
+  "cand_trans": 758.45
+ },
+ "H2_separability": {
+  "auc_untouched": 1.0,
+  "auc_synthetic": 1.0,
+  "delta": 0.0
+ }
+}

@@ -93,3 +93,188 @@ Allocated report build4411098 completed0:0. Living DOCX/PPTX and dedicated Dong 
 **Meeting explanations and deck refinement — September16, 2026.** Read exact A1/FundusAug and A2/A3 fitting/augmentation implementations plus Step3/5 frozen reviews. Rewrote slide4 method labels, slide7's sampling question and C2/C3 footnote, slide8's A1/A2/A3 definitions, slide9's appearance-premise wording, slide10's source-only/pruning/top1 roles and slide12's error-first next path. Expanded the speaker brief with a concise Dong talk track, precise transform parameters, synthetic-overlay meaning, Step3/5 interpretation and unfulfilled boundaries; amended PLAN.md with conditional next tasks. Clarified that gallery examples use a center crop whereas classifier fitting uses a random crop. Rebuilds4417152 (private deck) and4417153 (living public DOCX/PPTX) completed0:0. Current private deck hash `dc2321fbbc9cd2040678a05436b40ef0a656c7613f5d42130e97812ba0208678`; checks pass12 slides/two source-audited image strips/seven links/TNR/bounds. No model run or external message.
 
 **Final source-brief precision — September16, 2026.** Checked `step4/preflight.py:prepared` and `step4/train_augmentation.py:AugmentedImages` to distinguish centered gallery crop from random training crop, then rebuilt the public living record on allocated CPU job4417768. Exit0, record checks pass and speaker-brief hash is current. No change to private PPT content, scientific result or GPU plan.
+
+**Generative translator build and hardware migration — October 12, 2026 (Claude Code).** Read `MEMORY.md`, `PLAN.md` head, `DECISIONS.md` tail and `literature/DIRECTION_REVIEW.md` hits for the first time at about 16:45 after `AGENTS.md` surfaced. Before that, in the same session: wrote scripts 108–113; built caches by Slurm job 4599084 (train) and 4599103 (held-out); single-GPU smoke passed (300 steps); found and fixed a DDP hang on the A40 nodes (NCCL P2P; fix `NCCL_P2P_DISABLE=1`, four parallel transport trials 4599094–4599097); validated cross-node NCCL (4599136/4599137; gloo fails across nodes); validated translate+gates end to end on the toy model (4599102, 4599104) and corrected two gate-design flaws (judge had trained on BRSET train, so gates now use held-out BRSET; direct real-vs-synthetic probe replaced as criterion by a device classifier trained on disjoint images). Benchmarked this UNet per GPU: A40 10.5 images/s, A100-40GB 22.4, H100-80GB 47.3. Fixed a snapshot bug (EMA snapshots were only written when the step was also a multiple of `ckpt_every`). Migrated `gen_tgt` to 4 H100 (resumed step 3,000) and `gen_both` to 8 A100 (resumed step 2,000; about 1,000 steps lost because its checkpoint had not yet been written when the A40 job was cancelled). Produced `report/figures/first_look_gen_tgt.png` (job 4599240). Queued 32 gate jobs. Appended this record's October 12 memory entry with five explicit corrections and decisions D065–D067. No downstream classifier experiment, no test assessment, no external message.
+
+**Third-generator migration — October 12, 2026, 17:04–17:12 (Claude Code).** Cancelled A40 job 4599141 (`gen_tgt_sharp`, step ~3,500, last checkpoint 3,000). Job 4599283 on two DGX nodes failed at DDP construction with an NVML PCI-bus lookup error caused by `--gpus-per-task=1`; diagnosed from the log's "Last error" lines and by confirming both nodes share the same eth0/ib0 subnets as the A40 nodes where cross-node NCCL works. Replacement job 4599302 with per-node `--gres=gpu:A100:4` runs. Requeued 14 gate jobs for this variant against snapshots 5,000/10,000/20,000/40,000. Confirmed the first two real-snapshot gate jobs started. No result claimed.
+
+**Preemption and A40 fallback — October 12, 2026, 17:11–17:22 (Claude Code).** Observed `gen_tgt_sharp` stalled at step 3,300; log showed `CANCELLED ... DUE TO PREEMPTION`. Confirmed with `squeue -w` that user ybi3's high-priority job 4599305 holds 2 A100s on arctrddgxa001. Cancelled the pending replacement and the transport test, relaunched on 16 A40s (job 4599320). Verified InfiniBand transport between DGX nodes with a 2-GPU test before the preemption made the A100 route unavailable.
+
+**Hand-off arrangement — October 12, 2026, 17:22–17:26 (Claude Code).** Added a guarded `CANCEL_FIRST` hand-off to `scripts/110_train_diffusion_any.slurm` (cancels the named job, polls until it has left the queue, refuses to start otherwise) and an adjustable snapshot wait to `scripts/112_gate.slurm`. Submitted 4599325; retimed ten `gen_tgt_sharp` gate jobs to the measured 0.93 it/s schedule. Cancelled the three interface-test jobs after reading two of them.
+
+**First gate read — October 12, 2026, 21:30 (Claude Code).** Read 26 gate JSONs into one table; recorded descriptive findings and a proposed (post hoc for these snapshots, pre-registered for the 40k snapshots) selection rule in MEMORY.md. Submitted two figure jobs (`113_show.py`, step-30,000 snapshots of gen_tgt and gen_both, physics strength 0.4) to `report/figures/look_*_step30000.png`.
+**Step-30,000 figure inspected — October 12, 2026, 21:35 (Claude Code).** Jobs 4601582/4601583 wrote the two figures; observations recorded in MEMORY.md.
+**Variant comparison explained to user — October 12, 2026, 21:40 (Claude Code).** No new jobs.
+**Failed A100 speed-up for gen_tgt_sharp — October 12, 2026, 21:50–21:58 (Claude Code).** Jobs 4604418 (IB HCA failure), 4604420 (fix test, preempted); A40 relaunch 4604419; H100 hop 4604422.
+**Overnight completion and translation launch — October 13, 2026, 02:10–02:20 (Claude Code).** Tabulated 40k gates, applied the pre-stated rule, launched sharded translation (four arrays), excluded RTX/V100 nodes after OOM and slow shards, benchmarked the classifier on H100 vs A40 (jobs via srun). Recorded D068.
+**40k figures and explanation turn — October 13, 2026, 02:24–02:35 (Claude Code).** Figure jobs show40_*; four translation shards preempted and requeued automatically (resumable).
+**Launch turn — October 13, 2026, 02:43–02:55 (Claude Code).** gen_both_ld 4609402; synth trainer patch + compute-node verification; 12 syn_* runs; 6 gate jobs. Deck build next.
+**Deck build — October 13, 2026, 02:50–03:05 (Claude Code).** Built and QA'd the 20-slide deck (prep 4609xxx srun jobs; build/render/validate via srun). Recorded the physics-vs-diffusion grade-1 correction.
+**Git push — October 13, 2026 (Claude Code).** Scrubbed per-image lesion JSON from 11 unpushed commits (filter-branch in a scratch worktree), 12 topic commits, pushed branch claude/oct12-generative-translator; local main left unscrubbed pending user action.
+**Mid-training check — October 13, 2026, 04:00 (Claude Code).** Read syn_* and lebase log.txt; recorded paired validation deltas.
+**Joint-training read-out — October 13, 2026, 12:25 (Claude Code).** Ran 115_analyze_synth_joint.py (srun); recorded validation choice (gen_tgt), test results, bootstrap CIs, F1 diagnosis, gen_both_ld gates.
+**F1 investigation — October 13, 2026, 12:30–13:05 (Claude Code).** 116_f1_diagnosis.py (srun); launched 4609590 translation, syn_bothld60 ×6, dose sweep ×6, gen_tgt_ld, gen_both_ld100.
+**Cut-off methods + status — October 13, 2026, 12:55 (Claude Code).** 117_f1_methods.py (srun). Noted external resubmission of gen_both_ld100 as 4609646.
+**F1 thresholds — Oct 13, 12:55 (Claude Code).** 117_f1_thresholds.py job 4609647; 100k run requeued 4609646.
+**Launch confirmation — Oct 13, 13:00.** 12 classifier runs started (6 syn_bothld60 on the gen_both_ld 60k corpus, 6 dose-sweep syn_tgt_b0 p0.25/p0.75), all with 11,372/11,372 twins; gen_tgt_ld on 4 H100; gen_both_ld100 queued on H100 after it.
+**Queue gen_tgt_ld follow-on — Oct 13, 14:10.** 4610138 translation, 2 gates, 6 syn_tgtld60 runs.
+**Read-out 16:10–16:30, Oct 13 (Claude Code).** 118_readout.py; validation dose check; gen_tgt_ld gate.
+**Full table + ablation launch — Oct 13, 16:30–16:55 (Claude Code).** 119_full_table.py job 4611196; 111_translate.py `--init physics_only`; translation arrays 4611201–4611203; joint runs 4611204–4611212; physics-image sanity check 4611233 (first attempt 4611231 failed: script was in node-local /tmp).
+**Ablation gate — Oct 13, 16:50 (Claude Code).** gate_physonly 4611241 (physics_only on the 546 gate images); colour check 4611238; syn_physonly ×3 running from 16:46.
+**Old-arm re-score + dose sweep — Oct 13, 17:00 (Claude Code).** oldsynth job (re-scored Oct 10 translator arms); D071 runs 4611419–4611427.
+**Status table for user — Oct 13, 18:02 (Claude Code).** Re-printed completed arms from results/full_table_2026-10-13.json (no new arm finished since 16:31); live progress: syn_tgtld60 epoch 19/25, syn_physonly 14/25, gen_both dose sweep 8/25, gen_both_ld100 step 76,100; diffusion-only translation 10,037/11,372, no-physics 8,480/11,372.
+**gen_tgt 60k p0.25 launch — Oct 13, 18:10 (Claude Code).** 4611900–4611902.
+**Baselines per seed — Oct 13, 18:30 (Claude Code).** baselines_per_seed.py job; results/baselines_per_seed_2026-10-13.json.
+**Read-out 20:40 — Oct 13 (Claude Code).** 119 job 4613407; 100k chain 4613409–4613416.
+**Deck v2 + ablation read-out — Oct 13, 21:20–22:00 (Claude Code).** 119 jobs 4613434/4613440/4613442; deck builds 4613441/4613443/4613444+; gate_src40k 4613435.
+**100k read-out + final deck — Oct 14, 01:20–01:30 (Claude Code).** 119 job 4614242; deck builds (final 01:29); D072 recorded.
+**F1 analysis — Oct 14, 01:45 (Claude Code).** f1_why.py job; results/f1_why_2026-10-14.json.
+**F1 attack launch — Oct 14, 01:45–02:05 (Claude Code).** RetSyn agent; fa_val_diag; 120_predict.py, 121_pseudo_manifest.py, 122_pseudo_student.slurm, trainer --pseudo_manifest; teachers 4614252/4614254; gates 4614255–4614257; D073/D074.
+**Self-training launch — Oct 14, 02:10–02:35 (Claude Code).** 120 check relaxed; manifests 4614264; students 4614265–4614277; smoothing-mask fix in trainer; RetSyn agent resumed (it had stopped without writing its file).
+**Baselines launch — Oct 14, 02:40–03:20 (Claude Code).** 123_classic_twins.py; class-conditioned generator code + smoke; jobs 4614284–4614394; scheduling incidents recorded.
+**Mid-training read + H100 hand-off — Oct 14, 03:45–04:05 (Claude Code).** see MEMORY 04:05.
+**Read-out — Oct 14, 12:30–12:45 (Claude Code).** 119 jobs 4620853/4620872; D077.
+**Deck v3 — Oct 14, 12:55–13:15 (Claude Code).** Part 3 added; builds clean; auto-update chain 4621003/4621004.
+**RetSyn-style read + figure + D078 — Oct 14, 16:40–16:55 (Claude Code).** show100k 4622515; f1whyst; manifests 4622522; D078 runs.
+**F1 deep analysis + attacks — Oct 14, 16:55–17:30 (Claude Code).** f1levers, f1ci jobs; D079/D080; ST-I 4622891/4622892/4622882; MV 4622932–4622937; 119 extended.
+**Method doc + D081 — Oct 14, 18:40–19:00 (Claude Code).** METHOD.md; physparams job; synthetic-only runs 4623661–4623663.
+**D082 launch — Oct 14, 19:20–19:40 (Claude Code).** 111 --source; 126_mbrset_only.slurm; jobs 4623732–4623742.
+**Read-out + D083/D084 — Oct 14, 21:12–21:45 (Claude Code).** 119 job 4625216; trainer --synth_all + multi-folder twins; jobs 4625391–4625403.
+**Synthetic-only read-out — Oct 15, 02:42–03:00 (Claude Code).** 119 job 4628461; vs_target_eye job 4628462.
+**D088 launch, fidelity, DC fine-tune — Oct 15, 03:00–03:45 (Claude Code).** D088 translation 4628487 (done, 11,372 twins); classifier runs 4628488–90 cancelled (D089); 128_fidelity.py (jobs 4628532, 4628533 cancelled as duplicate); 129_dc_finetune.py + .slurm; smoke 4628535 (OOM on 40 GB after a passing selftest and step-0 monitor), 4628541, 4628542.
+**D091 build — Oct 15, 04:15–04:30 (Claude Code).** 130_train_base256.py/.slurm, 131_sample_cascade.py, 132_copy_check.py, 133_build_synth_data.py, 134_label_gate.py; smoke 4628559, 4628562; stage A 4628561; copy check 4628563, 4628568; xl_dc 4628564; C1 4628565–67; trainer strict synthetic-only check.
+**D091 gates + automation — Oct 15, 04:30–04:45 (Claude Code).** copy-check controls v2 4628568 (vessel-pattern rule, D092); 135_pilot.slurm, 136_gates.slurm; gate smoke 4628569 passed; D093 selection rule; detached waiter /data/users3/sthummala2/brset_gen/waiter_d091.sh (PID 531288, log waiter_d091.log) submits pilots+gates at stage-A 10k/20k/25k/30k. Timestamps of the 04:28 MEMORY entry corrected (was written as 04:50).
+**Session handover — Oct 15, 04:50–04:55 (Claude Code 536528).** Duplicate session found (530776: D093, waiter_d091.sh); user chose this session; waiter adopted; unsubmitted 138_cascade_chain.sh deleted.
+**Results + candidates — Oct 15, 12:35–13:10 (Claude Code).** C1 read; pilots 4628614–4628645 read; D094; generation 4628835 (A), 4628836 (B); driver_d094.sh; 119 job 4628893; 132 now reports the validation OR-rule flag rate.
+**Speed-up — Oct 15, 14:15–14:20 (Claude Code).** 139 hand-off; 4628940–4628945.
+**Translator-v3 launch + reference document — Oct 15, 16:16–16:40 (Claude Code).** 140_tj_finetune.py/.slurm; smoke 4628982; 4628983 cancelled; 4628984 running (2 × 4 A100); driver_d095.sh (guard → xl_tj → C5); D095; report/reference_2026-10-15 (docx + build script); .gitignore report/reference_*/.
+**5-page brief — Oct 15, 17:55–18:11 (Claude Code).** Old reference docx deleted (user request); make_figures.py (4 diagrams), build_brief.py → brief docx; D096 guard driver restarted after a self-killing pkill (driver_d095 stopped, driver_d096 running).
+**Guard + C2/C3 final + C5 — Oct 15, 18:53–19:45 (Claude Code).** driver_d096 passed; xl_tj 4629338; C5 4629339–41 → s0/s1 moved to H100 (4629653/54); A/B chosen on validation (B); 119 job 4629655.
+**C5 final — Oct 16, 13:40–13:50 (Claude Code).** C5 test read; 119 C5TJ arm + pairs; CI job 4637629.
+**C6 build — Oct 16, 13:48–14:15 (Claude Code).** D097; 141_train_painter.py/.slurm; 142_paint.py; 143_select_paint.py; brset_gen/paint_job.sh; painter_v1 4637633; driver_d097.sh; 119 C5TJ CI job 4637629.
+**Painter v2 — Oct 16, 15:46–15:49 (Claude Code).** C6 gate failed (D097 stop); diagnosis painter_diag.py; 141 --lesion_weight/--emb_lr_mult; 143 --rule rel; D098; painter_v2 4638004; driver_d098.sh.
+**Painter v2 gate — Oct 16, 17:13–17:26 (Claude Code).** pilots 4640260–63; gate 4640382 failed; driver_d098 stopped as designed; painter_diag_v2.py.
+**D099 clean protocol + agents — Oct 16, 17:50–17:58 (Claude Code).** xl_valsyn 4640815; zljudge 4640837; 144_build_zl_data.py; 145_clean_judge.slurm; driver_d099.sh; workflow wf_9c6add15-462.
+**Claim A launch — Oct 16, 18:10–18:16 (Claude Code).** D100, D101; workflow wf_c950d836-dd6; painter_v3 4641073; driver_d101.sh; 143 --rule rel_ctrl.
+**D099 runs cancelled — Oct 16, 18:28 (Claude Code).** user request; 4641009–11, 4640837 cancelled; driver_d099 killed.
+**46-agent workflow read-out — Oct 16, 19:04 (Claude Code).** wf_c950d836-dd6 complete; key claims verified (cut-offs, val→test drop, grade-1 label instability).
+**C6v3 read-out — Oct 19 (Claude Code).** D102 gate failed; test read once for all 6 runs; mild-DR generator line closed.
+**D103 final try + Dr. Ye draft — Oct 19, 14:37 UTC (Claude Code).** source-image seam verified [id withheld: public repo]; D103 registered; 146_freqsplit.py/.slurm; jobs 4649416–20; draft message report/reference_2026-10-19/message_to_dr_ye_DRAFT.md; 40.5 % (not 47 %) device-classifier correction.
+**D103 stopped — Oct 19, 14:48 UTC (Claude Code).** D104; analysis/detail_retention.py (+ .json), c1fs_zoom4col.png; jobs 4649417–20 cancelled; Dr. Ye draft result line filled.
+**Last-shot workflow — Oct 19, 14:59 UTC (Claude Code).** wf_ad9c97e9-f9a launched (21 agents); scratch brset_gen/agents_wf2/.
+**Workflow relaunch — Oct 19, 15:05 UTC (Claude Code).** wf_ad9c97e9-f9a interrupted by session end; relaunched as wf_86c801ba-c5f.
+**Workflow resume — Oct 19, 16:09 UTC (Claude Code).** wf_86c801ba-c5f resumed from cache (synthesizer + red team).
+**Workflow verdict — Oct 19, 16:44 UTC (Claude Code).** synthesizer + impact red team done; plan A/B awaiting user approval.
+**D105 launch — Oct 19, 16:55 UTC (Claude Code).** A 18 runs + B chain submitted; scripts 147–153 added.
+**Status — Oct 19, 20:20 UTC (Claude Code).** A 17/18 done (val only read); B KB passed; B runs relaunched 4650263–68 after allow-list export bug.
+**Report build — Oct 19, 20:51 UTC (Claude Code).** report/reference_2026-10-19 builder + figures; tools/render.sh; reviewers launched; 154 A read queued.
+**D105-A read + report revision — Oct 19, 22:29 UTC (Claude Code).** results/d105_A_table.json; reviewer fixes being applied.
+**Report v2 — Oct 19, 22:37 UTC (Claude Code).** reviewer fixes applied; 9 pages; 155_b_gate.py added; B read queued.
+**Report final — Oct 19, 22:57 UTC (Claude Code).** 10-page docx + pdf; fact-check fixes applied; B pending.
+**D105-B read — Oct 20, 00:54 UTC (Claude Code).** gate FAIL; test null; synthetic-only work closed; report rebuilt.
+**Report final with B — Oct 20, 00:55 UTC (Claude Code).**
+**D106 launch — Oct 20, 13:15 UTC (Claude Code).** S11DC 4676188–90 (H100); 156 queued.
+**Report byline removed — Oct 20, 13:23 UTC (Claude Code).**
+**D106 read — Oct 20, 14:39 UTC (Claude Code).** S11 stays headline.
+**Report v1-consistency — Oct 20, 16:12 UTC (Claude Code).** figures 1/4/5/7 switched to Translator-v1; text aligned; pdf copied.
+**C1 vs SYN1 clarification — Oct 20, 16:45 UTC (Claude Code).** Namespace diff confirmed: only the twin folder differs.
+**Dr. Ye Slack message — Oct 20, 16:54 UTC (Claude Code).** numbers re-verified; C1-vs-BRSET wording corrected.
+**New-eye question — Oct 20, 16:59 UTC (Claude Code).** answered from D091/D093/D097/D102/D105 records.
+**Venue options — Oct 20, 17:03 UTC (Claude Code).** web-checked 2027 deadlines and ISBI dual-submission rule.
+**Slack message final + C6v3 wording fix — Oct 20, 17:11 UTC (Claude Code).**
+**BRSET + new eyes question — Oct 20, 17:26 UTC (Claude Code).** configs verified from labels.csv + logs.
+**Self-training claim check — Oct 20, 17:34 UTC (Claude Code).**
+**Baselines + message review — Oct 20, 17:45 UTC (Claude Code).** CycleGAN gap identified.
+**D107 CycleGAN registration — Oct 20, 18:39 UTC (Claude Code).** smoke 4677885–86.
+**D107 launch — Oct 20, 18:42 UTC (Claude Code).** 157/158/159/160 scripts; jobs 4677888–912.
+**D107a — Oct 20, 18:49 UTC (Claude Code).** s1/s2 retrain 4677914–15.
+**ISBI paper workflow — Oct 20, 19:34 UTC (Claude Code).** wf_728c0992-241.
+**Paper workflow resumed — Oct 20, 20:05 UTC (Claude Code).**
+**Paper review findings + EVIDENCE corrections — Oct 20, 20:44 UTC (Claude Code).**
+**Paper status + Fig. 2 fix — Oct 20, 21:07 UTC (Claude Code).**
+**Extra stats submitted — Oct 20, 21:16 UTC (Claude Code).** 4678312–13.
+**D108 stats result — Oct 20, 21:17 UTC (Claude Code).**
+**D109 registration — Oct 20, 21:22 UTC (Claude Code).**
+**D109 launch — Oct 20, 21:23 UTC (Claude Code).** 4678314–15, 4678332.
+**Paper round 1 done — Oct 20, 21:40 UTC (Claude Code).**
+**Status check — Oct 21, 00:15 UTC (Claude Code).**
+**4-page workflow — Oct 21, 00:52 UTC (Claude Code).** wf_329c8800-586.
+**Plain CycleGAN validation look — Oct 21, 01:08 UTC (Claude Code).**
+**Dr. Ye feedback integrated — Oct 21, 02:08 UTC (Claude Code).**
+**D107 read — Oct 21, 03:16 UTC (Claude Code).**
+**D109 result + EVIDENCE §11 — Oct 21, 12:26 UTC (Claude Code).**
+**Final integration workflow — Oct 21, 12:28 UTC (Claude Code).** wf_f927ac84-9b3.
+**Dr. Ye template port — Oct 21, 13:01 UTC (Claude Code).**
+**Affiliation + resume — Oct 21, 13:07 UTC (Claude Code).**
+**Mega knowledge doc started — Oct 21, 13:25 UTC (Claude Code).**
+**Mega knowledge doc assembled — Oct 21, 13:48 UTC (Claude Code).**
+
+**Final-integration workflow resumed — Oct 21, 14:30 UTC (Claude Code).** wf_f927ac84-9b3 resumed after the session limit; 10 completed agents cached, attack/revise/audit/final stages re-running on paper_D.
+
+**Attack round on paper_D complete — Oct 21, 14:59 UTC (Claude Code).** 5x weak accept, evidence auditor FAIL (1 major), info-loss PASS; revise in progress.
+
+**Code walkthrough guide + workflow resume — Oct 21, 15:09 UTC (Claude Code).**
+
+**Final writer resumed — Oct 21, 16:07 UTC (Claude Code).**
+
+**Final ISBI draft delivered — Oct 21, 16:25 UTC (Claude Code).** paper_isbi_final 4 pages both engines; visual check passed; EVIDENCE -0.029 -> -0.028 corrected.
+
+**Dr. Ye meeting directives + v2 paper workflow — Oct 21, 17:36 UTC (Claude Code).** Page rule now 4+1; authors changed (UST + GSU); new Fig. 1 architecture with intermediate images.
+
+**v2 workflow resumed; Fig. 1 visually checked — Oct 21, 18:32 UTC (Claude Code).**
+
+**D110 moved to H100/A100; v2 workflow resumed — Oct 21, 19:08 UTC (Claude Code).**
+
+**v2 workflow + D110 watcher resumed — Oct 21, 20:37 UTC (Claude Code).** Critics on V2: 4 weak accept, 2 borderline; revise in progress.
+
+**D110 read — Oct 21, 22:46 UTC (Claude Code).** 5-seed self-training complete; numbers into EVIDENCE §11.
+
+**v2 workflow resumed with D110 numbers + accept-push phase — Oct 21, 22:48 UTC (Claude Code).**
+
+**Grade-1 ceiling corrected (0.833 incl. self-training variants) — Oct 22, 00:08 UTC (Claude Code).**
+
+**Polish writer resumed — Oct 22, 01:38 UTC (Claude Code).**
+
+**v2 paper final checked and delivered — Oct 22, 01:48 UTC (Claude Code).**
+
+**Title A + PhoneTwin + AI wording decided; figure rework — Oct 22, 02:36 UTC (Claude Code).**
+
+**v3 figure/title polish workflow launched — Oct 22, 03:01 UTC (Claude Code).**
+
+**v3 workflow resumed; Overleaf packager ready — Oct 22, 03:08 UTC (Claude Code).**
+
+**v3 revise resumed — Oct 22, 04:08 UTC (Claude Code).**
+
+**v3 final checked, PDF + Overleaf zip delivered — Oct 22, 04:27 UTC (Claude Code).**
+
+**Final fresh-eyes review of v3 launched — Oct 22, 11:42 UTC (Claude Code).**
+
+**User decisions applied in v4 (AI line out, Table 1 bold) — Oct 22, 11:53 UTC (Claude Code).**
+
+**v4 round 1 verified; round 2 (reviewer fixes) running — Oct 22, 12:03 UTC (Claude Code).**
+
+**Round-2 agent stopped at session end (backups only, no edits); resumed — Oct 22, 12:10 UTC (Claude Code).**
+
+**D111 registered; smoke test shows camera token is ignored from raw start; gate measurement running; v4 round 2 done — Oct 22, 12:35 UTC (Claude Code).**
+
+**v4 PDF + Overleaf zip delivered; D111 gate measurement running — Oct 22, 12:36 UTC (Claude Code).**
+
+**D111 gate result (token carries the phone look: 40.5% vs 4.0%); amended D111 chain submitted (renders, checks, 10 classifiers, read-out) — Oct 22, 12:58 UTC (Claude Code).**
+
+**Chain confirmed running after session end; v5 prep agent launched — Oct 22, 13:10 UTC (Claude Code).**
+
+**Drafted Slack DM to Dr. Ye (v4 PDF + Overleaf link; red items; AI-disclosure question) — Oct 22, 13:22 UTC (Claude Code).**
+
+**v4 checked against all of Dr. Ye's feedback; his takeaway line restored; deliverables rebuilt — Oct 22, 13:47 UTC (Claude Code).**
+
+**D112 (5 seeds for phone-only and +1,000 labels) submitted with chained read-out — Oct 22, 13:59 UTC (Claude Code).**
+
+**Session end: runs unaffected; v5 agent resumed; watcher restarted — Oct 22, 14:07 UTC (Claude Code).**
+
+**v5 prep finished (fill script tested on all readings); runs on track — Oct 22, 14:29 UTC (Claude Code).**
+
+**Status check: runs on track, watcher restarted — Oct 22, 15:27 UTC (Claude Code).**
+
+**Dr. Ye round-1 review: D113 FOV-FDA rerun submitted; revision workflow launched — Oct 22, 16:16 UTC (Claude Code).**
+
+**D111 read: tabletop-target controls comparable to twins (registered reading) — Oct 22, 16:22 UTC (Claude Code).**

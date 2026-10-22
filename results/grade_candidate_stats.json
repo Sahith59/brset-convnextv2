@@ -1,0 +1,60 @@
+{
+  "per_grade": {
+    "0": {
+      "n_images": 40,
+      "cand_mean": 607.675,
+      "cand_sd": 175.2906711008889,
+      "cand_p25": 465.0,
+      "cand_p50": 612.0,
+      "cand_p75": 800.0,
+      "peak_p50": 0.023529410362243652,
+      "peak_p25": 0.0196077823638916,
+      "peak_p75": 0.04313725233078003,
+      "area_p50": 4.0,
+      "area_p25": 2.0,
+      "area_p75": 14.0
+    },
+    "1": {
+      "n_images": 40,
+      "cand_mean": 727.1,
+      "cand_sd": 126.17444273702976,
+      "cand_p25": 681.75,
+      "cand_p50": 800.0,
+      "cand_p75": 800.0,
+      "peak_p50": 0.027451038360595703,
+      "peak_p25": 0.019607901573181152,
+      "peak_p75": 0.043137311935424805,
+      "area_p50": 6.0,
+      "area_p25": 2.0,
+      "area_p75": 16.0
+    },
+    "2": {
+      "n_images": 40,
+      "cand_mean": 607.775,
+      "cand_sd": 183.4346596884024,
+      "cand_p25": 465.25,
+      "cand_p50": 600.5,
+      "cand_p75": 800.0,
+      "peak_p50": 0.027450978755950928,
+      "peak_p25": 0.019607841968536377,
+      "peak_p75": 0.04313725233078003,
+      "area_p50": 5.0,
+      "area_p25": 2.0,
+      "area_p75": 16.0
+    }
+  },
+  "detector": {
+    "n": 40,
+    "grades": "0,1,2",
+    "presize": 560,
+    "size": 512,
+    "line_len_frac": 0.017,
+    "n_orient": 8,
+    "h_abs": 0.012,
+    "k_rel": 3.0,
+    "h_floor": 0.004,
+    "max_cand": 800,
+    "seed": 0,
+    "out": "/home/users/sthummala2/brset-convnextv2/results/grade_candidate_stats.json"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "synth_grid.png": {
+    "source": "/home/users/sthummala2/brset-convnextv2/report/figures/look_gen_both_step40000.png",
+    "rows_grades": [
+      1,
+      3,
+      4
+    ],
+    "cols": [
+      "BRSET original",
+      "physics+diffusion gen_both 40k",
+      "real mBRSET (different eye)"
+    ]
+  },
+  "structure_strip.png": {
+    "source": "/data/users3/sthummala2/brset_gen/runs/gen_both/panels/step_0040000.png",
+    "row": "first BRSET monitoring image (row 4 of 6)",
+    "size": [
+      768,
+      256
+    ]
+  }
+}
