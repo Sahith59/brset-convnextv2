@@ -278,3 +278,63 @@ Allocated report build4411098 completed0:0. Living DOCX/PPTX and dedicated Dong 
 **Dr. Ye round-1 review: D113 FOV-FDA rerun submitted; revision workflow launched — Oct 22, 16:16 UTC (Claude Code).**
 
 **D111 read: tabletop-target controls comparable to twins (registered reading) — Oct 22, 16:22 UTC (Claude Code).**
+
+**Workflow resumed after session end; branch pushed by user — Oct 22, 17:06 UTC (Claude Code).**
+
+**Dr. Ye revision pass complete; results-integration workflow launched — Oct 22, 18:03 UTC (Claude Code).**
+
+**v5 revision for Dr. Ye delivered (all results integrated; verifier PASS) — Oct 22, 19:55 UTC (Claude Code).**
+
+**Status check: v5 complete, submission PDF checks pass — Oct 22, 20:24 UTC (Claude Code).**
+
+**Final version (Messidor-2 licence accepted; no red items) — Oct 23, 03:37 UTC (Claude Code).**
+
+**Dr. Ye round-2 small fixes applied; final PDF + zip rebuilt — Oct 23, 14:48 UTC (Claude Code).**
+
+**Shareef review: restructure + abstract workflow launched — Oct 23, 16:15 UTC (Claude Code).**
+
+**Shareef revision applied (structure + new abstract); independent verifier running — Oct 23, 20:33 UTC (Claude Code).**
+
+**Shareef revision final (verifier PASS); PDF + Overleaf zip delivered — Oct 23, 20:46 UTC (Claude Code).**
+
+**Future-work heading added; end-to-end check PASS; final PDF + zip — Oct 23, 23:28 UTC (Claude Code).**
+
+**Dr. Ye's abstract applied; Overleaf bib problem diagnosed; final PDF + zip — Oct 26, 00:07 UTC (Claude Code).**
+
+**v6 de-slop workflow launched (deadline now 2 Nov) — Oct 27, 13:30 UTC (Claude Code).**
+
+**v6 writer resumed from its draft — Oct 27, 15:53 UTC (Claude Code).**
+
+**v6 workflow split into short section jobs and resumed — Oct 27, 16:07 UTC (Claude Code).**
+
+**v6 resumed at g4 — Oct 27, 17:18 UTC (Claude Code).**
+
+**v6 critic round 1 done; fix round 1 resumed — Oct 27, 18:32 UTC (Claude Code).**
+
+**v6 fix round 1 resumed at g3 — Oct 27, 19:04 UTC (Claude Code).**
+
+**v6 round 2 critics done (reviewer + numbers pass); fix round 2 resumed — Oct 27, 20:25 UTC (Claude Code).**
+
+**v6 fix round 2 resumed at g4 — Oct 27, 21:47 UTC (Claude Code).**
+
+**v6 number diet added; workflow resumed — Oct 27, 21:49 UTC (Claude Code).**
+
+**v6 Results rewritten directly; 5-critic review launched — Oct 27, 22:16 UTC (Claude Code).**
+
+**v6 critic fixes applied; final verifier running — Oct 27, 22:35 UTC (Claude Code).**
+
+**v6 de-slopped paper final and delivered (verifier fixes applied) — Oct 27, 22:53 UTC (Claude Code).**
+
+**v6 confirmed by all five critics; final PDF + zip — Oct 28, 13:34 UTC (Claude Code).**
+
+**v6 Overleaf upload, content-loss and requirements check — Oct 28, 16:22 UTC (Claude Code).**
+
+**Q3 check-in talking points drafted (no paper or code changes) — Nov 5, 14:30 UTC (Claude Code).**
+
+**New direction: deep research toward a methods paper launched — Nov 5, 14:49 UTC (Claude Code).**
+
+**Deep research (8 researchers + writer) finished; methods-paper plan delivered — Nov 5, 19:39 UTC (Claude Code).**
+
+**World-model research round (4 researchers + writer) finished; merged plan delivered — Nov 8, 00:47 UTC (Claude Code).**
+
+**Memory updated; D114 recorded (methods-paper phase, strict rule, split roles, first batch) — Nov 8, 01:07 UTC (Claude Code).**

@@ -1,10 +1,30 @@
 # WORKING MEMORY
 
 Live state of the ISBI push. Plan of record is `report/PLAN_v2.md`.
-**Last updated: 14 October 2026, 01:30.** Update whenever a run lands or a
+**Last updated: 01:07 UTC, 8 Nov 2026.** Update whenever a run lands or a
 decision is made; first thing to read when resuming.
 
 **Deadline: ISBI 2027, 26 October 2026. 14 days out.**
+
+---
+
+## READ FIRST (01:07 UTC, 8 Nov 2026) — supersedes every block below
+
+- **ISBI 2027 analysis paper SUBMITTED** (EDAS #1571373528). Final PDF:
+  `report/reference_isbi2027/FINAL_FOR_DR_YE/ISBI2027_PhoneStyleTwins_v6_final_2026-10-28.pdf`.
+- **New phase: methods paper on mild DR (grade 1) with zero phone labels.** Plan of record for this phase:
+  `report/reference_methods/reports/World models for mild DR transfer.md` (merged ladder; builds on
+  `Closing the mild DR phone gap.md`). Both git-ignored. Decision row D114.
+- **Authorized 8 Nov (user):** (1) `--skip_test` trainer flag; (2) D114 strict rule; (3) cheap experiments
+  0a (grader-threshold test on saved predictions), 1a (phone vs BRSET noise spectrum at microaneurysm
+  scale), 2a+2c (sham-paired microaneurysm insertion: lesion-response gate + lesion-survival audit).
+  All through Slurm. Dr. Ye not yet briefed: the user will ask for the content later.
+- **Key facts:** appearance is spent (D111: 40.5% -> 4.0% called phone, same AUROC); input resolution never
+  changed (560 px, microaneurysm 1.3-2.6 px); 732 test set = development data from now on (~115 reads);
+  fresh evaluation = mBRSET train split (899 patients, 187 grade-1), cross-fitted, read once.
+- **Assets:** 251 checkpoints + 254 saved prediction sets in `/data/users3/sthummala2/brset_gen/cls_runs`.
+- **Repo:** push `isbi2027-paper` only; never `main` (holds the old per-image commit). User makes the repo
+  private after the 8 Nov push.
 
 ---
 
